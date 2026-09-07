@@ -2190,17 +2190,40 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const legal = { ...clone(INITIAL_STORE.legal), ...((data.cfg && data.cfg.legal) || {}) };
       const products = (data.products || []).filter((item) => item.active)
         .map(({ wholesalePrice, costPrice, barcode, ...product }) => product);
-      mtPub.doc = { settings, content, legal, products };
+      mtPub.doc = { settings, content, legal, products, mp: data.mp_ok === true };
       mtPub.t = Date.now();
       return mtPub.doc;
     }
     if (data && data.error && data.error !== 'store_not_found') return { blocked: data.error };
     return null;
   }
+  async function mtCheckMpReturn() {
+    try {
+      const q = new URLSearchParams(location.search);
+      const st = q.get('collection_status') || q.get('status');
+      const pid = q.get('payment_id') || q.get('collection_id');
+      const ref = q.get('external_reference');
+      if (!st || !pid || !ref) return;
+      const slug = mtSlug();
+      if (!slug) return;
+      const r = await mtRpc('api_mp_confirm', { p_store: slug, p_order_id: ref, p_payment_id: pid });
+      const clean = location.origin + location.pathname + '?tienda=' + encodeURIComponent(slug);
+      try { history.replaceState(null, '', clean); } catch (_) {}
+      if (r && r.ok === true && r.status === 'approved') {
+        toast('Pago aprobado ✅', 'Tu pedido ' + ((r.order && r.order.number) || '') + ' quedó confirmado. ¡Gracias!');
+      } else if (r && r.ok === true) {
+        toast('Pago pendiente', 'Todavía no vemos el pago aprobado. Si ya pagaste, avisale al local con tu número de pedido.');
+      } else {
+        toast('No pudimos confirmar el pago', (r && r.error) || 'Avisale al local si ya pagaste.', 'error');
+      }
+      try { mtPub.doc = null; mtPub.t = 0; } catch (_) {}
+      loadStore({ silent: true });
+    } catch (_) {}
+  }
   async function mtCloudFetch(path, method, body, doc) {
     const slug = mtSlug();
     if (path === '/api/health') return result({ ok: true, mode: 'cloud', time: now() });
-    if (path === '/api/settings' && method === 'GET') return result({ ...publicSettings(doc.settings), content: doc.content });
+    if (path === '/api/settings' && method === 'GET') return result({ ...publicSettings(doc.settings), mercadoPagoMode: doc.mp ? 'live' : 'demo', content: doc.content });
     if (path === '/api/products' && method === 'GET') return result({ products: doc.products });
     if (path === '/api/legal' && method === 'GET') return result({ legal: doc.legal });
     if (path === '/api/newsletter' && method === 'POST') {
@@ -2236,6 +2259,19 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       });
       if (!r || r.ok !== true) return error((r && r.error) || 'No pudimos completar el pedido.', 409);
       const order = { ...r.order, items: (r.order.items || []).map(({ unitCost, ...item }) => item) };
+      if (r.paymentMode === 'live') {
+        const back = location.origin + location.pathname + '?tienda=' + encodeURIComponent(slug);
+        const pref = await mtRpc('api_mp_preference', { p_store: slug, p_order_id: r.order.id, p_back: back });
+        if (!pref || pref.ok !== true) {
+          return error('Tu pedido quedó reservado pero no pudimos abrir Mercado Pago: ' + ((pref && pref.error) || 'intentá de nuevo en un momento.'), 409);
+        }
+        return result({
+          order,
+          paymentMode: 'live',
+          checkoutUrl: pref.init_point || '',
+          whatsappUrl: ''
+        }, 201);
+      }
       return result({
         order,
         paymentMode: r.paymentMode,
@@ -2359,6 +2395,17 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!key) return error('Tu sesión venció. Volvé a entrar con tu Clave de acceso.', 401);
     if (path === '/api/admin/security/pin' && method === 'PUT')
       return error('En la nube tu acceso es la Clave que te entregó POPUPS. Si la perdés, escribinos y te damos una nueva.', 403);
+    if (path === '/api/admin/mp/status' && method === 'GET') {
+      const st = await mtRpc('api_mp_status', { p_store: slug, p_key: key });
+      if (!st || st.ok !== true) return error(cloudErrMsg(st) || 'No pudimos consultar el estado.', 400);
+      return result({ ok: true, connected: st.connected === true, nick: st.nick || '', tokenTail: st.token_tail || '' });
+    }
+    if (path === '/api/admin/mp' && method === 'POST') {
+      const act = body.action === 'clear' ? 'clear' : 'save';
+      const st = await mtRpc('api_mp_set', { p_store: slug, p_key: key, p_token: clean(body.token || '', 300), p_action: act });
+      if (!st || st.ok !== true) return error(cloudErrMsg(st) || 'No pudimos guardar la conexión.', 400);
+      return result({ ok: true, connected: st.connected === true, nick: st.nick || '' });
+    }
     if (path === '/api/admin/products' && method === 'POST') {
       if (clean(body.name, 100).length < 2) return error('Ingresá un nombre para el producto.');
       var r1 = await mtRpc('api_upsert_product', { p_store: slug, p_key: key, p: mtProdPayload(body) });
@@ -2448,6 +2495,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const path = url.pathname;
       const cloudSlug = mtSlug();
       if (cloudSlug && MT_SU) {
+        try { if (!window.__mtRetDone && /[?&](collection_status|status)=/.test(location.search)) { window.__mtRetDone = 1; mtCheckMpReturn(); } } catch (_) {}
         if (path.startsWith('/api/admin/')) {
           const admRes = await mtAdminRoutes(path, method, body);
           if (admRes) return admRes;
@@ -3442,7 +3490,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (state.admin.tab === 'settings') {
         if (state.admin.settingsView === 'appearance') return renderAdminAppearance((await api('/api/admin/settings', { admin: true })).settings);
         if (state.admin.settingsView === 'content') return renderAdminContent(await api('/api/admin/content', { admin: true }));
-        if (state.admin.settingsView === 'legal') { const [legalData, settingsData] = await Promise.all([api('/api/admin/legal', { admin: true }), api('/api/admin/settings', { admin: true })]); return renderAdminLegal(legalData.legal, settingsData.settings); }
+        if (state.admin.settingsView === 'payments') { if (!(typeof mtSlug === 'function' && mtSlug())) return renderAdminPayments({ ok: false, connected: false }, {}); const [mpData, settingsData] = await Promise.all([api('/api/admin/mp/status', { admin: true }), api('/api/admin/settings', { admin: true })]); state.admin.mp = mpData || {}; return renderAdminPayments(mpData, settingsData.settings); }
+      if (state.admin.settingsView === 'legal') { const [legalData, settingsData] = await Promise.all([api('/api/admin/legal', { admin: true }), api('/api/admin/settings', { admin: true })]); return renderAdminLegal(legalData.legal, settingsData.settings); }
         return renderAdminSettings(await api('/api/admin/settings', { admin: true }));
       }
     } catch (error) {
@@ -4507,7 +4556,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function settingsSubnav(active) {
-    return `<div class="settings-subnav" role="tablist" aria-label="Secciones de configuración"><button type="button" class="${active === 'general' ? 'active' : ''}" data-settings-view="general" role="tab" aria-selected="${active === 'general'}"><svg><use href="#i-settings"></use></svg><span><b>General</b><small>Marca, envíos e integraciones</small></span></button><button type="button" class="${active === 'appearance' ? 'active' : ''}" data-settings-view="appearance" role="tab" aria-selected="${active === 'appearance'}"><svg><use href="#i-eye"></use></svg><span><b>Apariencia</b><small>Paleta, contraste y estilos</small></span></button><button type="button" class="${active === 'content' ? 'active' : ''}" data-settings-view="content" role="tab" aria-selected="${active === 'content'}"><svg><use href="#i-edit"></use></svg><span><b>Contenido de página</b><small>Portada, textos y newsletter</small></span></button><button type="button" class="${active === 'legal' ? 'active' : ''}" data-settings-view="legal" role="tab" aria-selected="${active === 'legal'}"><svg><use href="#i-shield"></use></svg><span><b>Legal y redes</b><small>Políticas, contacto y enlaces</small></span></button></div>`;
+    return `<div class="settings-subnav" role="tablist" aria-label="Secciones de configuración"><button type="button" class="${active === 'general' ? 'active' : ''}" data-settings-view="general" role="tab" aria-selected="${active === 'general'}"><svg><use href="#i-settings"></use></svg><span><b>General</b><small>Marca, envíos e integraciones</small></span></button><button type="button" class="${active === 'appearance' ? 'active' : ''}" data-settings-view="appearance" role="tab" aria-selected="${active === 'appearance'}"><svg><use href="#i-eye"></use></svg><span><b>Apariencia</b><small>Paleta, contraste y estilos</small></span></button><button type="button" class="${active === 'content' ? 'active' : ''}" data-settings-view="content" role="tab" aria-selected="${active === 'content'}"><svg><use href="#i-edit"></use></svg><span><b>Contenido de página</b><small>Portada, textos y newsletter</small></span></button><button type="button" class="${active === 'payments' ? 'active' : ''}" data-settings-view="payments" role="tab" aria-selected="${active === 'payments'}"><svg><use href="#i-orders"></use></svg><span><b>Cobros</b><small>Mercado Pago del local</small></span></button><button type="button" class="${active === 'legal' ? 'active' : ''}" data-settings-view="legal" role="tab" aria-selected="${active === 'legal'}"><svg><use href="#i-shield"></use></svg><span><b>Legal y redes</b><small>Políticas, contacto y enlaces</small></span></button></div>`;
   }
 
   const palettePresets = {
@@ -4657,6 +4706,90 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       ${settingsSubnav('general')}
       <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section><section class="settings-card security-card"><h2>Seguridad</h2><p>Cambiá el código de acceso al panel. Debe tener entre 4 y 8 números.</p><div class="integration-card security-status"><span style="background:#252721"><svg><use href="#i-shield"></use></svg></span><div><b>Acceso protegido</b><small>${pinChangedAt ? `Último cambio: ${formatDate(pinChangedAt)}` : 'Contraseña inicial activa'}</small></div><span class="integration-state live">Activo</span></div><div class="security-fields"><label class="field"><span>PIN actual</span><input name="currentPin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" autocomplete="current-password" placeholder="••••"></label><label class="field"><span>Nuevo PIN</span><input name="newPin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" autocomplete="new-password" placeholder="4 a 8 números"></label><label class="field"><span>Repetir nuevo PIN</span><input name="confirmPin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" autocomplete="new-password" placeholder="Repetí el código"></label></div><small class="security-note"><svg><use href="#i-shield"></use></svg> El PIN nunca se muestra en ninguna pantalla pública de la tienda.</small></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>`;
   }
+
+  function renderAdminPayments(mpData, settings) {
+    const mp = mpData || {};
+    const s = settings || {};
+    const isCloudOwner = (typeof mtSlug === 'function') && Boolean(mtSlug()) && Boolean(mtAdmKey());
+    if (!isCloudOwner) {
+      $('adminContent').innerHTML = `
+        ${adminPageHead('Configuración', 'Cobros con Mercado Pago', 'Conectá la cuenta del local para cobrar con tarjeta')}
+        ${settingsSubnav('payments')}
+        <div class="admin-empty"><span>!</span><h3>Disponible en tu tienda en la nube</h3><p>Esta sección se habilita cuando tu tienda está activa en la nube (con plan y clave de POPUPS). Acá, en la demo local, Mercado Pago sigue en modo demostración.</p></div>`;
+      return;
+    }
+    $('adminContent').innerHTML = `
+      ${adminPageHead('Configuración', 'Cobros con Mercado Pago', 'Conectá la cuenta del local para cobrar con tarjeta y débito', mp.connected ? '<span class="live-pill" style="background:rgba(36,122,74,.14);color:#247a4a;border-color:#247a4a33"><i></i> Conectado</span>' : '')}
+      ${settingsSubnav('payments')}
+      <div class="settings-layout"><div>
+        <section class="settings-card"><h2>Estado de la conexión</h2>
+          <div class="mp-status ${mp.connected ? 'ok' : ''}" style="display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--paper)">
+            <div style="font-size:22px">${mp.connected ? '🟢' : '⚪'}</div>
+            <div style="flex:1">
+              ${mp.connected
+                ? `<b style="display:block">Mercado Pago conectado${mp.nick ? ' · ' + esc(mp.nick) : ''}</b><small style="color:var(--ink-soft)">Las ventas entran directo a la cuenta del local${mp.tokenTail ? ' · token terminado en …' + esc(mp.tokenTail) : ''}.</small>`
+                : `<b style="display:block">Todavía no conectaste Mercado Pago</b><small style="color:var(--ink-soft)">Sin conexión, tus clientes solo pueden pagarte por WhatsApp o en persona.</small>`}
+            </div>
+          </div>
+          <p style="color:var(--ink-soft);font-size:13px;line-height:1.6;margin:12px 0 0">💰 <b style="color:var(--ink)">El dinero entra directo a tu cuenta</b> — POPUPS no cobra tus ventas ni las toca (solo tu mensualidad de la tienda). Mercado Pago te descuenta su comisión habitual y te transfiere el resto.</p>
+        </section>
+
+        <section class="settings-card"><h2>Conectá tu cuenta (5 pasos · 10 minutos)</h2>
+          <ol class="mp-steps" style="margin:0;padding-left:20px;display:grid;gap:8px;color:var(--ink);font-size:14px;line-height:1.5">
+            <li>Si todavía no tenés cuenta, creala gratis en <b>mercadopago.com.ar</b> (la que ya usás para cobrar está bien).</li>
+            <li>Entrá a <a href="https://www.mercadopago.com.ar/developers/panel/app" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">developers.mercadopago.com.ar</a> con esa misma cuenta.</li>
+            <li>Tocá <b>“Crear aplicación”</b> → poné como nombre <b>“Mi-Tienda”</b> (o el nombre de tu local) → elegí el tipo <b>Ventas / Checkout Pro</b>.</li>
+            <li>En “Credenciales de producción” copiá tu <b>Access Token</b> (empieza con <b>APP_USR-</b>). ⚠️ No compartas esta clave con nadie.</li>
+            <li>Pegala abajo y tocá <b>Guardar y probar</b>. Si Mercado Pago te pide completar tus datos para habilitar cobros, seguí sus pasos y listo.</li>
+          </ol>
+        </section>
+
+        <section class="settings-card"><h2>Guardar mi Access Token</h2>
+          <form id="mpForm"><div class="field"><span>Access Token (APP_USR-…)</span>
+            <input name="token" type="password" autocomplete="off" spellcheck="false" placeholder="APP_USR-00000000-0000-0000-0000-000000000000" style="font-family:ui-monospace,monospace" ${mp.connected ? 'value="••••••••••••••••"' : ''}>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+            <button class="button button-dark" type="submit">${mp.connected ? 'Actualizar token' : 'Guardar y probar'} <svg><use href="#i-check"></use></svg></button>
+            ${mp.connected ? '<button class="button button-light" type="button" id="mpClearButton">Desconectar</button>' : ''}
+          </div>
+          <p class="form-error" id="mpFormError" style="margin-top:8px"></p></form>
+          <p style="color:var(--ink-soft);font-size:12.5px;margin:12px 0 0;line-height:1.5">🔒 Tu token se guarda cifrado dentro de la base del local (en la nube de Mi-Tienda) y solo se usa para crear el cobro cuando un cliente paga. Si alguna vez se filtra, regeneralo en Mercado Pago y volvé a guardarlo acá.</p>
+        </section>
+
+        <section class="settings-card"><h2>¿Cómo funciona el cobro?</h2>
+          <p style="color:var(--ink-soft);font-size:13.5px;line-height:1.65;margin:0">Cuando un cliente elige <b>“Mercado Pago”</b> al comprar, se arma un pago seguro de Mercado Pago y el cliente completa el pago ahí (tarjeta, débito o dinero en cuenta). Al aprobarse, el pedido aparece <b>Confirmado</b> en tu panel con el comprobante, el stock se descuenta solo y el dinero queda en tu cuenta de Mercado Pago. Si preferís que tus clientes no vean la opción de tarjeta, desactivá “Mercado Pago” desde General.</p>
+        </section>
+      </div></div>`;
+    const form = $('mpForm');
+    if (form) form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const btn = form.querySelector('button[type="submit"]');
+      const err = $('mpFormError');
+      err.textContent = '';
+      btn.disabled = true;
+      const token = form.elements.token.value.trim();
+      try {
+        if (mp.connected && (!token || token.includes('•'))) throw new Error('Pegá el Access Token nuevo para actualizarlo.');
+        if (!/^APP_USR-/.test(token)) throw new Error('Ese no parece un Access Token de producción: tiene que empezar con APP_USR-.');
+        const res = await api('/api/admin/mp', { admin: true, method: 'POST', body: JSON.stringify({ action: 'save', token }) });
+        toast('Mercado Pago conectado ✅', res.nick ? `Cuenta: ${res.nick}. Ya podés cobrar con tarjeta.` : 'Ya podés cobrar con tarjeta.');
+        loadAdminTab(false);
+      } catch (error) {
+        err.textContent = error.message;
+        btn.disabled = false;
+      }
+    });
+    const clr = $('mpClearButton');
+    if (clr) clr.addEventListener('click', async () => {
+      if (!confirm('¿Desconectar Mercado Pago? Tus clientes dejarán de ver la opción de pagar con tarjeta.')) return;
+      try {
+        await api('/api/admin/mp', { admin: true, method: 'POST', body: JSON.stringify({ action: 'clear' }) });
+        toast('Mercado Pago desconectado');
+        loadAdminTab(false);
+      } catch (error) { toast('No se pudo desconectar', error.message, 'error'); }
+    });
+  }
+
 
   async function saveSettings(event) {
     event.preventDefault();

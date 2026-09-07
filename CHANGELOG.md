@@ -24,3 +24,9 @@
 - **Límite del plan aplicado de verdad**: al llegar al cupo de su plan (25/50/100/200), la base rechaza el producto siguiente con un mensaje claro. La barra del plan en el panel muestra cuánto lleva (ej: "vas 4 de 50 productos"), **avisa al 80% del cupo** y recuerda el vencimiento del pago, con el contacto de POPUPS para subir de plan.
 - Cambios de plan, bloqueos y bajas que hagas desde la Consola se reflejan al instante en el panel del dueño (la demo @juan y @mariela ya están migradas con sus claves `juan-demo` y `mariela-demo`).
 - Los pedidos entrantes, compras del newsletter y finanzas se guardan en la nube con el stock validado en la base.
+
+## v0.6.0 · 2026-09-07
+- **Cobros con Mercado Pago de verdad (por dueño)**: cada local conecta SU cuenta de Mercado Pago desde Ajustes → **Cobros**, con un paso a paso de 5 pasos (crear app en developers.mercadopago.com.ar → copiar el Access Token `APP_USR-` → pegarlo y probar). POPUPS no toca el dinero: las ventas entran directo a la cuenta del local.
+- **Checkout real (Checkout Pro)**: cuando el local tiene su Mercado Pago conectado, el cliente paga con tarjeta/débito/dinero en cuenta en la página segura de Mercado Pago; al aprobarse, el pedido pasa a **Confirmado** solo, se registra la venta en finanzas y el stock ya se había reservado. Si el pago queda pendiente, el pedido queda "Esperando pago" para que el local lo gestione.
+- El token se guarda cifrado en la nube del local (nunca viaja al navegador del cliente) y se puede actualizar o desconectar cuando quiera. La demo local (sin plan) sigue en modo demostración.
+- Requiere correr el esquema SQL actualizado (sección Mercado Pago) una vez.
