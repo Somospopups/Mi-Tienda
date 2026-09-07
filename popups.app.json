@@ -17,7 +17,6 @@
     "color": "#D9633C"
   },
   "admin": {
-    "mode": "embed",
-    "url": "https://somospopups.github.io/Mi-Tienda/#admin"
+    "mode": "clientes"
   }
 }
