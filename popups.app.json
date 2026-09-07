@@ -1,0 +1,19 @@
+{
+  "slug": "mi-tienda",
+  "name": "Mi-Tienda",
+  "tagline": "Tienda online con panel de gestión completo para comercios, con datos en la nube y link propio para cada cliente.",
+  "category": "ecommerce",
+  "status": "demo",
+  "version": "0.1.0",
+  "versionDate": "2026-09-07",
+  "urls": {
+    "site": "https://somospopups.github.io/Mi-Tienda/",
+    "admin": "",
+    "repo": "https://github.com/Somospopups/Mi-Tienda",
+    "docs": ""
+  },
+  "supabaseRef": "",
+  "brand": {
+    "color": "#D9633C"
+  }
+}
