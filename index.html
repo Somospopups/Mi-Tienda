@@ -1197,6 +1197,41 @@ body:has(.share-price-fab) .toast-region { bottom: 101px; }
 }
 
 </style>
+<script>
+  (function () {
+    /* Puerta POPUPS: si esta tienda está suspendida (por falta de pago),
+       la página entera muestra el cartel y no vende. */
+    try {
+      var p = new URLSearchParams(location.search).get('tienda');
+      if (!p) return;
+      var raw = localStorage.getItem('popups_console_v1');
+      var t = null;
+      if (raw) {
+        try {
+          var d = JSON.parse(raw);
+          var list = d && d.clients && d.clients['mi-tienda'];
+          if (list) { for (var i = 0; i < list.length; i++) { if (list[i].id === p) { t = list[i]; break; } } }
+        } catch (e) {}
+      }
+      var ok = !raw; /* consola nunca abierta acá: no bloquear */
+      if (raw && list && t && t.status === 'activa' && t.paidUntil) {
+        var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+        var vc = new Date(t.paidUntil + 'T00:00:00');
+        ok = vc >= hoy;
+      }
+      if (!ok) {
+        var css = 'html,body{overflow:hidden!important;height:100%}' +
+          'body>*{display:none!important}' +
+          'body::before{content:"";position:fixed;inset:0;background:#0e100d;z-index:999999;display:block}' +
+          'body::after{content:"🔒 Esta tienda está suspendida\\A\\ASi ya abonaste, avisale a POPUPS y la reactivamos al toque.\\Asomospopups@gmail.com";position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;color:#f2efe7;font:600 17px/1.7 system-ui,sans-serif;white-space:pre-wrap}';
+        var s = document.createElement('style');
+        s.id = 'mt-gate';
+        s.textContent = css;
+        document.head.appendChild(s);
+      }
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true">
