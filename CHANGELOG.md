@@ -1,3 +1,9 @@
+## v0.7.0 · 2026-09-07
+- **Fix crítico en la web publicada**: el panel del dueño no cargaba desde la nube (`ReferenceError: loadAdminTab is not defined`). El puente de la barra de plan había quedado dentro del primer script del bundle, donde esas funciones no existen; se rehízo como puente entre scripts (`window.mtCloudGlue`) y la tienda vuelve a operar en línea: vitrina, login con Clave de acceso, panel y edición desde la nube.
+- **Barra del plan reparada**: ahora sí se muestra en el panel (plan, uso de productos y vencimiento) tanto en la web publicada como en local.
+- **Guía de bienvenida en PDF (botón "Guía (PDF)" en el panel)**: descarga un PDF con el link de la tienda, la clave de acceso, el plan y su vencimiento, más instrucciones ilustradas con capturas reales de la web (catálogo, login, panel, productos, pedidos y cobros con Mercado Pago). El PDF se genera con los datos del dueño en el momento.
+- Se corrige también el ícono y la posición del botón junto a "Ver tienda" y "Cerrar sesión" (escritorio y celular).
+
 # Changelog — Mi-Tienda
 
 ## v0.2.0 · 2026-09-07

@@ -1529,7 +1529,7 @@ body:has(.share-price-fab) .toast-region { bottom: 101px; }
           <button data-admin-tab="finance"><svg><use href="#i-finance"></use></svg><span>Finanzas</span></button>
           <button data-admin-tab="settings"><svg><use href="#i-settings"></use></svg><span>Configuración</span></button>
         </nav>
-        <div class="admin-sidebar-bottom"><button id="viewStore"><svg><use href="#i-external"></use></svg><span>Ver tienda</span></button><button id="logoutButton"><svg><use href="#i-user"></use></svg><span>Cerrar sesión</span></button></div>
+        <div class="admin-sidebar-bottom"><button id="viewStore"><svg><use href="#i-external"></use></svg><span>Ver tienda</span></button><button id="guidePdfButton"><svg><use href="#i-orders"></use></svg><span>Guía (PDF)</span></button><button id="logoutButton"><svg><use href="#i-user"></use></svg><span>Cerrar sesión</span></button></div>
       </aside>
       <header class="admin-mobile-header"><button id="adminMenuButton"><svg><use href="#i-menu"></use></svg></button><div class="admin-logo"><span data-brand>LUMA</span><small>ADMIN</small></div><button id="adminMobileStore"><svg><use href="#i-external"></use></svg></button></header>
       <main class="admin-main"><div id="adminContent" class="admin-content"><div class="admin-loader"><i></i><span>Preparando tu panel…</span></div></div></main>
@@ -2186,6 +2186,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const data = await mtRpc('api_public', { p_store: slug });
     if (data && data.ok === true) {
       const settings = { ...clone(INITIAL_STORE.settings), ...((data.cfg && data.cfg.settings) || {}) };
+      if (!((data.cfg && data.cfg.settings) || {}).brandName && data.biz) settings.brandName = String(data.biz).slice(0, 30);
       const content = { ...clone(INITIAL_STORE.content), ...((data.cfg && data.cfg.content) || {}) };
       const legal = { ...clone(INITIAL_STORE.legal), ...((data.cfg && data.cfg.legal) || {}) };
       const products = (data.products || []).filter((item) => item.active)
@@ -2316,6 +2317,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       finance: fin,
       subscribers: Array.isArray(cfg.subscribers) ? cfg.subscribers : []
     };
+    if (!(cfg.settings && cfg.settings.brandName) && d.biz) store.settings.brandName = String(d.biz).slice(0, 30);
     store.plan = (d.plan && typeof d.plan === 'object') ? Object.assign({}, d.plan, { id: d.plan_id }) : null;
     store.paidUntil = d.paid_until || null;
     origWriteStore(store);
@@ -2473,7 +2475,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     try {
       if (!mtSlug() || !MT_SU) return;
       if (!mtAdmKey()) return;
-      var sh = $('adminShell'), c = $('adminContent');
+      var sh = document.getElementById('adminShell'), c = document.getElementById('adminContent');
       if (!sh || !c || sh.hidden) return;
       var old = document.getElementById('mtPlanBar'); if (old) old.remove();
       var st = readStore(), plan = (mtAdm.doc && mtAdm.doc.plan) ? mtAdm.doc.plan : null;
@@ -2490,11 +2492,6 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       div.innerHTML = '<span>📋 ' + lbl + ' · ' + (typeof formatARS === 'function' ? formatARS(plan.price) : '$' + plan.price) + '/mes' + vence + ' · vas ' + n + ' de ' + max + ' productos ' + nota + '</span><a href="mailto:somospopups@gmail.com?subject=Necesito%20subir%20de%20plan" style="color:var(--acc);font-weight:700;text-decoration:none;white-space:nowrap">¿Más cupo? Escribinos →</a>';
       c.insertBefore(div, c.firstChild);
     } catch (_) { }
-  }
-  if (!window.__mtWrapped) {
-    window.__mtWrapped = true;
-    var origLat = loadAdminTab;
-    loadAdminTab = async function (showLoader) { await origLat(showLoader); mtPlanBar(); };
   }
 
   const nativeFetch = window.fetch.bind(window);
@@ -2837,6 +2834,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const quota = exception && exception.name === 'QuotaExceededError';
       return error(quota ? 'El almacenamiento local está lleno. Reiniciá la demo o usá imágenes más livianas.' : (exception.message || 'Error en la demo offline.'), 500);
     }
+  };
+
+  window.mtCloudGlue = {
+    slug: mtSlug,
+    key: mtAdmKey,
+    planBar: mtPlanBar,
+    doc: function () { return mtAdm ? mtAdm.doc : null; }
   };
 
 })();
@@ -3416,7 +3420,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('adminLogin').hidden = false;
     $('adminShell').hidden = true;
     let cloudLogin = false;
-    try { cloudLogin = typeof mtSlug === 'function' && Boolean(mtSlug()); } catch (_) {}
+    try { cloudLogin = !!(window.mtCloudGlue && window.mtCloudGlue.slug && window.mtCloudGlue.slug()); } catch (_) {}
     try {
       const lbl = $('loginForm').querySelector('label span');
       if (lbl) lbl.textContent = cloudLogin ? 'Clave de acceso (te la dio POPUPS)' : 'PIN de administrador';
@@ -3507,7 +3511,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (state.admin.tab === 'settings') {
         if (state.admin.settingsView === 'appearance') return renderAdminAppearance((await api('/api/admin/settings', { admin: true })).settings);
         if (state.admin.settingsView === 'content') return renderAdminContent(await api('/api/admin/content', { admin: true }));
-        if (state.admin.settingsView === 'payments') { if (!(typeof mtSlug === 'function' && mtSlug())) return renderAdminPayments({ ok: false, connected: false }, {}); const [mpData, settingsData] = await Promise.all([api('/api/admin/mp/status', { admin: true }), api('/api/admin/settings', { admin: true })]); state.admin.mp = mpData || {}; return renderAdminPayments(mpData, settingsData.settings); }
+        if (state.admin.settingsView === 'payments') { if (!(window.mtCloudGlue && window.mtCloudGlue.slug && window.mtCloudGlue.slug())) return renderAdminPayments({ ok: false, connected: false }, {}); const [mpData, settingsData] = await Promise.all([api('/api/admin/mp/status', { admin: true }), api('/api/admin/settings', { admin: true })]); state.admin.mp = mpData || {}; return renderAdminPayments(mpData, settingsData.settings); }
       if (state.admin.settingsView === 'legal') { const [legalData, settingsData] = await Promise.all([api('/api/admin/legal', { admin: true }), api('/api/admin/settings', { admin: true })]); return renderAdminLegal(legalData.legal, settingsData.settings); }
         return renderAdminSettings(await api('/api/admin/settings', { admin: true }));
       }
@@ -4727,7 +4731,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function renderAdminPayments(mpData, settings) {
     const mp = mpData || {};
     const s = settings || {};
-    const isCloudOwner = (typeof mtSlug === 'function') && Boolean(mtSlug()) && Boolean(mtAdmKey());
+    const isCloudOwner = !!(window.mtCloudGlue && window.mtCloudGlue.slug && window.mtCloudGlue.slug()) && /^ck:/.test(String(sessionStorage.getItem('luma_admin_token') || ''));
     if (!isCloudOwner) {
       $('adminContent').innerHTML = `
         ${adminPageHead('Configuración', 'Cobros con Mercado Pago', 'Conectá la cuenta del local para cobrar con tarjeta')}
@@ -4882,6 +4886,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('loginBack').addEventListener('click', closeAdmin);
     $('viewStore').addEventListener('click', closeAdmin);
     $('adminMobileStore').addEventListener('click', closeAdmin);
+    $('guidePdfButton').addEventListener('click', () => { if (typeof mtGuiaPdf === 'function') mtGuiaPdf(); });
     $('logoutButton').addEventListener('click', () => { invalidateAdminSession(); toast('Sesión cerrada'); });
     $('adminNav').addEventListener('click', (event) => { const button = event.target.closest('[data-admin-tab]'); if (button) setAdminTab(button.dataset.adminTab); });
     $('adminMenuButton').addEventListener('click', () => $('adminSidebar').classList.toggle('open'));
@@ -5096,6 +5101,191 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       }, 350);
     });
   }
+
+/* ===== v0.7: puente + barra de plan + guía PDF (script 2) ===== */
+const __latOrig = loadAdminTab;
+loadAdminTab = async function (sh) { await __latOrig(sh); try { const g = window.mtCloudGlue; if (g && g.planBar) g.planBar(); } catch (_) {} };
+
+function mtGuiaMoney(n) { return '$' + String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function mtGuiaDoc() { try { const g = window.mtCloudGlue || {}; return (typeof g.doc === 'function') ? (g.doc() || null) : (g.doc || null); } catch (_) { return null; } }
+function mtGuiaPlanName(p) {
+  const ids = { p25: 'Hasta 25 productos', p50: 'Hasta 50 productos', p100: 'Hasta 100 productos', pilim: 'Hasta 200 productos' };
+  return (p && p.id && ids[p.id]) || (p && p.max ? 'Hasta ' + p.max + ' productos' : 'Plan');
+}
+function mtGuiaSections() {
+  const doc = mtGuiaDoc();
+  const plan = (doc && doc.plan) ? doc.plan : null;
+  const planTxt = plan ? (mtGuiaPlanName(plan) + ' · ' + mtGuiaMoney(plan.price) + '/mes') : '—';
+  const vence = (doc && doc.paidUntil) ? doc.paidUntil : '—';
+  return {
+    planTxt, vence,
+    pages: [
+      { img: '1-catalogo', title: '1 · Tu tienda, en línea', lines: [
+        'Este link es tu vidriera: lo que cargues en el panel se publica solo, al toque.',
+        'Compartilo donde quieras: Instagram, WhatsApp, tarjetas, ferias.',
+        'Tus clientes ven los productos, los precios y pueden pedir por WhatsApp o con tarjeta (cuando conectes Mercado Pago).'
+      ] },
+      { img: '2-login', title: '2 · Entrá a tu panel', lines: [
+        'Abrí el link de tu tienda y tocá “Panel” (arriba a la derecha).',
+        'Escribí tu Clave de acceso y tocá “Ingresar al panel”.',
+        'Funciona igual desde el celular o la computadora: siempre el mismo link y la misma clave.'
+      ] },
+      { img: '3-panel', title: '3 · Tu panel de control', lines: [
+        'Arriba del todo ves tu plan: cuántos productos tenés cargados y hasta cuándo pagaste.',
+        'En “Ventas” seguís los pedidos que llegan y cuánto llevás facturado.',
+        'En “Productos” está tu catálogo; en “Clientes”, la gente que te compra; en “Finanzas”, tus cuentas.',
+        'Cuando uses el 80% de tu cupo, el panel te avisa para que subas de plan tranquilo.'
+      ] },
+      { img: '4-productos', title: '4 · Cargá y editá productos', lines: [
+        'Tocá “Nuevo producto”: nombre, precio, foto y stock. La foto se aligera sola (no pierde calidad y pesa poco).',
+        'Cada producto tiene botones para editarlo o pausarlo sin borrarlo.',
+        'Al llegar al límite de tu plan, la tienda avisa: se resuelve subiendo de plan (un mensaje y listo).',
+        'Consejo: las fotos con luz natural de día venden mucho más.'
+      ] },
+      { img: '5-pedidos', title: '5 · Pedidos y clientes', lines: [
+        'Cada compra aparece acá con el detalle completo y el stock se descuenta solo.',
+        'Si el cliente elige WhatsApp, el pedido te llega a tu WhatsApp para coordinar el pago.',
+        'Cambiá el estado del pedido (Confirmado → Listo → Completado) y quedará todo anotado.'
+      ] },
+      { img: '6-cobros', title: '6 · Cobrá con tarjeta (Mercado Pago)', lines: [
+        'Andá a Ajustes → Cobros: ahí está el paso a paso para conectar TU cuenta de Mercado Pago.',
+        'Solo necesitás tu Access Token (APP_USR-…): se crea gratis en developers.mercadopago.com.ar con la cuenta que ya usás para cobrar.',
+        'El dinero entra DIRECTO a tu cuenta. POPUPS no toca tus ventas, solo cobra tu plan.',
+        'Con Mercado Pago conectado, tus clientes pagan con tarjeta o débito y el pedido se confirma solo.'
+      ] }
+    ]
+  };
+}
+
+async function mtImgData(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const rd = new FileReader();
+      rd.onload = () => resolve(rd.result);
+      rd.onerror = reject;
+      rd.readAsDataURL(blob);
+    });
+  } catch (_) { return null; }
+}
+
+async function mtGuiaPdf() {
+  const g = (window.mtCloudGlue || {});
+  const slug = (g.slug && g.slug()) ? g.slug() : '';
+  if (!slug) { toast('La guía se genera desde tu tienda en línea', 'Abrila con tu link ?tienda=… y volvé a intentar.', 'error'); return; }
+  const clave = String(sessionStorage.getItem('luma_admin_token') || '').replace(/^ck:/, '');
+  const { jsPDF } = window.jspdf || {};
+  if (!jsPDF) { toast('El generador de PDF no está disponible', 'Recargá la página e intentá de nuevo.', 'error'); return; }
+  const secc = mtGuiaSections();
+  const link = location.origin + location.pathname + '?tienda=' + encodeURIComponent(slug);
+  const biz = state.settings.brandName || 'Mi tienda';
+  const dueño = (mtGuiaDoc() && mtGuiaDoc().owner) || (state.settings.brandName || '');
+
+  try { await Promise.all(secc.pages.map((p) => mtImgData('guia/' + p.img + '.jpg').then((d) => { p._img = d; }))); } catch (_) {}
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const W = 210, H = 297, MX = 14;
+  let y = 0;
+  const lineH = 5.6;
+  const ink = [33, 35, 32], mut = [95, 98, 92], crema = [252, 250, 246], panel = [244, 239, 230];
+  const acc = [26, 24, 21], verde = [36, 122, 74];
+
+  // ---------- PORTADA ----------
+  pdf.setFillColor(20, 22, 18); pdf.rect(0, 0, W, 96, 'F');
+  pdf.setTextColor(247, 244, 238); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(11);
+  pdf.text('POPUPS  ·  MI-TIENDA', MX, 20);
+  pdf.setFontSize(23);
+  pdf.text('¡Bienvenido!', MX, 44);
+  pdf.text('Tu tienda ya está en línea.', MX, 54);
+  pdf.setFont('helvetica', 'normal'); pdf.setFontSize(11.5); pdf.setTextColor(210, 205, 193);
+  pdf.text(biz, MX, 70);
+  pdf.setFontSize(9.5); pdf.text('Guía de acceso y uso · ' + new Date().toLocaleDateString('es-AR'), MX, 78);
+  // tarjeta de datos
+  pdf.setFillColor(252, 250, 246); pdf.rect(MX, 108, W - MX * 2, 128, 'F');
+  pdf.setDrawColor(224, 222, 216); pdf.setFillColor(244, 239, 230); pdf.roundedRect(MX, 108, W - MX * 2, 128, 4, 4, 'FD');
+  pdf.setTextColor(ink[0], ink[1], ink[2]);
+  pdf.setFontSize(13); pdf.setFont('helvetica', 'bold'); pdf.text('TUS DATOS DE ACCESO', MX + 8, 122);
+  pdf.setFontSize(9); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(mut[0], mut[1], mut[2]);
+  pdf.text('LINK DE TU TIENDA (compartilo para vender)', MX + 8, 136);
+  pdf.setFontSize(10.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(acc[0], acc[1], acc[2]);
+  const linkLines = pdf.splitTextToSize(link, W - MX * 2 - 16);
+  pdf.text(linkLines, MX + 8, 143);
+  pdf.setDrawColor(230, 228, 222); pdf.line(MX + 8, 150, W - MX - 8, 150);
+  pdf.setFontSize(9); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(mut[0], mut[1], mut[2]);
+  pdf.text('TU CLAVE DE ACCESO (secreta: no la compartas)', MX + 8, 162);
+  pdf.setFontSize(12); pdf.setTextColor(verde[0], verde[1], verde[2]);
+  pdf.text(clave || '(tu clave actual está en el PDF que te entregó POPUPS)', MX + 8, 170);
+  pdf.setDrawColor(230, 228, 222); pdf.line(MX + 8, 178, W - MX - 8, 178);
+  pdf.setFontSize(9); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(mut[0], mut[1], mut[2]);
+  pdf.text('TU PLAN', MX + 8, 190);
+  pdf.setFontSize(11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(ink[0], ink[1], ink[2]);
+  pdf.text(secc.planTxt + '   ·   vence el ' + secc.vence, MX + 8, 198);
+  pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.6); pdf.setTextColor(mut[0], mut[1], mut[2]);
+  const warn = pdf.splitTextToSize('Guardá esta guía (o la clave) en un lugar seguro: es la llave de tu panel. Si la perdés, escribinos y te damos una nueva.', W - MX * 2 - 16);
+  pdf.text(warn, MX + 8, 214);
+
+  // ---------- PÁGINAS DE INSTRUCCIONES ----------
+  for (const p of secc.pages) {
+    pdf.addPage();
+    pdf.setFillColor(20, 22, 18); pdf.rect(0, 0, W, 22, 'F');
+    pdf.setTextColor(247, 244, 238); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(12);
+    pdf.text(p.title, MX, 14);
+    if (p._img) {
+      pdf.addImage(p._img, 'JPEG', MX, 30, W - MX * 2, 100);
+      y = 140;
+    } else {
+      pdf.setFillColor(panel[0], panel[1], panel[2]); pdf.roundedRect(MX, 30, W - MX * 2, 90, 4, 4, 'F');
+      pdf.setTextColor(mut[0], mut[1], mut[2]); pdf.setFontSize(9);
+      pdf.text('(no se pudo incluir la imagen; la web se ve como en las otras secciones)', MX + 4, 70);
+      y = 132;
+    }
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(10.5); pdf.setTextColor(ink[0], ink[1], ink[2]);
+    pdf.text('Cómo funciona', MX, y);
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.8); pdf.setTextColor(60, 60, 56);
+    pdf.setDrawColor(224, 222, 216);
+    let yy = y + 6;
+    for (const ln of p.lines) {
+      const wrapped = pdf.splitTextToSize(ln, W - MX * 2 - 6);
+      const wrappedLines = Array.isArray(wrapped) ? wrapped : [wrapped];
+      if (yy + wrappedLines.length * lineH > H - 18) { pdf.addPage(); yy = 24; }
+      pdf.circle(MX + 1.6, yy - 1.1, 0.9, 'F');
+      pdf.text(wrappedLines, MX + 7, yy);
+      yy += wrappedLines.length * lineH + 1.6;
+    }
+    // pie de página
+    pdf.setFontSize(7.6); pdf.setTextColor(mut[0], mut[1], mut[2]);
+    pdf.text('Mi-Tienda · hecho por POPUPS · ' + biz, MX, H - 8);
+  }
+
+  // ---------- CIERRE ----------
+  pdf.addPage();
+  pdf.setFillColor(20, 22, 18); pdf.rect(0, 0, W, 22, 'F');
+  pdf.setTextColor(247, 244, 238); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(12);
+  pdf.text('Tu plan y ayuda', MX, 14);
+  pdf.setFont('helvetica', 'normal'); pdf.setFontSize(10); pdf.setTextColor(60, 60, 56);
+  let cy = 38;
+  const cierre = [
+    ['Tu plan', 'Pagás ' + secc.planTxt + '. Cuando la mensualidad vence sin pago, la tienda se pausa sola y vuelve apenas regularizás (tu catálogo queda intacto).'],
+    ['Subir de plan', 'Si necesitás más productos o pasarla a otro plan, escribinos y lo cambiamos en el día. Te cobramos solo la diferencia.'],
+    ['Mercado Pago', 'Conectá tu cuenta desde Ajustes → Cobros (paso a paso adentro). POPUPS no cobra comisión por tus ventas: el dinero entra directo a tu cuenta.'],
+    ['Ayuda', 'Ante cualquier duda escribinos a somospopups@gmail.com. Respondemos rápido y te acompañamos a configurar todo.']
+  ];
+  for (const [t, d] of cierre) {
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(10.5); pdf.setTextColor(ink[0], ink[1], ink[2]);
+    pdf.text(t, MX, cy);
+    cy += 6;
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.6); pdf.setTextColor(60, 60, 56);
+    const dWrap = pdf.splitTextToSize(d, W - MX * 2 - 4);
+    pdf.text(dWrap, MX, cy);
+    cy += (Array.isArray(dWrap) ? dWrap.length : 1) * lineH + 5;
+  }
+  pdf.setFontSize(8.5); pdf.setTextColor(mut[0], mut[1], mut[2]);
+  pdf.text('POPUPS · Mi-Tienda · somospopups@gmail.com', MX, H - 10);
+
+  pdf.save('Mi-Tienda-Guia-' + slug + '.pdf');
+  toast('Guía descargada ✅', 'Entregale el PDF al dueño o guardalo con tus datos de acceso.');
+}
 
   async function init() {
     bindEvents();
