@@ -18,3 +18,9 @@
 - **Compras y newsletter en la nube**: el checkout valida stock y precios en la base (si alguien compra desde dos dispositivos a la vez, la base descuenta una sola vez el stock real) y registra cliente, pedido y finanzas en la nube.
 - Los precios de costo/mayorista no se exponen en la vitrina pública.
 - La demo local (sin `?tienda=`) sigue funcionando igual, y las tiendas aún no migradas conservan el comportamiento anterior.
+
+## v0.5.0 · 2026-09-07
+- **Panel del dueño en la nube**: el dueño de una tienda vendida entra con su **Clave de acceso** (la que le entrega POPUPS al venderla, no el PIN de la demo). Administra su tienda completa **desde cualquier dispositivo** (celular o computadora) y todo se guarda en la nube: productos, stock, pedidos, clientes, finanzas, textos, colores y legales.
+- **Límite del plan aplicado de verdad**: al llegar al cupo de su plan (25/50/100/200), la base rechaza el producto siguiente con un mensaje claro. La barra del plan en el panel muestra cuánto lleva (ej: "vas 4 de 50 productos"), **avisa al 80% del cupo** y recuerda el vencimiento del pago, con el contacto de POPUPS para subir de plan.
+- Cambios de plan, bloqueos y bajas que hagas desde la Consola se reflejan al instante en el panel del dueño (la demo @juan y @mariela ya están migradas con sus claves `juan-demo` y `mariela-demo`).
+- Los pedidos entrantes, compras del newsletter y finanzas se guardan en la nube con el stock validado en la base.

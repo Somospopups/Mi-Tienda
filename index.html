@@ -1511,7 +1511,7 @@ body:has(.share-price-fab) .toast-region { bottom: 101px; }
         <span class="kicker">Acceso privado</span>
         <h1>Todo tu negocio,<br>en un solo lugar.</h1>
         <p>Gestioná productos, stock y pedidos en tiempo real.</p>
-        <form id="loginForm"><label class="field"><span>PIN de administrador</span><input name="pin" type="password" inputmode="numeric" maxlength="12" required placeholder="••••" autocomplete="current-password"></label><p class="form-error" id="loginError"></p><button class="button button-dark button-full" type="submit">Ingresar al panel <svg><use href="#i-arrow"></use></svg></button></form>
+        <form id="loginForm"><label class="field"><span>PIN de administrador</span><input name="pin" type="password" inputmode="numeric" maxlength="12" required placeholder="••••" autocomplete="current-password"></label><p class="form-error" id="loginError"></p><p class="field-hint" id="loginCloudHint" style="margin:0 0 14px;font-size:12.5px;color:#6f736a;line-height:1.5" hidden>¿Perdiste tu Clave de acceso? Escribinos y te generamos una nueva.</p><button class="button button-dark button-full" type="submit">Ingresar al panel <svg><use href="#i-arrow"></use></svg></button></form>
 
       </div>
       <div class="login-art"><div class="login-art-copy"><span>Control simple.<br><em>Decisiones claras.</em></span><small>Ventas · Inventario · Catálogo</small></div></div>
@@ -2246,6 +2246,193 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     }
     return result({ error: 'Ruta no encontrada.' }, 404);
   }
+  // ---- v0.5 · Panel del dueño en la nube: espejo local + sincronización ----
+  const MT_PLAN_LBL = { p25: 'Hasta 25 productos', p50: 'Hasta 50 productos', p100: 'Hasta 100 productos', pilim: '101 a 200 productos' };
+  const MT_CFG_KEYS = ['settings', 'content', 'legal', 'customers', 'orders', 'finance', 'subscribers'];
+  const origWriteStore = writeStore;
+  const mtAdm = { doc: null, baseDoc: null, q: Promise.resolve(), stale: false, t: 0, toasted: false };
+  function mtAdmKey() {
+    try { var tk = sessionStorage.getItem('luma_admin_token') || ''; return tk.indexOf('ck:') === 0 ? tk.slice(3) : ''; } catch (_) { return ''; }
+  }
+  function mtJs(v) { try { return JSON.stringify(v); } catch (_) { return ''; } }
+  function mtClo(v) { try { return JSON.parse(JSON.stringify(v)); } catch (_) { return {}; } }
+  async function mtAdmLoad() {
+    var slug = mtSlug(), key = mtAdmKey();
+    if (!slug || !key) return { ok: false, error: 'no_session' };
+    var d = await mtRpc('api_panel', { p_store: slug, p_key: key });
+    if (!d) return { ok: false, error: 'sin_conexion' };
+    if (d.ok !== true) return { ok: false, error: d.error || 'sin_conexion' };
+    var cfg = (d.cfg && typeof d.cfg === 'object') ? d.cfg : {};
+    var fin = (cfg.finance && Array.isArray(cfg.finance.movements)) ? cfg.finance : null;
+    if (!fin) { fin = mtClo(INITIAL_STORE.finance); fin.movements = []; }
+    if (!Array.isArray(fin.accounts) || !fin.accounts.length) fin.accounts = mtClo(INITIAL_STORE.finance.accounts);
+    (INITIAL_STORE.finance.accounts || []).forEach(function (acc) { if (!fin.accounts.some(function (x) { return x.id === acc.id; })) fin.accounts.push(mtClo(acc)); });
+    var store = {
+      version: 1,
+      nextOrderNumber: (cfg.nextOrderNumber != null) ? cfg.nextOrderNumber : 1001,
+      settings: Object.assign({}, mtClo(INITIAL_STORE.settings), (cfg.settings && typeof cfg.settings === 'object') ? cfg.settings : {}),
+      content: Object.assign({}, mtClo(INITIAL_STORE.content), cfg.content || {}),
+      legal: Object.assign({}, mtClo(INITIAL_STORE.legal), cfg.legal || {}),
+      security: { adminPin: 'cloud', changedAt: null },
+      products: Array.isArray(d.products) ? d.products : [],
+      customers: Array.isArray(cfg.customers) ? cfg.customers : [],
+      orders: Array.isArray(cfg.orders) ? cfg.orders : [],
+      finance: fin,
+      subscribers: Array.isArray(cfg.subscribers) ? cfg.subscribers : []
+    };
+    store.plan = (d.plan && typeof d.plan === 'object') ? Object.assign({}, d.plan, { id: d.plan_id }) : null;
+    store.paidUntil = d.paid_until || null;
+    origWriteStore(store);
+    mtAdm.doc = store; mtAdm.baseDoc = mtClo(store); mtAdm.t = Date.now(); mtAdm.stale = false;
+    return { ok: true };
+  }
+  async function mtAdmEnsure() {
+    if (mtAdm.doc && Date.now() - mtAdm.t < 20000) return { ok: true };
+    var r = await mtAdmLoad();
+    if (!r.ok && mtAdm.doc && r.error === 'sin_conexion') { mtAdm.stale = true; return { ok: true, stale: true }; }
+    return r;
+  }
+  function mtAdmQueue(fn) { mtAdm.q = mtAdm.q.then(fn).catch(function () { }); return mtAdm.q; }
+  function mtAdmBumpPub() { try { mtPub.doc = null; mtPub.t = 0; } catch (_) { } }
+  function mtAdmFail() {
+    if (mtAdm.toasted) return; mtAdm.toasted = true;
+    try { toast('Sin conexión con la nube: los cambios quedaron en este equipo y no se sincronizaron. Volvé a intentar en unos minutos.', 'error'); } catch (_) { }
+    setTimeout(function () { mtAdm.toasted = false; }, 20000);
+  }
+  function mtProdPayload(p) {
+    var out = {};
+    ['id', 'name', 'price', 'compareAtPrice', 'wholesalePrice', 'costPrice', 'stock', 'lowStockAt', 'category', 'badge', 'description', 'image', 'barcode', 'active', 'featured'].forEach(function (k) { out[k] = p[k]; });
+    return out;
+  }
+  function mtAdmBaseFresh() { try { mtAdm.baseDoc = mtClo(readStore()); } catch (_) { } }
+  function mtAdmWrite(store) {
+    origWriteStore(store);
+    if (!mtAdm.doc) { mtAdm.doc = store; mtAdm.baseDoc = mtClo(store); return; }
+    mtAdm.doc = store;
+    var slug = mtSlug(), key = mtAdmKey(), base = mtAdm.baseDoc || store;
+    var parts = [];
+    MT_CFG_KEYS.forEach(function (k) { if (mtJs(store[k]) !== mtJs(base[k])) { var part = {}; part[k] = store[k]; parts.push(part); } });
+    if (store.nextOrderNumber !== base.nextOrderNumber) parts.push({ nextOrderNumber: store.nextOrderNumber });
+    var byId = {}; (base.products || []).forEach(function (x) { byId[x.id] = x; });
+    var ups = [], del = [];
+    (store.products || []).forEach(function (x) { var b = byId[x.id]; if (!b || mtJs(x) !== mtJs(b)) ups.push(x); });
+    (base.products || []).forEach(function (x) { if (!(store.products || []).some(function (y) { return y.id === x.id; })) del.push(x); });
+    if (!parts.length && !ups.length && !del.length) return;
+    mtAdmQueue(function () {
+      return (async function () {
+        for (var i = 0; i < parts.length; i++) { var r = await mtRpc('api_save_cfg', { p_store: slug, p_key: key, p_cfg: parts[i] }); if (!r || r.ok !== true) throw new Error('cfg'); }
+        for (var j = 0; j < ups.length; j++) { var r2 = await mtRpc('api_upsert_product', { p_store: slug, p_key: key, p: mtProdPayload(ups[j]) }); if (!r2 || r2.ok !== true) throw new Error('up'); }
+        for (var k = 0; k < del.length; k++) { var r3 = await mtRpc('api_delete_product', { p_store: slug, p_key: key, p_id: del[k].id }); if (!r3 || r3.ok !== true) throw new Error('del'); }
+        mtAdm.baseDoc = mtClo(store); mtAdm.stale = false; mtAdmBumpPub();
+      })();
+    });
+  }
+  writeStore = function (store) {
+    if (mtSlug() && MT_SU && mtAdmKey()) { mtAdmWrite(store); return; }
+    origWriteStore(store);
+  };
+  function cloudErrMsg(r) {
+    if (r && r.error === 'plan_limit') return (r.msg) || 'Llegaste al límite de tu plan: desactivá o borrá productos, o pedí subir de plan.';
+    if (r && r.error === 'store_suspendida' || r && r.error === 'store_baja') return (r.msg) || 'Tu tienda está suspendida. Regularizá el pago para seguir editando.';
+    if (r && r.error === 'bad_key') return 'Tu clave ya no es válida. Pedí una nueva en POPUPS.';
+    if (r && r.error === 'product_not_found') return 'Ese producto ya no existe. Actualizá la lista e intentá de nuevo.';
+    return (r && r.error) || 'Sin conexión con la nube. Revisá tu conexión e intentá de nuevo.';
+  }
+  async function mtOwnerLogin(body) {
+    var slug = mtSlug(), key = clean(body.pin || body.key || '', 80);
+    if (!key) return error('Ingresá tu Clave de acceso.', 401);
+    var d = await mtRpc('api_panel', { p_store: slug, p_key: key });
+    if (!d) return error('No pudimos conectar con la nube. Revisá tu conexión e intentá de nuevo.', 503);
+    if (d.ok !== true) {
+      if (d.error === 'store_suspendida' || d.error === 'store_baja') return error('Tu tienda está suspendida. Regularizá el pago con POPUPS para volver a entrar.', 403);
+      return error(d.error === 'bad_key' ? 'Clave incorrecta. Revisala o pedí una nueva en POPUPS.' : 'No pudimos validar tu acceso. Revisá tu conexión.', 401);
+    }
+    try { sessionStorage.setItem('luma_admin_token', 'ck:' + key); } catch (_) { }
+    var load = await mtAdmLoad();
+    if (!load.ok) return error('No pudimos cargar tu tienda. Intentá de nuevo en un momento.', 503);
+    return result({ token: 'ck:' + key, expiresIn: 31536000 });
+  }
+  async function mtAdminRoutes(path, method, body) {
+    var slug = mtSlug();
+    if (path === '/api/admin/login' && method === 'POST') return await mtOwnerLogin(body);
+    var key = mtAdmKey();
+    if (!key) return error('Tu sesión venció. Volvé a entrar con tu Clave de acceso.', 401);
+    if (path === '/api/admin/security/pin' && method === 'PUT')
+      return error('En la nube tu acceso es la Clave que te entregó POPUPS. Si la perdés, escribinos y te damos una nueva.', 403);
+    if (path === '/api/admin/products' && method === 'POST') {
+      if (clean(body.name, 100).length < 2) return error('Ingresá un nombre para el producto.');
+      var r1 = await mtRpc('api_upsert_product', { p_store: slug, p_key: key, p: mtProdPayload(body) });
+      if (!r1 || r1.ok !== true) return error(cloudErrMsg(r1), r1 && r1.ok === false ? 400 : 503);
+      var st1 = readStore(); st1.products.unshift(r1.product);
+      origWriteStore(st1); mtAdm.doc = st1; mtAdmBaseFresh(); mtAdmBumpPub();
+      return result({ product: r1.product }, 201);
+    }
+    var pm = path.match(/^\/api\/admin\/products\/([^/]+)$/);
+    if (pm && method === 'PUT') {
+      var idP = decodeURIComponent(pm[1]);
+      var pbody = mtProdPayload(body); pbody.id = idP;
+      var r2 = await mtRpc('api_upsert_product', { p_store: slug, p_key: key, p: pbody });
+      if (!r2 || r2.ok !== true) return error(cloudErrMsg(r2), r2 && r2.ok === false ? 400 : 503);
+      var st2 = readStore(); var ix = st2.products.findIndex(function (x) { return x.id === idP; });
+      if (ix >= 0) st2.products[ix] = r2.product;
+      origWriteStore(st2); mtAdm.doc = st2; mtAdmBaseFresh(); mtAdmBumpPub();
+      return result({ product: r2.product });
+    }
+    if (pm && method === 'DELETE') {
+      var idD = decodeURIComponent(pm[1]);
+      var r3 = await mtRpc('api_delete_product', { p_store: slug, p_key: key, p_id: idD });
+      if (!r3 || r3.ok !== true) return error(cloudErrMsg(r3), 400);
+      var st3 = readStore(); st3.products = st3.products.filter(function (x) { return x.id !== idD; });
+      origWriteStore(st3); mtAdm.doc = st3; mtAdmBaseFresh(); mtAdmBumpPub();
+      return result({ ok: true });
+    }
+    if (path === '/api/admin/stock/restock' && method === 'POST') {
+      var code = barcode(body.barcode), qty = integer(body.quantity);
+      if (!code) return error('Ingresá o escaneá un código de barras.');
+      if (qty < 1 || qty > 10000) return error('La cantidad debe estar entre 1 y 10.000 unidades.');
+      var st4 = readStore(); var prod = st4.products.find(function (x) { return barcode(x.barcode) === code; });
+      if (!prod) return error('Código todavía no registrado.', 404);
+      var prev = prod.stock; prod.stock += qty; prod.updatedAt = now();
+      var r4 = await mtRpc('api_upsert_product', { p_store: slug, p_key: key, p: mtProdPayload(prod) });
+      if (!r4 || r4.ok !== true) return error(cloudErrMsg(r4), 400);
+      origWriteStore(st4); mtAdm.doc = st4; mtAdmBaseFresh(); mtAdmBumpPub();
+      return result({ product: r4.product || prod, previousStock: prev, added: qty });
+    }
+    var en = await mtAdmEnsure();
+    if (!en.ok) {
+      if (en.error === 'bad_key') { try { sessionStorage.removeItem('luma_admin_token'); } catch (_) { } return error('Tu clave ya no es válida. Pedí una nueva en POPUPS.', 401); }
+      if (!mtAdm.doc) return error('No pudimos conectar con la nube. Revisá tu conexión e intentá de nuevo.', 503);
+    }
+    return null;
+  }
+  function mtPlanBar() {
+    try {
+      if (!mtSlug() || !MT_SU) return;
+      if (!mtAdmKey()) return;
+      var sh = $('adminShell'), c = $('adminContent');
+      if (!sh || !c || sh.hidden) return;
+      var old = document.getElementById('mtPlanBar'); if (old) old.remove();
+      var st = readStore(), plan = (mtAdm.doc && mtAdm.doc.plan) ? mtAdm.doc.plan : null;
+      if (!plan || !plan.max) return;
+      var n = (st.products || []).length, max = Number(plan.max) || 0;
+      var lbl = MT_PLAN_LBL[plan.id] || ('Hasta ' + max + ' productos');
+      var vence = mtAdm.doc.paidUntil ? (' · vence el ' + String(mtAdm.doc.paidUntil)) : '';
+      var casi = n >= Math.ceil(max * 0.8), lleno = n >= max;
+      var color = lleno ? '#e06c5a' : (casi ? '#d9a441' : '#7ccb9a');
+      var nota = lleno ? '<b style="color:#e06c5a">· llegaste al cupo de tu plan</b>' : (casi ? '<b style="color:#d9a441">· quedan ' + Math.max(0, max - n) + ' lugares de tu plan</b>' : '');
+      var div = document.createElement('div');
+      div.id = 'mtPlanBar';
+      div.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:0 0 14px;padding:9px 14px;border:1px solid ' + color + '55;background:' + color + '18;border-radius:12px;font-size:12.5px;color:var(--ink);box-sizing:border-box';
+      div.innerHTML = '<span>📋 ' + lbl + ' · ' + (typeof formatARS === 'function' ? formatARS(plan.price) : '$' + plan.price) + '/mes' + vence + ' · vas ' + n + ' de ' + max + ' productos ' + nota + '</span><a href="mailto:somospopups@gmail.com?subject=Necesito%20subir%20de%20plan" style="color:var(--acc);font-weight:700;text-decoration:none;white-space:nowrap">¿Más cupo? Escribinos →</a>';
+      c.insertBefore(div, c.firstChild);
+    } catch (_) { }
+  }
+  if (!window.__mtWrapped) {
+    window.__mtWrapped = true;
+    var origLat = loadAdminTab;
+    loadAdminTab = async function (showLoader) { await origLat(showLoader); mtPlanBar(); };
+  }
+
   const nativeFetch = window.fetch.bind(window);
   window.fetch = async function offlineFetch(input, options = {}) {
     const raw = typeof input === 'string' ? input : input.url;
@@ -2261,12 +2448,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const path = url.pathname;
       const cloudSlug = mtSlug();
       if (cloudSlug && MT_SU) {
+        if (path.startsWith('/api/admin/')) {
+          const admRes = await mtAdminRoutes(path, method, body);
+          if (admRes) return admRes;
+        }
         const cloudDoc = await mtPublicDoc();
         if (cloudDoc && cloudDoc.blocked) return error('Tienda no disponible.', 404);
         if (cloudDoc) {
-          if (path.startsWith('/api/admin/')) {
-            return error('Esta tienda ya vive en la nube: su panel online se habilita en la próxima actualización. Los cambios hechos acá no se guardan en la tienda real.', 403);
-          }
           const viaCloud = await mtCloudFetch(path, method, body, cloudDoc);
           if (viaCloud.status !== 404) return viaCloud;
         }
@@ -3162,7 +3350,17 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function showAdminLogin() {
     $('adminLogin').hidden = false;
     $('adminShell').hidden = true;
-    setTimeout(() => $('loginForm').elements.pin.focus(), 50);
+    let cloudLogin = false;
+    try { cloudLogin = typeof mtSlug === 'function' && Boolean(mtSlug()); } catch (_) {}
+    try {
+      const lbl = $('loginForm').querySelector('label span');
+      if (lbl) lbl.textContent = cloudLogin ? 'Clave de acceso (te la dio POPUPS)' : 'PIN de administrador';
+      const pinEl = $('loginForm').elements.pin;
+      if (pinEl) { pinEl.inputMode = cloudLogin ? 'text' : 'numeric'; pinEl.maxLength = cloudLogin ? 64 : 12; }
+      const hint = $('loginCloudHint');
+      if (hint) hint.hidden = !cloudLogin;
+    } catch (_) {}
+    setTimeout(() => { const e = $('loginForm').elements.pin; if (e) e.focus(); }, 50);
   }
 
   function showAdminShell() {
