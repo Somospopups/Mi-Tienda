@@ -30,3 +30,6 @@
 - **Checkout real (Checkout Pro)**: cuando el local tiene su Mercado Pago conectado, el cliente paga con tarjeta/débito/dinero en cuenta en la página segura de Mercado Pago; al aprobarse, el pedido pasa a **Confirmado** solo, se registra la venta en finanzas y el stock ya se había reservado. Si el pago queda pendiente, el pedido queda "Esperando pago" para que el local lo gestione.
 - El token se guarda cifrado en la nube del local (nunca viaja al navegador del cliente) y se puede actualizar o desconectar cuando quiera. La demo local (sin plan) sigue en modo demostración.
 - Requiere correr el esquema SQL actualizado (sección Mercado Pago) una vez.
+
+## v0.6.1 · 2026-09-07
+- **Cobro Mercado Pago más estable**: el pago ahora se arma con el método asíncrono de la nube (dispara la llamada a Mercado Pago y consulta la respuesta al instante), evitando el corte del plan Free por tiempo. Conexión del token, cobro y confirmación de pago pasan por este flujo (requiere correr `mp_async.sql` una vez).

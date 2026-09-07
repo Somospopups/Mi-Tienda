@@ -2206,7 +2206,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (!st || !pid || !ref) return;
       const slug = mtSlug();
       if (!slug) return;
-      const r = await mtRpc('api_mp_confirm', { p_store: slug, p_order_id: ref, p_payment_id: pid });
+      const r = await mtMpRun('confirm', { order_id: ref, payment_id: pid }, slug, '');
       const clean = location.origin + location.pathname + '?tienda=' + encodeURIComponent(slug);
       try { history.replaceState(null, '', clean); } catch (_) {}
       if (r && r.ok === true && r.status === 'approved') {
@@ -2261,7 +2261,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const order = { ...r.order, items: (r.order.items || []).map(({ unitCost, ...item }) => item) };
       if (r.paymentMode === 'live') {
         const back = location.origin + location.pathname + '?tienda=' + encodeURIComponent(slug);
-        const pref = await mtRpc('api_mp_preference', { p_store: slug, p_order_id: r.order.id, p_back: back });
+        const pref = await mtMpRun('pref', { order_id: r.order.id, back }, slug, '');
         if (!pref || pref.ok !== true) {
           return error('Tu pedido quedó reservado pero no pudimos abrir Mercado Pago: ' + ((pref && pref.error) || 'intentá de nuevo en un momento.'), 409);
         }
@@ -2388,6 +2388,18 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!load.ok) return error('No pudimos cargar tu tienda. Intentá de nuevo en un momento.', 503);
     return result({ token: 'ck:' + key, expiresIn: 31536000 });
   }
+  async function mtMpRun(kind, payload, slug, key) {
+    const la = await mtRpc('api_mp_launch', { p_store: slug, p_key: key || '', p_kind: kind, p_json: payload || {} });
+    if (!la || la.ok !== true) return la || { ok: false, error: 'Sin conexión con la nube.' };
+    if (la.skip === true) return { ok: true, status: la.status };
+    for (let i = 0; i < 30; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      const po = await mtRpc('api_mp_poll', { p_store: slug, p_key: key || '', p_kind: kind, p_rid: la.rid });
+      if (!po || po.ok !== true) return po || { ok: false, error: 'Sin conexión con la nube.' };
+      if (po.pending !== true) return po;
+    }
+    return { ok: false, error: 'Mercado Pago tardó demasiado en responder. Volvé a intentar.' };
+  }
   async function mtAdminRoutes(path, method, body) {
     var slug = mtSlug();
     if (path === '/api/admin/login' && method === 'POST') return await mtOwnerLogin(body);
@@ -2401,8 +2413,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       return result({ ok: true, connected: st.connected === true, nick: st.nick || '', tokenTail: st.token_tail || '' });
     }
     if (path === '/api/admin/mp' && method === 'POST') {
-      const act = body.action === 'clear' ? 'clear' : 'save';
-      const st = await mtRpc('api_mp_set', { p_store: slug, p_key: key, p_token: clean(body.token || '', 300), p_action: act });
+      if (body.action === 'clear') {
+        const cl = await mtRpc('api_mp_set', { p_store: slug, p_key: key, p_token: '', p_action: 'clear' });
+        if (!cl || cl.ok !== true) return error(cloudErrMsg(cl) || 'No pudimos desconectar.', 400);
+        return result({ ok: true, connected: false });
+      }
+      const token = clean(body.token || '', 300);
+      const st = await mtMpRun('set', { token }, slug, key);
       if (!st || st.ok !== true) return error(cloudErrMsg(st) || 'No pudimos guardar la conexión.', 400);
       return result({ ok: true, connected: st.connected === true, nick: st.nick || '' });
     }
