@@ -1,5 +1,11 @@
 # Mi-Tienda · LUMA
 
+## ▶️ Versión online
+
+**https://somospopups.github.io/Mi-Tienda/** — demo publicada en GitHub Pages (rama `main`).
+
+> ⚠️ La versión online guarda los datos de cada visita en el navegador de esa persona (demo de un solo dispositivo). Sirve para mostrar el producto, no para operar ventas reales.
+
 **LUMA — "Objetos que hacen hogar"** es una demo de tienda online + panel de administración **contenida en un único archivo HTML** (`index.html`), que funciona 100 % offline: no requiere servidor, red ni instalación.
 
 ## Cómo usarla
