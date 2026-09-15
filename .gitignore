@@ -1,0 +1,18 @@
+# Dependencias y artefactos de test
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Secretos (nunca commitear claves reales ni dumps con datos sensibles)
+supabase/schema-real.sql.tmp
+.env
+.env.*

@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Smoke tests (demo offline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verificar sintaxis de los bloques JS embebidos
+        run: |
+          python3 - <<'EOF'
+          import re, subprocess, sys, pathlib
+          src = pathlib.Path('index.html').read_text(encoding='utf-8')
+          # extrae cada <script> sin src y lo valida con node --check
+          blocks = re.findall(r'<script>(.*?)</script>', src, re.S)
+          ok = True
+          for i, b in enumerate(blocks):
+              if not b.strip():
+                  continue
+              f = pathlib.Path(f'/tmp/block_{i}.js')
+              f.write_text(b, encoding='utf-8')
+              r = subprocess.run(['node', '--check', str(f)], capture_output=True, text=True)
+              status = 'OK ' if r.returncode == 0 else 'ERR'
+              print(f'[{status}] bloque {i} ({len(b)} chars)')
+              if r.returncode != 0:
+                  print(r.stderr[:2000])
+                  ok = False
+          sys.exit(0 if ok else 1)
+          EOF
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Instalar Chromium (Playwright)
+        run: npx playwright install chromium --with-deps
+
+      - name: Correr smoke tests
+        run: npx playwright test
+
+      - name: Subir reporte (si falla)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

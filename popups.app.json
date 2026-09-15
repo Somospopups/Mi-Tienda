@@ -8,11 +8,11 @@
   "versionDate": "2026-09-07",
   "urls": {
     "site": "https://somospopups.github.io/Mi-Tienda/",
-    "admin": "",
+    "admin": "https://somospopups.github.io/Mi-Tienda/?tienda=<slug>#admin",
     "repo": "https://github.com/Somospopups/Mi-Tienda",
-    "docs": ""
+    "docs": "https://github.com/Somospopups/Mi-Tienda/tree/main/supabase"
   },
-  "supabaseRef": "",
+  "supabaseRef": "zfnlcfnutnuatrhgbbci",
   "brand": {
     "color": "#D9633C"
   },

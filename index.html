@@ -8,6 +8,10 @@
   <meta name="luma-mode" content="offline">
   <meta name="description" content="LUMA — objetos elegidos para vivir mejor. Tienda online de hogar, bienestar y accesorios.">
   <title>LUMA Offline — Objetos que hacen hogar</title>
+  <script>
+    /* Tienda cloud: evita el flasheo del título "LUMA Offline" en links ?tienda=… */
+    try { if (new URLSearchParams(location.search).get('tienda')) document.title = 'Cargando tienda…'; } catch (_) {}
+  </script>
   <style>
 /* ---------- Base ---------- */
 :root {

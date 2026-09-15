@@ -1,0 +1,14 @@
+{
+  "name": "mi-tienda-tests",
+  "version": "0.7.0",
+  "private": true,
+  "description": "Smoke tests de Mi-Tienda (POPUPS) — demo offline y flujos críticos",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}

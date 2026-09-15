@@ -1,0 +1,51 @@
+# Backend Supabase · Mi-Tienda
+
+El frontend (único `index.html`) consume **11 funciones RPC** del proyecto
+`zfnlcfnutnuatrhgbbci.supabase.co` con la clave *publishable* (pública por diseño).
+Toda la seguridad (claves de acceso, stock, planes, tokens de Mercado Pago)
+vive en estas funciones SQL.
+
+## Estado de la documentación del backend
+
+| Archivo | Qué es | Estado |
+|---|---|---|
+| `contratos-rpc.md` | Contratos de las 11 RPC (request/response), **verificados en vivo** el 15-sep-2026 contra el proyecto productivo | ✅ Confiable |
+| `esquema-reconstruido.sql` | Reconstrucción ejecutable del schema + funciones a partir de los contratos | ⚠️ Aproximación — sirve para staging/DR, **no correr en producción** |
+| `export.sql` | Consultas para extraer el SQL **real** desde el dashboard | ✅ Listo para usar |
+| `schema-real.sql` | El SQL real desplegado | ❌ **FALTA** — ver abajo |
+
+## Por qué falta `schema-real.sql` (y cómo resolverlo en 5 minutos)
+
+El changelog v0.6.1 menciona `mp_async.sql`, pero ningún SQL se commiteó jamás.
+Sin el SQL real versionado:
+
+- no se puede auditar la seguridad (¿todas las RPC validan `p_key`?),
+- no se puede recrear el sistema si el proyecto Supabase se pierde,
+- los cambios manuales en el SQL Editor no tienen historia ni rollback.
+
+**Para exportarlo:** abrir el [SQL Editor del proyecto](https://supabase.com/dashboard/project/zfnlcfnutnuatrhgbbci/sql/new),
+correr las consultas de `export.sql` y guardar los resultados acá como `schema-real.sql`.
+
+> 🔒 La consulta 5 de `export.sql` excluye a propósito `access_key` y `mp_token`:
+> nunca commitear secretos al repo.
+
+## Cómo se conecta el frontend
+
+```
+index.html (script 1 · puerta)  ──► api_public ──► ¿activa? : cartel de suspensión
+mtPublicDoc() (caché 20 s)      ──► api_public ──► vitrina (settings/content/legal/productos)
+checkout                        ──► api_order_create ──► reserva stock + numera P-100x
+  └ MP live                     ──► api_mp_launch('pref') + api_mp_poll ──► init_point
+retorno de MP (?collection_status) ─► api_mp_launch('confirm') + poll ──► pedido confirmado
+login dueño (#admin)            ──► api_panel(p_key) ──► snapshot completo + plan
+edición del panel               ──► api_save_cfg / api_upsert_product / api_delete_product
+cobros (Ajustes→Cobros)         ──► api_mp_set / api_mp_status / api_mp_launch('set')
+```
+
+## Reglas que NO se pueden romper
+
+1. **Ninguna RPC de escritura acepta llamadas sin `p_key` correcta** (salvo las públicas: `api_subscribe`, `api_order_create`, `api_mp_launch/poll` de `pref`/`confirm`).
+2. **`api_public` nunca devuelve `wholesalePrice`, `costPrice` ni `barcode`.**
+3. **El stock y los precios se validan y descuentan en la base**, nunca se confía en el cliente.
+4. **El límite de plan se aplica server-side** (`plan_limit` en `api_upsert_product`).
+5. Tienda `suspendida`/`baja` → todas las RPC responden el error correspondiente (la puerta del frontend hace el resto).
