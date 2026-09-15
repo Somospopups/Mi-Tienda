@@ -1,5 +1,12 @@
 # Changelog — Mi-Tienda
 
+## v0.7.1 · 2026-09-15
+- **Repo auditable**: contratos de las 11 RPC de Supabase verificados en vivo (`supabase/contratos-rpc.md`), esquema reconstruido ejecutable para staging/recuperación (`supabase/esquema-reconstruido.sql`) y guía de exportación del SQL real (`supabase/export.sql`).
+- **10 smoke tests Playwright + CI** (GitHub Actions): vitrina, carrito, checkout demo, newsletter, login y 7 secciones del panel, pedido→panel y puerta cloud. En cada push se valida la sintaxis de los 6 bloques JS del `index.html`.
+- **README reescrito** (los 3 modos: demo offline, vitrina cloud, panel del dueño; arquitectura real del archivo) y **CHANGELOG reordenado**.
+- Fix menor: las tiendas con `?tienda=` ya no flashean el título "LUMA Offline" mientras cargan.
+- Ficha POPUPS completa (`supabaseRef`, urls de admin y docs).
+
 ## v0.7.0 · 2026-09-07
 - **Fix crítico en la web publicada**: el panel del dueño no cargaba desde la nube (`ReferenceError: loadAdminTab is not defined`). El puente de la barra de plan había quedado dentro del primer script del bundle, donde esas funciones no existen; se rehízo como puente entre scripts (`window.mtCloudGlue`) y la tienda vuelve a operar en línea: vitrina, login con Clave de acceso, panel y edición desde la nube.
 - **Barra del plan reparada**: ahora sí se muestra en el panel (plan, uso de productos y vencimiento) tanto en la web publicada como en local.

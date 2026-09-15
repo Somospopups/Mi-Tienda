@@ -4,8 +4,8 @@
   "tagline": "Tienda online con panel de gestión completo para comercios, con datos en la nube y link propio para cada cliente.",
   "category": "ecommerce",
   "status": "demo",
-  "version": "0.7.0",
-  "versionDate": "2026-09-07",
+  "version": "0.7.1",
+  "versionDate": "2026-09-15",
   "urls": {
     "site": "https://somospopups.github.io/Mi-Tienda/",
     "admin": "https://somospopups.github.io/Mi-Tienda/?tienda=<slug>#admin",
