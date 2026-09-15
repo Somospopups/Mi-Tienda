@@ -139,3 +139,27 @@ Mientras corre: cualquier respuesta sin `ok:true` definitivo mantiene el polling
 |---|---|---|---|
 | Juan Pérez · Panadería La Espiga | `juan` | `juan-demo` | p50 |
 | Mariela | `mariela` | `mariela-demo` | — |
+
+---
+
+## Correcciones tras el volcado real del SQL (15-sep-2026)
+
+Ver `schema-real.sql` (fuente de verdad) y `AUDITORIA.md`. Diferencias detectadas
+entre lo que el cliente consume y lo que el backend realmente hace:
+
+1. **Son 19 funciones, no 11**: se suman `api_admin(p_pin, p_action, p)` y `api_usage(p_pin)`
+   (Consola POPUPS, autenticadas por hash bcrypt del PIN en `config.admin_pin`) y
+   `api_ping_mp()` / `api_ping_poll(rid)` (diagnóstico pg_net).
+2. **`api_mp_poll.p_rid` es `bigint`** (id de `net._http_response`), no uuid. No existe
+   tabla de jobs ni trigger: el modelo es *launch + poll* puro.
+3. **`api_mp_set` ya no guarda tokens**: solo `clear`. Guardar = `api_mp_launch('set')`
+   (deja el token en `stores.mp_pending`) + `api_mp_poll('set')` (lo promueve a `mp_token`
+   si MP responde 200 en `/users/me`).
+4. **`api_upsert_product` responde `{ok, created, product}`** (el producto completo ya
+   normalizado por `h_prod`), no solo `{ok}`.
+5. **`api_order_create` responde también `whatsappUrl: ''`** (el cliente arma la URL local).
+6. **El cfg vive inline en `stores.cfg`** (merge shallow `cfg || p_cfg`), no en tabla aparte;
+   los planes viven en `config.plans` y el estado efectivo lo calcula `h_state`
+   (`paid_until < current_date` → `suspendida` automática).
+7. **`api_panel` no rechaza tiendas suspendidas/baja** (el chequeo de estado está en las
+   RPC de escritura y en `api_public`) → ver hallazgo F2 de la auditoría.

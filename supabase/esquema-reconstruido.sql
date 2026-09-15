@@ -1,4 +1,12 @@
 -- ============================================================================
+-- ⛔ SUPERADO: el SQL REAL ya está versionado en schema-real.sql (volcado del
+--    15-sep-2026). Este archivo queda SOLO como referencia histórica de la
+--    reconstrucción previa y como plantilla para proyectos nuevos.
+--    Diferencias reconstrucción vs realidad: ver AUDITORIA.md (última sección)
+--    y contratos-rpc.md (correcciones).
+-- ============================================================================
+
+-- ============================================================================
 -- Mi-Tienda · Esquema Supabase RECONSTRUIDO (15-sep-2026)
 -- ============================================================================
 -- ⚠️  ATENCIÓN: este archivo fue RECONSTRUIDO a partir de los contratos que el
