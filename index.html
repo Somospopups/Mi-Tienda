@@ -5335,7 +5335,7 @@ async function mtGuiaPdf() {
   pdf.setFontSize(11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(ink[0], ink[1], ink[2]);
   pdf.text(secc.planTxt + '   ·   vence el ' + secc.vence, MX + 8, 198);
   pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.6); pdf.setTextColor(mut[0], mut[1], mut[2]);
-  const warn = pdf.splitTextToSize('Guardá esta guía (o la clave) en un lugar seguro: es la llave de tu panel. Si la perdés, escribinos y te damos una nueva.', W - MX * 2 - 16);
+  const warn = pdf.splitTextToSize('Guardá esta guía (o la clave) en un lugar seguro: es la llave de tu panel. Podés cambiarla cuando quieras desde Ajustes → Seguridad; si la perdés, escribinos y te damos una nueva.', W - MX * 2 - 16);
   pdf.text(warn, MX + 8, 214);
 
   // ---------- PÁGINAS DE INSTRUCCIONES ----------

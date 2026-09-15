@@ -29,7 +29,7 @@ dispositivo. Al regularizar, vuelve sola.
 ## Qué incluye
 
 - **Tienda:** hero editorial, catálogo con búsqueda/filtros/orden, detalle de producto, carrito con barra de envío gratis, checkout (domicilio o retiro en Córdoba Capital; Mercado Pago **demo**, Mercado Pago **live** por dueño con Checkout Pro, o pedido por WhatsApp), newsletter con consentimiento, legales editables.
-- **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración (marca, contenidos, apariencia con paletas y contraste, legales, **cobros MP**, seguridad).
+- **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración (marca, contenidos, apariencia con paletas y contraste, legales, **cobros MP**, seguridad con cambio de clave propio).
 - **Extras POPUPS:** barra de plan con aviso al 80% y vencimiento · Guía de bienvenida en PDF con los datos del dueño · numeración de pedidos · reserva de stock y reembolsos automáticos al cancelar.
 
 ## Arquitectura del archivo (5.308 líneas · 1,64 MB)

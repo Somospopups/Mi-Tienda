@@ -28,9 +28,9 @@ test.beforeEach(async ({ page }) => {
   page.__jsErrors = errors;
 });
 
-async function expectNoPageErrors(page) {
+function expectNoPageErrors(page, ignore = /(?!)/) {
   // @ts-ignore
-  const errors = page.__jsErrors || [];
+  const errors = (page.__jsErrors || []).filter((e) => !ignore.test(e));
   expect(errors, `Errores JS en consola:\n${errors.join('\n')}`).toEqual([]);
 }
 
@@ -185,7 +185,8 @@ test.describe('Cambio de Clave de acceso en la nube (panel del dueño)', () => {
     await expect(page.locator('#toastRegion')).toContainText('La clave actual no coincide', { timeout: 20_000 });
     expect(state.key).toBe('clave-vieja-123');
     expect(calls.filter((c) => c.name === 'api_key_change')).toHaveLength(1);
-    await expectNoPageErrors(page);
+    // el 404 del stub es deliberado (así responde PostgREST cuando la función no existe)
+    await expectNoPageErrors(page, /status of 404/);
   });
 
   test('13 · Regresión del bug: pegar una clave con letras no traba Configuración', async ({ page }) => {
@@ -230,7 +231,8 @@ test.describe('Cambio de Clave de acceso en la nube (panel del dueño)', () => {
     expect(await pedir.getAttribute('href')).toContain('mailto:somospopups@gmail.com');
     expect(state.key).toBe('clave-vieja-123');
     expect(calls.filter((c) => c.name === 'api_key_change')).toHaveLength(1);
-    await expectNoPageErrors(page);
+    // el 404 del stub es deliberado (así responde PostgREST cuando la función no existe)
+    await expectNoPageErrors(page, /status of 404/);
   });
 
 });
@@ -302,6 +304,7 @@ test.describe('PIN de la demo offline (sin ?tienda=)', () => {
     await expect(page.locator('#toastRegion')).toContainText('no coincide', { timeout: 20_000 });
 
     // igual a la actual
+    await page.locator('#keyForm input[name="newPin"]').fill('1234');
     await page.locator('#keyForm input[name="confirmPin"]').fill('1234');
     await page.locator('#keyForm button[type="submit"]').click();
     await expect(page.locator('#toastRegion')).toContainText('distinta a la actual', { timeout: 20_000 });
