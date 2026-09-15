@@ -2389,7 +2389,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function cloudErrMsg(r) {
     if (r && r.error === 'plan_limit') return (r.msg) || 'Llegaste al límite de tu plan: desactivá o borrá productos, o pedí subir de plan.';
     if (r && r.error === 'store_suspendida' || r && r.error === 'store_baja') return (r.msg) || 'Tu tienda está suspendida. Regularizá el pago para seguir editando.';
-    if (r && r.error === 'bad_key') return 'Tu clave ya no es válida. Pedí una nueva en POPUPS.';
+    if (r && r.error === 'bad_key') return 'Tu clave ya no es válida o la cambiaste desde otro dispositivo. Entrá con la clave actual; si no la tenés, pedí una nueva en POPUPS.';
     if (r && r.error === 'product_not_found') return 'Ese producto ya no existe. Actualizá la lista e intentá de nuevo.';
     return (r && r.error) || 'Sin conexión con la nube. Revisá tu conexión e intentá de nuevo.';
   }
@@ -2509,7 +2509,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     }
     var en = await mtAdmEnsure();
     if (!en.ok) {
-      if (en.error === 'bad_key') { try { sessionStorage.removeItem('luma_admin_token'); } catch (_) { } return error('Tu clave ya no es válida. Pedí una nueva en POPUPS.', 401); }
+      if (en.error === 'bad_key') { try { sessionStorage.removeItem('luma_admin_token'); } catch (_) { } return error('Tu clave ya no es válida o la cambiaste desde otro dispositivo. Volvé a entrar con tu clave actual.', 401); }
       if (!mtAdm.doc) return error('No pudimos conectar con la nube. Revisá tu conexión e intentá de nuevo.', 503);
     }
     return null;

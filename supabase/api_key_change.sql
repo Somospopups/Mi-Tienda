@@ -22,6 +22,14 @@
 --   · SECURITY DEFINER + RLS sin políticas: anon sigue sin acceso directo a
 --     las tablas, entra sólo por esta función.
 --
+-- Endurecimiento opcional (no incluido): la función se invoca con la clave
+-- publishable, así que quien conozca el slug puede intentar claves contra
+-- /rest/v1/rpc/api_key_change. El bcrypt lo frena por costo (≈50-100 ms por
+-- intento) pero no hay lockout. Si querés límite duro, lo más barato es una
+-- tabla de intentos (store_id, tried_at) con poda por tiempo y rechazo a los
+-- 8 intentos en 10 minutos. Recomendación adicional: sembrar claves de ≥ 12
+-- caracteres (las demo actuales 'juan-demo'/'mariela-demo' tienen 9).
+--
 -- Nota de producto: se permite cambiar la clave aunque la tienda esté
 -- suspendida (es una acción de autoprotección del dueño y es coherente con
 -- api_save_cfg, que tampoco bloquea por estado). La vitrina y los cobros
