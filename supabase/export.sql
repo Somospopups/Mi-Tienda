@@ -31,7 +31,8 @@ cols as (
   where table_schema = 'public'
 ),
 rls as (
-  select string_agg(tablename || ' · rls=' || rowsecurity || ' · forcerls=' || forcerowsecurity,
+  -- nota: forcerowsecurity no existe en PG < 15; por eso solo rowsecurity
+  select string_agg(tablename || ' · rls=' || rowsecurity,
                     E'\n' order by tablename) as txt
   from pg_tables where schemaname = 'public'
 ),
