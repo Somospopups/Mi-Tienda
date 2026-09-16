@@ -1,5 +1,13 @@
 # Changelog — Mi-Tienda
 
+## v0.7.3 · 2026-09-15
+- **El dueño ahora puede cambiar su Clave de acceso** desde Ajustes → **Seguridad**, sin depender de POPUPS. La clave actual se verifica contra el hash bcrypt de la base y la nueva se guarda cifrada (nunca viaja ni se almacena en texto); rige en todos los dispositivos y **la sesión abierta no se corta** (el token `ck:` se actualiza solo).
+- **Fix del bloqueo de Configuración** (era el síntoma más feo del mismo bug): los campos de clave estaban *dentro* del formulario de Ajustes y eran numéricos (`pattern="[0-9]*"`, `maxlength="8"`). Pegar una clave con letras (ej. `juan-demo`) la truncaba y la validación nativa del navegador **cancelaba el guardado de toda la configuración**, sin mostrar ningún error. La tarjeta de acceso pasó a ser un `<form>` propio, con reglas por modo: **4–8 dígitos en la demo / 6–64 caracteres libres en la nube**.
+- Botón para mostrar/ocultar cada campo y mensajes en español para cada rechazo (clave actual incorrecta, muy corta, no coincide la confirmación, igual a la anterior).
+- **Sin callejón ciego**: si la RPC nueva todavía no está desplegada, el frontend lo detecta (`PGRST202`) y la tarjeta cambia sola a *"Tu clave la cambia POPUPS"* con el mail listo para pedirla. Antes devolvía un 403 que no llevaba a ningún lado.
+- **Requiere una vez**: ejecutar [`supabase/api_key_change.sql`](supabase/api_key_change.sql) en el SQL Editor (nueva RPC `api_key_change`, la nº 12 del cliente). Sin eso la tienda sigue operando normal, sólo que el cambio de clave se pide a POPUPS.
+- 8 smoke tests nuevos ([`tests/security.spec.js`](tests/security.spec.js)): 4 de nube con las RPC stubeadas (`page.route`, sin depender de la red) y 4 de la demo offline, con la regresión exacta del reporte.
+
 ## v0.7.1 · 2026-09-15
 - **Repo auditable**: contratos de las 11 RPC de Supabase verificados en vivo (`supabase/contratos-rpc.md`), esquema reconstruido ejecutable para staging/recuperación (`supabase/esquema-reconstruido.sql`) y guía de exportación del SQL real (`supabase/export.sql`).
 - **10 smoke tests Playwright + CI** (GitHub Actions): vitrina, carrito, checkout demo, newsletter, login y 7 secciones del panel, pedido→panel y puerta cloud. En cada push se valida la sintaxis de los 6 bloques JS del `index.html`.

@@ -1,6 +1,6 @@
 # Backend Supabase · Mi-Tienda
 
-El frontend (único `index.html`) consume **11 funciones RPC** del proyecto
+El frontend (único `index.html`) consume **12 funciones RPC** del proyecto
 `zfnlcfnutnuatrhgbbci.supabase.co` con la clave *publishable* (pública por diseño).
 Toda la seguridad (claves de acceso, stock, planes, tokens de Mercado Pago)
 vive en estas funciones SQL.
@@ -12,7 +12,8 @@ vive en estas funciones SQL.
 | `contratos-rpc.md` | Contratos de las 11 RPC (request/response), **verificados en vivo** el 15-sep-2026 contra el proyecto productivo | ✅ Confiable |
 | `esquema-reconstruido.sql` | Reconstrucción ejecutable del schema + funciones a partir de los contratos | ⚠️ Aproximación — sirve para staging/DR, **no correr en producción** |
 | `export.sql` | Consultas para extraer el SQL **real** desde el dashboard | ✅ Listo para usar |
-| `schema-real.sql` | El SQL real desplegado | ❌ **FALTA** — ver abajo |
+| `schema-real.sql` | El SQL real desplegado | ✅ Volcado del 15-sep-2026 (19 funciones) |
+| `api_key_change.sql` | DDL de la RPC nueva (v0.7.3) para que el dueño cambie su clave | ⏳ **Listo, falta ejecutarlo** — ver abajo |
 
 ## Por qué falta `schema-real.sql` (y cómo resolverlo en 5 minutos)
 
@@ -40,7 +41,16 @@ retorno de MP (?collection_status) ─► api_mp_launch('confirm') + poll ──
 login dueño (#admin)            ──► api_panel(p_key) ──► snapshot completo + plan
 edición del panel               ──► api_save_cfg / api_upsert_product / api_delete_product
 cobros (Ajustes→Cobros)         ──► api_mp_set / api_mp_status / api_mp_launch('set')
+seguridad (Ajustes→Seguridad)   ──► api_key_change ──► rota stores.key_hash (bcrypt) + cfg.security.changedAt
 ```
+
+## Despliegue de `api_key_change` (v0.7.3)
+
+El panel del dueño le permite cambiar su propia Clave de acceso. Esa capacidad vive en
+[`api_key_change.sql`](api_key_change.sql): ejecutarlo **una vez** en el SQL Editor del proyecto
+la habilita. Es opcional y no rompe nada — mientras no esté, el frontend detecta el
+`PGRST202` y muestra la tarjeta "Tu clave la cambia POPUPS" con el mail de pedido listo
+(hoy, de hecho, la clave se rota con `api_admin → 'rotate_key'` desde la Consola).
 
 ## Reglas que NO se pueden romper
 
@@ -49,3 +59,4 @@ cobros (Ajustes→Cobros)         ──► api_mp_set / api_mp_status / api_mp_
 3. **El stock y los precios se validan y descuentan en la base**, nunca se confía en el cliente.
 4. **El límite de plan se aplica server-side** (`plan_limit` en `api_upsert_product`).
 5. Tienda `suspendida`/`baja` → todas las RPC responden el error correspondiente (la puerta del frontend hace el resto).
+6. **La Clave de acceso sólo existe hasheada** (`stores.key_hash`, bcrypt): se verifica con `crypt(p_key, key_hash) = key_hash` y ninguna RPC la devuelve en texto. Quien la escribe es `api_key_change` (el dueño) o `api_admin → 'rotate_key'` (Consola POPUPS).

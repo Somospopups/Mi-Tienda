@@ -16,3 +16,6 @@ Thumbs.db
 supabase/schema-real.sql.tmp
 .env
 .env.*
+
+# Config local de Playwright con un binario de Chromium propio (fuera del proyecto)
+playwright.local.js

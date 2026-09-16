@@ -776,6 +776,17 @@ svg { width: 1.25em; height: 1.25em; }
 .security-note { margin-top: 13px; display: flex; align-items: flex-start; gap: 6px; color: var(--ink-soft); font-size: .51rem; line-height: 1.45; }
 .security-note svg { width: 14px; height: 14px; flex: 0 0 14px; color: var(--green); }
 .settings-actions { margin-top: 20px; display: flex; justify-content: flex-end; gap:9px; }
+/* v0.7.3 · Tarjeta de acceso (clave/PIN) fuera del formulario de Configuración */
+.settings-key { grid-template-columns: 1fr; margin-top: 15px; }
+.settings-key .settings-card { margin-top: 0; }
+.settings-key .security-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.key-input { position: relative; display: block; }
+.key-input input { padding-right: 46px; }
+.key-reveal { position: absolute; top: 50%; right: 5px; width: 32px; height: 32px; transform: translateY(-50%); border-radius: 8px; display: grid; place-items: center; color: var(--ink-soft); background: transparent; }
+.key-reveal:hover { color: var(--ink); background: var(--cream); }
+.key-reveal svg { width: 17px; height: 17px; }
+.key-help { margin-top: 12px; color: var(--ink-soft); font-size: .53rem; line-height: 1.5; }
+.key-help b { color: var(--ink); }
 .palette-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.palette-presets>button{position:relative;min-height:84px;padding:11px;border:1px solid #dedcd6;border-radius:9px;display:grid;gap:8px;background:#faf9f6;text-align:left;transition:.2s}.palette-presets>button:hover{border-color:var(--ink);transform:translateY(-2px)}.palette-presets>button>span{height:27px;border-radius:6px;display:flex;overflow:hidden}.palette-presets i{flex:1}.palette-presets b{font-size:.58rem}.palette-presets em{position:absolute;top:7px;right:7px;padding:3px 5px;border-radius:99px;color:#fff;background:var(--green);font-size:.42rem;font-style:normal}.appearance-layout{margin-top:14px;display:grid;grid-template-columns:.82fr 1.18fr;gap:14px;align-items:start}.palette-controls{display:grid;gap:9px}.palette-controls label{min-height:64px;padding:9px;border:1px solid #e3e1dc;border-radius:8px;display:grid;grid-template-columns:45px 1fr;align-items:center;gap:10px;background:#faf9f6;cursor:pointer}.palette-controls input[type=color]{width:45px;height:45px;padding:3px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer}.palette-controls label>span{display:grid}.palette-controls label b{font-size:.59rem}.palette-controls label small{color:var(--ink-soft);font-size:.48rem}.palette-controls code{margin-top:3px;color:var(--accent-dark);font:700 .52rem ui-monospace,monospace}.appearance-preview{--p-accent:#C87852;--p-dark:#233219;--p-bg:#FCFAF6;--p-surface:#F7EAD9;--p-secondary:#829476}.preview-browser{border:1px solid #d9d7d1;border-radius:12px;overflow:hidden;color:var(--p-dark);background:var(--p-bg);box-shadow:0 12px 35px rgba(30,32,27,.1)}.preview-browser>header{height:54px;padding:0 18px;display:flex;align-items:center;gap:9px;background:var(--p-bg);border-bottom:1px solid color-mix(in srgb,var(--p-dark) 14%,transparent)}.preview-logo{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;color:var(--p-bg);background:var(--p-accent);font:700 .7rem var(--display)}.preview-browser>header>b{font-size:.73rem;letter-spacing:.13em}.preview-browser>header>i{width:5px;height:5px;margin-left:auto;border-radius:50%;background:var(--p-dark)}.preview-browser>header>i+ i{margin-left:2px}.preview-browser>main{min-height:360px;padding:38px;background:linear-gradient(135deg,var(--p-surface),var(--p-bg))}.preview-browser>main>span{color:var(--p-accent);font-size:.5rem;font-weight:800;letter-spacing:.14em}.preview-browser h2{margin:12px 0 10px;font:400 2.4rem/.9 var(--display);letter-spacing:-.05em}.preview-browser h2 em{color:var(--p-accent);font-weight:400}.preview-browser main>p{max-width:300px;color:color-mix(in srgb,var(--p-dark) 65%,var(--p-bg));font-family:var(--display);font-size:.8rem}.preview-browser main>button{margin:10px 0 28px;padding:11px 17px;border-radius:99px;color:var(--p-bg);background:var(--p-dark);font-size:.55rem;font-weight:750}.preview-product{padding:12px;border-radius:9px;display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:9px;background:var(--p-bg);box-shadow:0 6px 20px color-mix(in srgb,var(--p-dark) 12%,transparent)}.preview-product>i{width:38px;height:45px;border-radius:5px;background:var(--p-secondary)}.preview-product>span{display:grid}.preview-product b{font-family:var(--display);font-size:.73rem}.preview-product small{color:var(--p-secondary);font-size:.47rem}.preview-product strong{font-size:.58rem}.preview-browser>footer{padding:14px 18px;color:var(--p-bg);background:var(--p-dark);font:400 .75rem var(--display)}.contrast-check{margin-top:10px;padding:13px;border:1px solid #dedcd6;border-radius:9px;display:grid;grid-template-columns:1fr auto;align-items:center;background:#fff}.contrast-check>span{font-size:.55rem;font-weight:700}.contrast-check>b{font-family:var(--display);font-size:1.05rem;font-weight:400}.contrast-check>small{grid-column:1/-1;margin-top:2px;font-size:.48rem}.contrast-check>small.pass{color:var(--green)}.contrast-check>small.fail{color:var(--danger)}.random-palette-button{border-style:dashed;background:linear-gradient(90deg,rgba(200,120,82,.08),rgba(47,128,237,.08),rgba(192,79,140,.08))}.random-palette-button svg{transition:transform .25s}.random-palette-button:hover svg{transform:rotate(150deg)}
 .content-settings-layout { grid-template-columns: 1fr 1fr; }
 .content-card { padding: 25px; }
@@ -1037,6 +1048,7 @@ body:has(.share-price-fab) .toast-region { bottom: 101px; }
   .admin-mobile-header .admin-logo { min-height: auto; padding: 0; }
   .admin-content { padding: 25px 18px 60px; }
   .dashboard-grid, .settings-layout { grid-template-columns: 1fr; }
+  .settings-key .security-fields { grid-template-columns: 1fr; }
   .finance-account-strip { grid-template-columns: repeat(2,1fr); }
   .finance-account-strip article:nth-child(2) { border-right: 0; }
   .finance-accounts-grid { grid-template-columns: 1fr; }
@@ -2315,7 +2327,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       settings: Object.assign({}, mtClo(INITIAL_STORE.settings), (cfg.settings && typeof cfg.settings === 'object') ? cfg.settings : {}),
       content: Object.assign({}, mtClo(INITIAL_STORE.content), cfg.content || {}),
       legal: Object.assign({}, mtClo(INITIAL_STORE.legal), cfg.legal || {}),
-      security: { adminPin: 'cloud', changedAt: null },
+      security: { adminPin: 'cloud', changedAt: (cfg.security && cfg.security.changedAt) || null },
       products: Array.isArray(d.products) ? d.products : [],
       customers: Array.isArray(cfg.customers) ? cfg.customers : [],
       orders: Array.isArray(cfg.orders) ? cfg.orders : [],
@@ -2377,7 +2389,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function cloudErrMsg(r) {
     if (r && r.error === 'plan_limit') return (r.msg) || 'Llegaste al límite de tu plan: desactivá o borrá productos, o pedí subir de plan.';
     if (r && r.error === 'store_suspendida' || r && r.error === 'store_baja') return (r.msg) || 'Tu tienda está suspendida. Regularizá el pago para seguir editando.';
-    if (r && r.error === 'bad_key') return 'Tu clave ya no es válida. Pedí una nueva en POPUPS.';
+    if (r && r.error === 'bad_key') return 'Tu clave ya no es válida o la cambiaste desde otro dispositivo. Entrá con la clave actual; si no la tenés, pedí una nueva en POPUPS.';
     if (r && r.error === 'product_not_found') return 'Ese producto ya no existe. Actualizá la lista e intentá de nuevo.';
     return (r && r.error) || 'Sin conexión con la nube. Revisá tu conexión e intentá de nuevo.';
   }
@@ -2412,8 +2424,34 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (path === '/api/admin/login' && method === 'POST') return await mtOwnerLogin(body);
     var key = mtAdmKey();
     if (!key) return error('Tu sesión venció. Volvé a entrar con tu Clave de acceso.', 401);
-    if (path === '/api/admin/security/pin' && method === 'PUT')
-      return error('En la nube tu acceso es la Clave que te entregó POPUPS. Si la perdés, escribinos y te damos una nueva.', 403);
+    if (path === '/api/admin/security/pin' && method === 'PUT') {
+      // v0.7.3 · El dueño cambia su propia Clave de acceso (rpc api_key_change).
+      // La clave actual se verifica contra el hash bcrypt de la base; nunca guardamos la nueva en texto.
+      const cur = clean(body.currentPin, 64), nw = clean(body.newPin, 64), cf = clean(body.confirmPin, 64);
+      if (!cur || !nw || !cf) return error('Completá la clave actual y la nueva dos veces.', 400);
+      if (nw !== cf) return error('La confirmación no coincide con la nueva clave.', 400);
+      if (nw.length < 6) return error('La nueva clave necesita al menos 6 caracteres.', 400);
+      if (nw === cur) return error('Elegí una clave distinta a la actual.', 400);
+      if (window.__mtKeyChangeUnsupported === 1)
+        return result({ error: 'Tu clave la administra POPUPS por ahora: pedila y te damos una nueva.', details: { code: 'key_change_unavailable' } }, 409);
+      const r = await mtRpc('api_key_change', { p_store: slug, p_key: cur, p_new_key: nw });
+      if (!r || r.ok !== true) {
+        const msg = String((r && r.message) || '');
+        if (r && (r.code === 'PGRST202' || /could not find the function|does not exist|is not unique/i.test(msg))) {
+          window.__mtKeyChangeUnsupported = 1;
+          return result({ error: 'Tu clave la administra POPUPS por ahora: escribinos y te damos una nueva.', details: { code: 'key_change_unavailable' } }, 409);
+        }
+        if (r && r.error === 'bad_key') return error('La clave actual no coincide con la de tu tienda. Volvé a escribirla igual que cuando entrás.', 403);
+        if (r && r.error === 'store_not_found') return error('No encontramos tu tienda en la nube. Avisale a POPUPS.', 404);
+        if (r && r.error === 'clave_corta') return error('La nueva clave necesita al menos 6 caracteres.', 400);
+        if (r && r.error === 'key_equal') return error('Esa es tu clave actual: elegí una distinta.', 400);
+        if (r && r.error === 'clave_invalida') return error('La nueva clave no puede tener saltos de línea. Escribila en una sola línea.', 400);
+        return error(cloudErrMsg(r) || 'No pudimos cambiar tu clave. Intentá de nuevo.', r && r.ok === false ? 400 : 503);
+      }
+      try { sessionStorage.setItem('luma_admin_token', 'ck:' + nw); } catch (_) { }
+      await mtAdmLoad();
+      return result({ ok: true, changedAt: new Date().toISOString() });
+    }
     if (path === '/api/admin/mp/status' && method === 'GET') {
       const st = await mtRpc('api_mp_status', { p_store: slug, p_key: key });
       if (!st || st.ok !== true) return error(cloudErrMsg(st) || 'No pudimos consultar el estado.', 400);
@@ -2471,7 +2509,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     }
     var en = await mtAdmEnsure();
     if (!en.ok) {
-      if (en.error === 'bad_key') { try { sessionStorage.removeItem('luma_admin_token'); } catch (_) { } return error('Tu clave ya no es válida. Pedí una nueva en POPUPS.', 401); }
+      if (en.error === 'bad_key') { try { sessionStorage.removeItem('luma_admin_token'); } catch (_) { } return error('Tu clave ya no es válida o la cambiaste desde otro dispositivo. Volvé a entrar con tu clave actual.', 401); }
       if (!mtAdm.doc) return error('No pudimos conectar con la nube. Revisá tu conexión e intentá de nuevo.', 503);
     }
     return null;
@@ -4723,6 +4761,35 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
   async function saveLegalSettings(event){event.preventDefault();const form=event.target;const values=Object.fromEntries(new FormData(form));const social={instagramUrl:values.instagramUrl,facebookUrl:values.facebookUrl,pinterestUrl:values.pinterestUrl,tiktokUrl:values.tiktokUrl};const legal={...values};delete legal.instagramUrl;delete legal.facebookUrl;delete legal.pinterestUrl;delete legal.tiktokUrl;const button=form.querySelector('button[type=submit]');button.disabled=true;try{await Promise.all([api('/api/admin/legal',{admin:true,method:'PUT',body:JSON.stringify(legal)}),api('/api/admin/settings',{admin:true,method:'PUT',body:JSON.stringify(social)})]);toast('Información pública actualizada');await Promise.all([loadStore({silent:true}),loadAdminTab(false)]);}catch(error){toast('No se pudo guardar',error.message,'error');}finally{button.disabled=false;}}
 
+  /* ---------- v0.7.3 · Acceso al panel (Clave en la nube, PIN en la demo) ---------- */
+  function isCloudOwnerSession() {
+    try {
+      return !!(window.mtCloudGlue && window.mtCloudGlue.slug && window.mtCloudGlue.slug())
+        && /^ck:/.test(String(sessionStorage.getItem('luma_admin_token') || ''));
+    } catch (_) { return false; }
+  }
+
+  function keyRules(cloud) {
+    return cloud
+      ? { label: 'Clave de acceso', min: 6, max: 64, numeric: false }
+      : { label: 'PIN de acceso', min: 4, max: 8, numeric: true };
+  }
+
+  function adminKeyCard(pinChangedAt) {
+    const cloud = isCloudOwnerSession();
+    const rules = keyRules(cloud);
+    const num = rules.numeric;
+    const slug = (window.mtCloudGlue && window.mtCloudGlue.slug) ? (window.mtCloudGlue.slug() || '') : '';
+    const estado = `<div class="integration-card security-status"><span style="background:#252721"><svg><use href="#i-shield"></use></svg></span><div><b>Acceso protegido</b><small>${pinChangedAt ? `Último cambio: ${formatDate(pinChangedAt)}` : (cloud ? 'Es la clave que te entregó POPUPS' : 'PIN inicial de la demo activo')}</small></div><span class="integration-state live">Activo</span></div>`;
+    if (cloud && window.__mtKeyChangeUnsupported === 1) {
+      const mail = 'mailto:somospopups@gmail.com?subject=' + encodeURIComponent('Cambio de clave de acceso · tienda ' + slug)
+        + '&body=' + encodeURIComponent('Hola POPUPS, necesito una clave de acceso nueva para mi tienda ' + slug + '.');
+      return `<div class="settings-layout settings-key"><section class="settings-card security-card"><h2>Seguridad</h2><p>Tu clave de acceso la cambia POPUPS en tu tienda: pedila y te damos una nueva al toque.</p>${estado}<div class="settings-actions" style="justify-content:flex-start;margin-top:14px"><a class="button button-dark button-small" href="${mail}">Pedir cambio de clave</a></div><p class="key-help"><svg><use href="#i-shield"></use></svg> Mientras tanto tu clave actual sigue funcionando en todos tus dispositivos.</p></section></div>`;
+    }
+    const field = (name, label, placeholder, autocomplete) => `<label class="field"><span>${label}</span><span class="key-input"><input name="${name}" type="password"${num ? ' inputmode="numeric" pattern="[0-9]*"' : ''} maxlength="${rules.max}" autocomplete="${autocomplete}" placeholder="${placeholder}"><button class="key-reveal" type="button" data-key-reveal aria-label="Mostrar u ocultar" title="Mostrar u ocultar"><svg><use href="#i-eye"></use></svg></button></span></label>`;
+    return `<form id="keyForm" novalidate><div class="settings-layout settings-key"><section class="settings-card security-card"><h2>Seguridad</h2><p>${num ? 'Cambiá el código de acceso al panel. Debe tener entre 4 y 8 números.' : 'Cambiá tu Clave de acceso cuando quieras: mínimo 6 caracteres, pueden ser letras, números, guiones o espacios.'}</p>${estado}<div class="security-fields">${field('currentPin', num ? 'PIN actual' : 'Clave actual', num ? '••••' : 'Tu clave actual', 'current-password')}${field('newPin', num ? 'Nuevo PIN' : 'Nueva clave', num ? '4 a 8 números' : '6 caracteres o más', 'new-password')}${field('confirmPin', num ? 'Repetir nuevo PIN' : 'Repetir nueva clave', 'Repetí el código', 'new-password')}</div><p class="key-help">${num ? 'El PIN nunca se muestra en ninguna pantalla pública de la tienda.' : '<b>Anotá la clave nueva en un lugar seguro</b>: es la llave de tu panel y no la guardamos en texto. Si la perdés, POPUPS te da otra.'}</p><div class="settings-actions"><button class="button button-dark" type="submit">Cambiar ${num ? 'PIN' : 'clave'} <svg><use href="#i-check"></use></svg></button></div></section></div></form>`;
+  }
+
   function renderAdminSettings(data) {
     const s = data.settings;
     const mpLive = data.integrations.mercadoPago;
@@ -4730,13 +4797,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('adminContent').innerHTML = `
       ${adminPageHead('Configuración', 'Preferencias de la tienda', 'Personalizá la información operativa y comercial')}
       ${settingsSubnav('general')}
-      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section><section class="settings-card security-card"><h2>Seguridad</h2><p>Cambiá el código de acceso al panel. Debe tener entre 4 y 8 números.</p><div class="integration-card security-status"><span style="background:#252721"><svg><use href="#i-shield"></use></svg></span><div><b>Acceso protegido</b><small>${pinChangedAt ? `Último cambio: ${formatDate(pinChangedAt)}` : 'Contraseña inicial activa'}</small></div><span class="integration-state live">Activo</span></div><div class="security-fields"><label class="field"><span>PIN actual</span><input name="currentPin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" autocomplete="current-password" placeholder="••••"></label><label class="field"><span>Nuevo PIN</span><input name="newPin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" autocomplete="new-password" placeholder="4 a 8 números"></label><label class="field"><span>Repetir nuevo PIN</span><input name="confirmPin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" autocomplete="new-password" placeholder="Repetí el código"></label></div><small class="security-note"><svg><use href="#i-shield"></use></svg> El PIN nunca se muestra en ninguna pantalla pública de la tienda.</small></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>`;
+      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>${adminKeyCard(pinChangedAt)}`;
   }
 
   function renderAdminPayments(mpData, settings) {
     const mp = mpData || {};
     const s = settings || {};
-    const isCloudOwner = !!(window.mtCloudGlue && window.mtCloudGlue.slug && window.mtCloudGlue.slug()) && /^ck:/.test(String(sessionStorage.getItem('luma_admin_token') || ''));
+    const isCloudOwner = isCloudOwnerSession();
     if (!isCloudOwner) {
       $('adminContent').innerHTML = `
         ${adminPageHead('Configuración', 'Cobros con Mercado Pago', 'Conectá la cuenta del local para cobrar con tarjeta')}
@@ -4822,22 +4889,60 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const form = event.target;
     const button = form.querySelector('button[type="submit"]');
     const values = Object.fromEntries(new FormData(form));
-    const { currentPin = '', newPin = '', confirmPin = '', ...settingsValues } = values;
+    const settingsValues = { ...values };
     settingsValues.mercadoPagoEnabled = form.elements.mercadoPagoEnabled.checked;
     settingsValues.whatsappEnabled = form.elements.whatsappEnabled.checked;
     if (!settingsValues.mercadoPagoEnabled && !settingsValues.whatsappEnabled) { toast('Debe quedar un medio de pago activo', 'Activá Mercado Pago o WhatsApp antes de guardar.', 'error'); return; }
-    const wantsPinChange = Boolean(currentPin || newPin || confirmPin);
     button.disabled = true;
     try {
-      if (wantsPinChange) {
-        if (!currentPin || !newPin || !confirmPin) throw new Error('Completá los tres campos para cambiar el PIN.');
-        await api('/api/admin/security/pin', { admin: true, method: 'PUT', body: JSON.stringify({ currentPin, newPin, confirmPin }) });
-      }
       await api('/api/admin/settings', { admin: true, method: 'PUT', body: JSON.stringify(settingsValues) });
-      toast(wantsPinChange ? 'PIN y configuración actualizados' : 'Configuración guardada', wantsPinChange ? 'El nuevo código ya está activo para el próximo ingreso.' : 'La tienda ya muestra los cambios.');
+      toast('Configuración guardada', 'La tienda ya muestra los cambios.');
       await Promise.all([loadStore({ silent: true }), loadAdminTab(false)]);
     } catch (error) { toast('No se pudo guardar', error.message, 'error'); }
     finally { button.disabled = false; }
+  }
+
+  // v0.7.3 · Cambio de acceso desde Seguridad (forma independiente: no traba Configuración)
+  async function saveAccessKey(event) {
+    event.preventDefault();
+    const form = event.target;
+    const button = form.querySelector('button[type="submit"]');
+    const cloud = isCloudOwnerSession();
+    const rules = keyRules(cloud);
+    const values = Object.fromEntries(new FormData(form));
+    const squeeze = (v) => String(v == null ? '' : v).trim().slice(0, rules.max);
+    const currentPin = squeeze(values.currentPin);
+    const newPin = squeeze(values.newPin);
+    const confirmPin = squeeze(values.confirmPin);
+    const nombre = rules.numeric ? 'PIN' : 'clave';
+    const fail = (message) => { toast('No se pudo cambiar el acceso', message, 'error'); return false; };
+    if (!currentPin || !newPin || !confirmPin) return fail(`Completá la ${nombre} actual y la nueva dos veces.`);
+    if (rules.numeric && !/^\d{4,8}$/.test(newPin)) return fail('El nuevo PIN debe tener entre 4 y 8 números.');
+    if (!rules.numeric && newPin.length < rules.min) return fail(`La nueva clave necesita al menos ${rules.min} caracteres.`);
+    if (newPin !== confirmPin) return fail('La confirmación no coincide con la nueva clave.');
+    if (newPin === currentPin) return fail(`Elegí una ${nombre} distinta a la actual.`);
+    button.disabled = true;
+    try {
+      await api('/api/admin/security/pin', { admin: true, method: 'PUT', body: JSON.stringify({ currentPin, newPin, confirmPin }) });
+      if (cloud) {
+        // La nube ya actualizó sessionStorage con la clave nueva: la sesión en curso no se corta.
+        state.admin.token = sessionStorage.getItem('luma_admin_token') || state.admin.token;
+      }
+      toast('Acceso actualizado', cloud
+        ? 'Tu nueva Clave de acceso ya rige en todos tus dispositivos.'
+        : 'El nuevo PIN ya está activo para el próximo ingreso.');
+      await loadAdminTab(false);
+    } catch (err) {
+      const unavailable = err && err.details && err.details.code === 'key_change_unavailable';
+      if (unavailable) {
+        window.__mtKeyChangeUnsupported = 1;
+        toast('Tu clave la cambia POPUPS', 'En tu tienda aún no está el cambio propio de clave: te dejamos el botón para pedirla.', 'error');
+        await loadAdminTab(false);
+      } else {
+        toast('No se pudo cambiar el acceso', (err && err.message) || 'Intentá de nuevo en un momento.', 'error');
+      }
+    } finally { button.disabled = false; }
+    return true;
   }
 
   /* ---------- Events ---------- */
@@ -4900,6 +5005,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('adminContent').addEventListener('change', adminContentChange);
     $('adminContent').addEventListener('submit', (event) => {
       if (event.target.id === 'settingsForm') saveSettings(event);
+      if (event.target.id === 'keyForm') saveAccessKey(event);
       if (event.target.id === 'contentForm') saveContent(event);
       if (event.target.id === 'legalSettingsForm') saveLegalSettings(event);
       if (event.target.id === 'appearanceForm') saveAppearance(event);
@@ -5027,6 +5133,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (go) return setAdminTab(go.dataset.adminGo);
     const alertAction = event.target.closest('[data-alert-tab]'); if(alertAction){state.admin.tab=alertAction.dataset.alertTab;document.querySelectorAll('[data-admin-tab]').forEach((button)=>button.classList.toggle('active',button.dataset.adminTab===state.admin.tab));return loadAdminTab();}
     if(event.target.closest('#refreshAlerts'))return loadAdminTab(false);
+    const keyReveal = event.target.closest('[data-key-reveal]');
+    if (keyReveal) { const inp = keyReveal.parentElement && keyReveal.parentElement.querySelector('input'); if (inp) { const showing = inp.type === 'password'; inp.type = showing ? 'text' : 'password'; keyReveal.setAttribute('aria-pressed', showing ? 'true' : 'false'); } return; }
     const customerView=event.target.closest('[data-customer-view]');if(customerView){state.admin.customerView=customerView.dataset.customerView;return renderAdminCustomers();}
     if(event.target.closest('#exportSubscribers'))return exportSubscribersCsv();
     const toggleSub=event.target.closest('[data-toggle-subscriber]');if(toggleSub)return toggleSubscriber(toggleSub.dataset.toggleSubscriber,toggleSub.dataset.nextStatus);
@@ -5227,7 +5335,7 @@ async function mtGuiaPdf() {
   pdf.setFontSize(11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(ink[0], ink[1], ink[2]);
   pdf.text(secc.planTxt + '   ·   vence el ' + secc.vence, MX + 8, 198);
   pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.6); pdf.setTextColor(mut[0], mut[1], mut[2]);
-  const warn = pdf.splitTextToSize('Guardá esta guía (o la clave) en un lugar seguro: es la llave de tu panel. Si la perdés, escribinos y te damos una nueva.', W - MX * 2 - 16);
+  const warn = pdf.splitTextToSize('Guardá esta guía (o la clave) en un lugar seguro: es la llave de tu panel. Podés cambiarla cuando quieras desde Ajustes → Seguridad; si la perdés, escribinos y te damos una nueva.', W - MX * 2 - 16);
   pdf.text(warn, MX + 8, 214);
 
   // ---------- PÁGINAS DE INSTRUCCIONES ----------

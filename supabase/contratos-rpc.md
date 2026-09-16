@@ -1,5 +1,8 @@
 # Contratos RPC verificados en vivo (15-sep-2026)
 
+> 11 RPC verificadas contra producción + `api_key_change` (v0.7.3, DDL en
+> `api_key_change.sql`; todavía no desplegada en el proyecto).
+
 Formas de respuesta **reales**, obtenidas sondendo el proyecto `zfnlcfnutnuatrhgbbci`
 con la clave publishable del cliente (mismas llamadas que hace la web publicada).
 
@@ -130,6 +133,35 @@ El cliente hace polling 30 × 600 ms. Respuesta esperada al completar:
 - `confirm` → `{ ok:true, status:'approved'|'pending'|…, order:{number,…} }`
 - `set` → `{ ok:true, connected:true, nick:"…" }`
 Mientras corre: cualquier respuesta sin `ok:true` definitivo mantiene el polling.
+
+## `api_key_change(p_store, p_key, p_new_key)` *(nueva, v0.7.3)*
+
+El dueño cambia **su** Clave de acceso desde Ajustes → Seguridad.
+
+```jsonc
+// éxito — sólo se devuelve la fecha, nunca la clave
+{ "ok": true, "changedAt": "2026-09-15T12:00:00.000Z" }
+
+// rechazos (el frontend traduce cada código a un mensaje en español)
+{ "ok": false, "error": "store_not_found" }  // slug inexistente
+{ "ok": false, "error": "bad_key" }           // la clave actual no coincide con stores.key_hash
+{ "ok": false, "error": "clave_corta" }       // nueva clave < 6 caracteres
+{ "ok": false, "error": "key_equal" }         // la nueva es igual a la actual
+{ "ok": false, "error": "clave_invalida" }    // tiene \r, \n o \t
+```
+
+`p_key` es la clave actual y se verifica con `crypt(p_key, key_hash) = key_hash`, la misma
+comparación bcrypt que usan las otras RPC privadas. La nueva se guarda con
+`crypt(gen_salt('bf'))`; **no existe ninguna RPC que devuelva una clave en texto**.
+Escribe además `cfg.security.changedAt`, que `api_panel` trae en el snapshot y el panel
+muestra como "Último cambio".
+
+**No bloquea por estado de la tienda** (cambiar la llave es una acción de
+autoprotección del dueño; la vitrina y los cobros siguen cortados por la puerta POPUPS).
+
+⚠️ Función **opcional**: mientras no esté desplegada, PostgREST responde `PGRST202` y el
+frontend degrada a la tarjeta *"Tu clave la cambia POPUPS"* con mail de pedido. Ver
+[`api_key_change.sql`](api_key_change.sql) para el DDL y la prueba manual.
 
 ---
 

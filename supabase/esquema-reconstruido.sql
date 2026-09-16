@@ -646,6 +646,16 @@ create trigger mt_mp_response after insert on net._http_response
 -- ----------------------------------------------------------------------------
 -- Seed de demos (coincide con lo documentado en el changelog v0.5.0)
 -- ----------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------
+-- v0.7.3 · api_key_change (el dueño cambia su clave)
+-- ----------------------------------------------------------------------------
+-- El DDL de producción está en api_key_change.sql y trabaja sobre
+-- stores.key_hash (bcrypt). Esta reconstrucción todavía modela la columna
+-- access_key en texto plano, así que NO es un espejo fiel de producción para
+-- ese flujo: si alguna vez se usa para DR/staging, migrar primero
+-- access_key → key_hash con crypt/gen_salt('bf') y recién entonces aplicar la
+-- función. Mientras tanto, para staging basta copiar api_key_change.sql.
+
 insert into public.stores (slug, biz, owner, contact, status, plan_id, paid_until, access_key)
 values
   ('juan',    'Panadería La Espiga', 'Juan Pérez', '351 555-0101', 'activa', 'p50', current_date + 30, 'juan-demo'),
