@@ -244,4 +244,64 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
     await expectNoPageErrors(page);
   });
 
+  test('19 · Tienda recién creada (cfg vacío): el dueño entra, edita y el 1er guardado materializa TODO el contenido en la nube', async ({ page }) => {
+    const key = 'clave-cliente-2026';
+    const state = { biz: 'Mi Panadería', saved: null };
+    const handlers = {
+      api_public: () => ({
+        ok: true, biz: state.biz, status: 'activa', contact: '', mp_ok: false,
+        cfg: { settings: null, content: state.saved, legal: null }, products: []
+      }),
+      api_panel: () => ({
+        ok: true, biz: state.biz, owner: 'Cliente', status: 'activa', contact: '',
+        plan_id: 'p25', plan: { max: 25, price: 20000 }, paid_until: '2099-12-31',
+        mp_ok: false, mp_nick: '',
+        cfg: { settings: null, content: state.saved, legal: null, customers: [], orders: [], subscribers: [], nextOrderNumber: 1001 },
+        products: []
+      }),
+      api_save_cfg: (body) => {
+        if (body.p_key !== key) return { ok: false, error: 'bad_key' };
+        if (body.p_cfg && body.p_cfg.content) state.saved = body.p_cfg.content;
+        return { ok: true };
+      }
+    };
+    const calls = await stubCloud(page, handlers);
+
+    // Escenario real: api_admin → 'create_store' solo con id/key/biz. La tienda
+    // arranca sin cfg: el login del dueño usa la clave recién generada.
+    await page.goto('/index.html?tienda=prueba#admin');
+    await expect(page.locator('#loginForm input[name="pin"]')).toBeVisible({ timeout: 20_000 });
+    await page.locator('#loginForm input[name="pin"]').fill(key);
+    await page.locator('#loginForm button[type="submit"]').click();
+    await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
+
+    await page.locator('#viewStore').click();
+    await expect(page.locator('.mt-edit-float')).toBeVisible();
+    await page.locator('.mt-edit-float').click();
+    await expect(page.locator('.mt-edit-bar')).toBeVisible();
+
+    // El cliente ve los defaults (la tienda estaba vacía) y edita el 1er texto.
+    await page.locator('[data-content="heroCardName"]').click();
+    const pop = page.locator('.mt-edit-popover');
+    await expect(pop).toBeVisible();
+    await pop.locator('input').fill('Lámpara Norteña');
+    await pop.locator('[data-mt-save]').click();
+    await expect(page.locator('[data-content="heroCardName"]')).toHaveText('Lámpara Norteña');
+
+    // El guardado va a api_save_cfg con TODO el bloque content (defaults + edición),
+    // no solo el delta: así cfg = cfg ∪ p_cfg queda con el contenido completo.
+    await expect.poll(() => calls.filter((c) => c.name === 'api_save_cfg' && c.body.p_cfg && c.body.p_cfg.content && c.body.p_cfg.content.heroCardName === 'Lámpara Norteña').length, { timeout: 20_000 }).toBeGreaterThan(0);
+    const save = calls.find((c) => c.name === 'api_save_cfg' && c.body.p_cfg && c.body.p_cfg.content && c.body.p_cfg.content.heroCardName === 'Lámpara Norteña');
+    expect(save.body.p_store).toBe('prueba');
+    expect(save.body.p_key).toBe(key);
+    expect(save.body.p_cfg.content.heroTitle).toBe('Tu espacio.');
+    expect(save.body.p_cfg.content.heroDescription).toBeDefined();
+
+    // Recargar como VISITANTE (sin token ni espejo local): el cambio persiste en la nube.
+    await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+    await page.goto('/index.html?tienda=prueba');
+    await expect(page.locator('[data-content="heroCardName"]')).toHaveText('Lámpara Norteña', { timeout: 20_000 });
+    await expectNoPageErrors(page);
+  });
+
 });
