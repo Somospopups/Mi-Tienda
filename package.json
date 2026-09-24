@@ -1,6 +1,6 @@
 {
   "name": "mi-tienda-tests",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Smoke tests de Mi-Tienda (POPUPS) — demo offline y flujos críticos",
   "scripts": {

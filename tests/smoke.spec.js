@@ -180,8 +180,22 @@ test.describe('Panel de administración (demo offline)', () => {
   });
 
   test('10 · La puerta cloud NO interfiere con la demo offline', async ({ page }) => {
-    // Sin ?tienda= el gate no corre; con ?tienda= inexistente en sandbox sin red
-    // a Supabase, el gate debe dejar pasar (fallback legacy sin registro local).
+    // Sin ?tienda= el gate no corre. Con una tienda inexistente, la RPC api_public
+    // responde store_not_found y el gate deja pasar (fallback legacy sin registro
+    // local). Stubeamos la RPC para que el test sea determinístico con o sin red:
+    // de lo contrario depende del estado real de Supabase en el runner (FALLECA
+    // con internet, donde el slug inexistente puede tardar o colgar el loader).
+    const cors = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'apikey,authorization,content-type',
+      'Access-Control-Allow-Methods': 'POST,OPTIONS',
+      'Content-Type': 'application/json'
+    };
+    await page.route('**/rest/v1/rpc/api_public', (route) => {
+      if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors, body: '' });
+      return route.fulfill({ status: 200, headers: cors, body: JSON.stringify({ ok: false, error: 'store_not_found' }) });
+    });
+
     await page.goto('/index.html?tienda=__no_existe__');
     await expect(page.locator('#productGrid [data-open-product]').first()).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('#mt-gate')).toHaveCount(0);

@@ -1,5 +1,15 @@
 # Changelog — Mi-Tienda
 
+## v0.8.0 · 2026-09-24
+- **Modo edición visual (clic para editar)** en la tienda: con la sesión del dueño activa aparece el botón flotante **"Editar página"**. Hacés clic sobre cualquier parte del home y se abre un editor contextual para cambiarla al instante, guardando por los mismos endpoints del panel (demo en `localStorage`, cloud en Supabase):
+  - **Textos**: títulos, botones, menú, beneficios (envío/cambios/protección/gift), nota del hero, tarjeta del producto destacado, manuscrito, manifiesto, newsletter y datos editoriales.
+  - **Imágenes del hero y del editorial**: subirlas desde el dispositivo (PNG/JPG/WEBP) con optimización automática o restaurar el original con un clic.
+  - **Productos**: clic sobre una tarjeta abre el editor de producto del panel.
+  - **Colores y marca**: la barra superior tiene **Colores** (paleta con preview); la marca y el logo se editan tocando el logo o el nombre en el encabezado/pie.
+- El botón respeta la sesión y el lugar: oculto sin sesión del dueño, oculto dentro del panel y al cerrar sesión; al terminar el modo edición vuelve a aparecer. En modo edición la barra superior ya no tapa el anuncio ni el encabezado (reserva su propio espacio).
+- **7 tests nuevos** (offline + cloud stubbeado): visibilidad del botón según sesión, edición de texto con persistencia en el store offline, apertura del editor de producto, paleta, cierre de sesión y **sync del guardado a la nube** (`api_save_cfg` con la `p_key` correcta para contenido y ajustes, véase [`tests/edit-mode.spec.js`](tests/edit-mode.spec.js) y [`tests/edit-mode-cloud.spec.js`](tests/edit-mode-cloud.spec.js)).
+- El smoke test de la puerta cloud (test 10) ahora stubea `api_public` y es determinístico con o sin red.
+
 ## v0.7.3 · 2026-09-15
 - **El dueño ahora puede cambiar su Clave de acceso** desde Ajustes → **Seguridad**, sin depender de POPUPS. La clave actual se verifica contra el hash bcrypt de la base y la nueva se guarda cifrada (nunca viaja ni se almacena en texto); rige en todos los dispositivos y **la sesión abierta no se corta** (el token `ck:` se actualiza solo).
 - **Fix del bloqueo de Configuración** (era el síntoma más feo del mismo bug): los campos de clave estaban *dentro* del formulario de Ajustes y eran numéricos (`pattern="[0-9]*"`, `maxlength="8"`). Pegar una clave con letras (ej. `juan-demo`) la truncaba y la validación nativa del navegador **cancelaba el guardado de toda la configuración**, sin mostrar ningún error. La tarjeta de acceso pasó a ser un `<form>` propio, con reglas por modo: **4–8 dígitos en la demo / 6–64 caracteres libres en la nube**.
