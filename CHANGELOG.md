@@ -1,5 +1,15 @@
 # Changelog — Mi-Tienda
 
+## v0.9.0 · 2026-09-24 · Frentes de tienda
+- **Nuevo: el dueño elige la vidriera pública, el panel no cambia.** En Configuración → Apariencia hay un selector **"Frente de tienda"** con tres estilos, persistido en `settings.storefront` (mismos endpoints de siempre: `PUT /api/admin/settings` online + espejo local; retrocompatible — sin clave → `luma`):
+  - **Boutique · Editorial** (`luma`): el frente clásico de siempre, intacto.
+  - **Ofertas · Consumo** (`ofertas`): estilo tienda tech masiva (tipo smarts.com.ar): hero de campaña, benefits strip (envío / 18 cuotas / compra protegida), **"Ofertas de la semana"** calculadas automáticamente de los productos con `compareAtPrice` (cinta de % off, precio rojo, precio anterior tachado) y acceso rápido por categorías.
+  - **Gamer · Hardware** (`gamer`): oscuro con acento neón (tipo armytech.com.ar): hero "ARMÁ TU SETUP", **mosaico de categorías generado del catálogo real** con íconos por tipo de producto, y strip de servicios. Todo el shop (header, catálogo, carrito, modales y footer) se adapta vía re-declaración de variables CSS con scope en `body[data-front="gamer"]` — el admin conserva su paleta.
+- El frente comparte **el mismo catálogo, carrito, checkout y editores**: buscar/filtrar/ordenar, producto con modal, carrito con envío gratis, Mercado Pago demo/live y WhatsApp funcionan idéntico en los tres frentes.
+- Nuevas acciones delegadas (`data-front-add/open/jump/scroll`) reutilizan `addToCart`, `openProduct` y el salto de categoría existentes; los textos de los frentes nuevos (`ofr*` / `gmr*`) son campos de contenido → editables con el **modo edición visual** v0.8 y persistibles en la nube (el PUT de contenido acepta claves nuevas presentes en `INITIAL_STORE.content`).
+- La barra "Editar página" y la previsualización en vivo del selector (cambia la vidriera al marcar una opción, se confirma al guardar) funcionan en todos los frentes.
+- 5 tests nuevos en [`tests/fronts.spec.js`](tests/fronts.spec.js): frente por defecto, cambio desde el panel con persistencia tras recargar, ofertas calculadas, mosaico gamer y carrito funcionando en frente oscuro.
+
 ## v0.8.1 · 2026-09-24
 - **Fix: los cambios del dueño ya no se "pierden" en la nube.** Antes, guardar contenido o ajustes en una tienda cloud encolaba la sincronización (`mtAdmWrite`) y el PUT respondía `ok` aunque la RPC fallara después: la UI festejaba un guardado que nunca llegaba y, al recargar, el estado remoto pisaba el espejo local → los cambios desaparecían sin aviso.
   - **Guardado atómico**: `PUT /api/admin/content` y `PUT /api/admin/settings` ahora esperan `api_save_cfg` y devuelven un error real si falla (el editor muestra "No se pudo guardar" y no cambia la tienda).

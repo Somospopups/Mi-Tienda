@@ -28,22 +28,23 @@ dispositivo. Al regularizar, vuelve sola.
 
 ## Qué incluye
 
+- **Tienda con 3 frentes elegibles (v0.9):** el dueño elige en Configuración → Apariencia cómo ve la tienda el público — **Boutique** (editorial, el clásico), **Ofertas** (descuentos y cuotas, estilo tienda tech de consumo) o **Gamer** (oscuro, categorías grandes, estilo casa de hardware). Mismo catálogo, carrito, checkout y panel en los tres; solo cambia la vidriera.
 - **Tienda:** hero editorial, catálogo con búsqueda/filtros/orden, detalle de producto, carrito con barra de envío gratis, checkout (domicilio o retiro en Córdoba Capital; Mercado Pago **demo**, Mercado Pago **live** por dueño con Checkout Pro, o pedido por WhatsApp), newsletter con consentimiento, legales editables.
 - **Modo edición visual (v0.8):** con la sesión del dueño activa aparece el botón flotante **"Editar página"**. Clic sobre cualquier texto, imagen o tarjeta de producto para editarla al instante; la barra superior permite cambiar **Colores** y la **marca/logo** se edita tocando el encabezado. Se guarda por los mismos endpoints del panel.
 - **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración (marca, contenidos, apariencia con paletas y contraste, legales, **cobros MP**, seguridad con cambio de clave propio).
 - **Extras POPUPS:** barra de plan con aviso al 80% y vencimiento · Guía de bienvenida en PDF con los datos del dueño · numeración de pedidos · reserva de stock y reembolsos automáticos al cancelar.
 
-## Arquitectura del archivo (5.931 líneas · 1,72 MB)
+## Arquitectura del archivo (6.250 líneas · 1,71 MB)
 
 | Líneas | Bloque | Peso |
 |---|---|---|
 | 1–10 | `<head>` + metadatos + favicon silencioso | 0,5 KB |
-| 11–1296 | CSS (tienda + admin, responsive) + CSS del modo edición visual (v0.8) | ~124 KB |
-| 1299–1695 | Script puerta POPUPS (gate de suspensión) | 3 KB |
-| 1696–2110 | Markup: sprite SVG, tienda, modales, panel + imágenes base64 + jsPDF embebido | ~380 KB |
-| 2111–3070 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~276 KB |
-| 3071–5608 | App principal (tienda + admin) + puente v0.7 (`window.mtCloudGlue`) | ~187 KB |
-| 5609–5931 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) | ~14 KB |
+| 11–1458 | CSS (tienda + admin, responsive) + modo edición visual (v0.8) + **frentes de tienda (v0.9)** | ~135 KB |
+| 1459–1560 | Script puerta POPUPS (gate de suspensión) | 3 KB |
+| 1562–2300 | Markup: sprite SVG, tienda (3 frentes), modales, panel + imágenes base64 + jsPDF embebido | ~400 KB |
+| 2302–3270 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~280 KB |
+| 3271–5926 | App principal (tienda + admin + **motor de frentes v0.9**) + puente v0.7 (`window.mtCloudGlue`) | ~190 KB |
+| 5928–6250 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) | ~14 KB |
 
 El backend (funciones SQL en Supabase) está documentado en [`supabase/`](supabase/README.md):
 contratos verificados en vivo, esquema reconstruido y procedimiento de exportación del SQL real.
@@ -54,7 +55,8 @@ contratos verificados en vivo, esquema reconstruido y procedimiento de exportaci
 2. Doble clic (abre en cualquier navegador moderno, sin internet).
 3. Tienda: explorá, agregá al carrito, probá el checkout (MP en modo demo o WhatsApp).
 4. Panel: botón "Panel" (o `#admin`) → PIN `1234` (cambialo en Configuración → Seguridad).
-5. **Modo edición visual:** logueate en el panel, tocá **"Ver tienda"** y usá el botón flotante **"Editar página"**: clic sobre un texto, imagen o producto para editarlo.
+5. **Frentes de tienda (v0.9):** Panel → Configuración → Apariencia → "Frente de tienda": elegí **Boutique**, **Ofertas** o **Gamer** y guardá; la vidriera pública cambia, el panel no.
+6. **Modo edición visual:** logueate en el panel, tocá **"Ver tienda"** y usá el botón flotante **"Editar página"**: clic sobre un texto, imagen o producto para editarlo.
 
 Para volver a la demo de fábrica: borrá los datos del sitio (`luma_offline_store_v1`, `luma_cart`).
 
