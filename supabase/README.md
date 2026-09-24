@@ -14,6 +14,7 @@ vive en estas funciones SQL.
 | `export.sql` | Consultas para extraer el SQL **real** desde el dashboard | ✅ Listo para usar |
 | `schema-real.sql` | El SQL real desplegado | ✅ Volcado del 15-sep-2026 (19 funciones) |
 | `api_key_change.sql` | DDL de la RPC nueva (v0.7.3) para que el dueño cambie su clave | ⏳ **Listo, falta ejecutarlo** — ver abajo |
+| `alta-cliente.sql` | Plantilla reutilizable para **vender/crear una tienda** (api_admin + catálogo opcional + rotación de clave) | ✅ Listo para usar — copiar y ajustar por cliente |
 
 ## Por qué falta `schema-real.sql` (y cómo resolverlo en 5 minutos)
 
