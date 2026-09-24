@@ -2958,7 +2958,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       var cKeys = Object.keys(INITIAL_STORE.content);
       Object.keys(curC).forEach(function (k) { if (cKeys.indexOf(k) === -1) cKeys.push(k); });
       cKeys.forEach(function (k) {
-        var maxC = /^(builderBlocks|.*Image)$/i.test(k) ? 3000000 : 600;
+        var maxC = /^builderBlocks$|image/i.test(k) ? 3000000 : 600; /* v0.11.1: image en cualquier posición — heroImageMain/heroImageSecondary no terminan en Image y quedaban recortadas a 600 */
         newC[k] = clean(body[k] == null ? curC[k] : body[k], maxC);
       });
       newC = await mtShrinkContentForCloud(newC);
@@ -3326,7 +3326,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (path === '/api/admin/content' && method === 'GET') return result({ content: store.content });
       if (path === '/api/admin/content' && method === 'PUT') {
         Object.keys(INITIAL_STORE.content).forEach((key) => {
-          const maxChars = /^(builderBlocks|.*Image)$/i.test(key) ? 3000000 : 600;
+          const maxChars = /^builderBlocks$|image/i.test(key) ? 3000000 : 600; /* v0.11.1: ídem cloud */
           store.content[key] = clean(body[key] == null ? store.content[key] : body[key], maxChars);
         });
         writeStore(store); return result({ content: store.content });

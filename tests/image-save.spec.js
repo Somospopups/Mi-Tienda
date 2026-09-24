@@ -200,10 +200,13 @@ test('I3 · Presupuesto de payload: si el contenido acumulado es muy grande, las
     const before = Object.values(content).reduce((n, v) => n + String(v).length, 0);
     const out = await window.mtShrinkContentForCloud(content);
     const after = Object.values(out).reduce((n, v) => n + String(v).length, 0);
-    return { before, after };
+    return { before, after, hero: String(out.heroImageMain || '').length, editorial: String(out.editorialImage || '').length };
   });
   expect(result.before).toBeGreaterThan(900_000);
   expect(result.after).toBeLessThan(950_000);
   expect(result.after).toBeLessThan(result.before);
+  // El shrink re-comprime pero NUNCA deja cadenas recortadas/vacías (invención del cap de 600 — bug real v0.11.1)
+  expect(result.hero).toBeGreaterThan(50_000);
+  expect(result.editorial).toBeGreaterThan(50_000);
   await expectNoPageErrors(page);
 });

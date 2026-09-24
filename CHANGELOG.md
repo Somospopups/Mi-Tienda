@@ -1,5 +1,10 @@
 # Changelog — Mi-Tienda
 
+## v0.11.1 · 2026-09-24 · FIX REAL del error de imágenes: el recorte a 600 caracteres
+- **Causa raíz encontrada (verificada contra los datos reales de la tienda `eze-pece`)**: al guardar contenido, las claves nuevas se recortan a 600 caracteres por seguridad, y la excepción para imágenes usaba el patrón "termina en Image" (`.*Image$`). Pero las claves reales son **`heroImageMain`** y **`heroImageSecondary`** (terminan en "Main"/"Secondary") → la imagen se subía, se guardaba **truncada a 600 caracteres** y al mostrarse no era una imagen válida → placeholder. Por eso las fotos de **productos** (190 KB guardados ✓) y el **logo** (16 KB ✓) siempre funcionaron, y solo las imágenes de portada/editorial fallaban. En la nube de la tienda quedaron guardadas las versiones de 600 chars — basta volver a subirlas.
+- Corregido el patrón a `image` en cualquier posición de la clave (cloud y offline). Los tests I1/I3 ahora verifican que la imagen guardada siga siendo una imagen real (>50.000 caracteres) — el test anterior solo miraba el tope máximo y no detectaba el recorte.
+- Suite completa: **45/45**.
+
 ## v0.11.0 · 2026-09-24 · Panel lateral del constructor (estilo Google Sites) + Reel de Instagram
 - **El constructor ahora tiene un panel lateral como Google Sites** (pedido con captura): al activarlo se abre un panel derecho con las secciones **"Insertar"** (Cuadro de texto, Imagen, Video de YouTube, **Reel de Instagram**, Galería de fotos, Separador) y **"Bloques de tienda"** (Portada, Banner con botón, Productos destacados), cada uno como tarjeta con ícono. Los botones **Guardar página** y **Salte** viven en la cabecera del panel; la página se corre a la izquierda para que nada la tape.
 - **Nuevo bloque: Reel de Instagram.** Se pega el link del reel o post (`instagram.com/reel/…` o `/p/…`) y se muestra incrustado con el formato elegido: **Reel (vertical 9:16)** o **Post (cuadrado)** — vía el embed oficial de Instagram, funciona en la tienda publicada.
