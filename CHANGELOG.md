@@ -1,5 +1,14 @@
 # Changelog — Mi-Tienda
 
+## v0.10.0 · 2026-09-24 · Constructor de página + presupuesto de imágenes cloud
+- **Nuevo: frente "Libre · Constructor" — armá tu portada como en Google Sites.** En Configuración → Apariencia aparece una cuarta tarjeta con el botón **"Abrir constructor visual"**. El modo constructor muestra una barra con 8 tipos de bloque: **Hero** (con imagen de fondo, altura baja/media/alta, velo de opacidad y tono del texto), **Texto**, **Imagen**, **Video de YouTube**, **Galería de fotos** (hasta 6), **Productos destacados** (del catálogo real), **Banner CTA** y **Separador**.
+  - **Arrastrar**: cada bloque se reordena arrastrando ⠿ (con marca de posición) o con ▲▼; también duplicar ⧉ y eliminar ✕.
+  - **Agrandar/achicar**: cada bloque elige su ancho (todo el ancho / 85% / 65% / 45%), la galería elige columnas (2/3/4) y el hero elige altura — con previsualización en vivo.
+  - **Fotos, videos y fondos**: las imágenes se comprimen solas al subirlas; el video se pega como link de YouTube; los fondos aceptan color e imagen.
+  - **El panel del administrador no cambia** (requisito explícito): el constructor vive en el frente público, se guarda con los mismos endpoints de siempre (`PUT content.builderBlocks` + `settings.storefront: 'libre'`) y el catálogo/carrito/checkout siguen funcionando debajo.
+- **Mitigación del error de guardado en tiendas cloud**: `api_save_cfg` hace merge por sección (cada guardado reenvía todo el contenido, imágenes incluidas) y el JSON total podía superar el límite del gateway. Ahora, antes de cada guardado cloud, `mtShrinkContentForCloud` verifica un presupuesto de 900 KB y, si el contenido acumulado lo excede, re-comprime automáticamente las imágenes viajeras (claves `*Image*` y las fotos dentro de `builderBlocks`) en pasadas de 450 → 200 → 90 KB por imagen hasta entrar en presupuesto. Caps de subida por tipo: hero/logo 600 KB, producto 500 KB, comprobante 350 KB, bloques del constructor 3 MB.
+- 5 tests nuevos: presupuesto de payload (2 imágenes de ~7 MB se reducen a <950 KB antes del RPC) y 4 del constructor (texto, hero/video/imagen, arrastre persistente, tamaños). Suite completa: **42/42**.
+
 ## v0.9.2 · 2026-09-24 · Fix: subida de imágenes en tiendas cloud
 - **Bug real (tienda `eze-pece`)**: al cambiar la imagen del hero desde el modo edición, la subida fallaba. Tres causas raíz corregidas:
   1. **`mtRpc` cortaba a los 9 s con un solo intento**: una subida de ~100-400 KB de JSON a Supabase desde conexiones residenciales argentinas puede tardar más, y el abort mostraba "sin conexión" aunque el servidor muchas veces sí recibió el dato. Ahora el timeout de escritura (`api_save_cfg`) es de **45 s** (lecturas 12 s) y ante **fallo de red, timeout o error 5xx se reintenta una vez automáticamente** (`api_save_cfg` es idempotente: guarda estado completo). Los 4xx (RPC inexistente, clave inválida, plan) siguen siendo definitivos y no se reintentan.

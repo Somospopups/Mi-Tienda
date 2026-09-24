@@ -120,7 +120,7 @@ test.describe('Frentes de tienda (v0.9)', () => {
     await page.locator('[data-admin-tab="settings"]').click();
     await page.locator('[data-settings-view="appearance"]').click();
     await expect(page.locator('.front-picker-card')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('.front-option')).toHaveCount(3);
+    await expect(page.locator('.front-option')).toHaveCount(4);
     // Preview en vivo: marcar Gamer aplica data-front sin guardar todavía
     await page.locator('#appearanceForm input[name="storefront"][value="gamer"]').check({ force: true });
     await expect(page.locator('body')).toHaveAttribute('data-front', 'gamer');

@@ -175,3 +175,35 @@ test.describe('v0.9.2 · Imágenes y resiliencia de guardado cloud', () => {
   });
 
 });
+
+test('I3 · Presupuesto de payload: si el contenido acumulado es muy grande, las imágenes se re-comprimen antes de viajar', async ({ page }) => {
+  await page.goto('/index.html');
+  await expect(page.locator('#productGrid .product-card').first()).toBeVisible({ timeout: 15_000 });
+  const result = await page.evaluate(async () => {
+    // Dos imágenes reales grandes (~500 KB c/u como dataURL) + texto
+    const makeImage = async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1400; canvas.height = 1400;
+      const ctx = canvas.getContext('2d');
+      // ruido pseudoaleatorio para que comprima como una foto real
+      const img = ctx.createImageData(1400, 1400);
+      let seed = 12345;
+      for (let i = 0; i < img.data.length; i += 4) {
+        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+        img.data[i] = seed % 256; img.data[i + 1] = (seed >> 8) % 256; img.data[i + 2] = (seed >> 16) % 256; img.data[i + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      return new Promise((resolve) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
+    };
+    const content = { heroImageMain: await makeImage(), editorialImage: await makeImage(), catalogTitle: 'x'.repeat(50) };
+    const before = Object.values(content).reduce((n, v) => n + String(v).length, 0);
+    const out = await window.mtShrinkContentForCloud(content);
+    const after = Object.values(out).reduce((n, v) => n + String(v).length, 0);
+    return { before, after };
+  });
+  expect(result.before).toBeGreaterThan(900_000);
+  expect(result.after).toBeLessThan(950_000);
+  expect(result.after).toBeLessThan(result.before);
+  await expectNoPageErrors(page);
+});
