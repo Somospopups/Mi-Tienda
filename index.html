@@ -3734,7 +3734,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const key = node.dataset.contentImage;
       const value = state.content[key];
       if (value == null) return;
-      node.src = value ? safeImage(value) : (((window.MT_HOME_IMAGE_DEFAULTS || {})[key]) || '');
+      const img = node.tagName === 'IMG' ? node : node.querySelector('img');
+      if (img) img.src = value ? safeImage(value) : (((window.MT_HOME_IMAGE_DEFAULTS || {})[key]) || '');
     });
     document.querySelectorAll('[data-content-placeholder]').forEach((node) => {
       const value = state.content[node.dataset.contentPlaceholder];
@@ -6504,13 +6505,16 @@ async function mtGuiaPdf() {
   function mtEditEnterDom() {
     if (MT_EDIT.root) return;
     window.MT_HOME_IMAGE_DEFAULTS = {};
+    // v0.11.2: el atributo va en el CONTENEDOR de la imagen — el velo ::after de
+    // .editorial-image interceptaba los clics y el editor de imagen no abría nunca.
     [
-      ['.hero-main-image img', 'heroImageMain'],
-      ['.hero-secondary-image img', 'heroImageSecondary'],
-      ['.editorial-image img', 'editorialImage']
+      ['.hero-main-image', 'heroImageMain'],
+      ['.hero-secondary-image', 'heroImageSecondary'],
+      ['.editorial-image', 'editorialImage']
     ].forEach(([sel, key]) => {
       const node = document.querySelector(sel);
-      if (node) { node.dataset.contentImage = key; window.MT_HOME_IMAGE_DEFAULTS[key] = node.src; }
+      const img = node && node.querySelector('img');
+      if (node && img) { node.dataset.contentImage = key; window.MT_HOME_IMAGE_DEFAULTS[key] = img.src; }
     });
     const root = document.createElement('button');
     root.type = 'button'; root.className = 'mt-edit-float'; root.hidden = true;
