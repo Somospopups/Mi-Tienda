@@ -4120,7 +4120,12 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const pinEl = $('loginForm').elements.pin;
       if (pinEl) { pinEl.inputMode = cloudLogin ? 'text' : 'numeric'; pinEl.maxLength = cloudLogin ? 64 : 12; }
       const hint = $('loginCloudHint');
-      if (hint) hint.hidden = !cloudLogin;
+      if (hint) {
+        hint.hidden = false;
+        hint.textContent = cloudLogin
+          ? '¿Perdiste tu Clave de acceso? Escribinos y te generamos una nueva.'
+          : 'Demo de prueba: el PIN es 1234. En tu tienda (…?tienda=…) entrás con tu Clave de acceso de POPUPS.';
+      }
     } catch (_) {}
     setTimeout(() => { const e = $('loginForm').elements.pin; if (e) e.focus(); }, 50);
   }

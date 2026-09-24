@@ -1,5 +1,9 @@
 # Changelog — Mi-Tienda
 
+## v0.10.1 · 2026-09-24 · Pista de credenciales en el login
+- **Aclaración de acceso al panel** (confusión reportada: "no puedo entrar"): en la **demo** (`/#admin` sin `?tienda=`) el panel entra con el **PIN 1234**; en una **tienda real** (`…?tienda=tu-tienda#admin`) entra con la **Clave de acceso que te dio POPUPS** — el PIN no funciona ahí. El login ahora lo muestra siempre: la demo indica "el PIN es 1234" y la tienda recuerda la Clave con el contacto para recuperarla. (El panel nunca dejó de funcionar: el servidor respondía "Clave incorrecta" correctamente.)
+- 2 tests nuevos en [`tests/login-hint.spec.js`](tests/login-hint.spec.js). Suite completa: **44/44**.
+
 ## v0.10.0 · 2026-09-24 · Constructor de página + presupuesto de imágenes cloud
 - **Nuevo: frente "Libre · Constructor" — armá tu portada como en Google Sites.** En Configuración → Apariencia aparece una cuarta tarjeta con el botón **"Abrir constructor visual"**. El modo constructor muestra una barra con 8 tipos de bloque: **Hero** (con imagen de fondo, altura baja/media/alta, velo de opacidad y tono del texto), **Texto**, **Imagen**, **Video de YouTube**, **Galería de fotos** (hasta 6), **Productos destacados** (del catálogo real), **Banner CTA** y **Separador**.
   - **Arrastrar**: cada bloque se reordena arrastrando ⠿ (con marca de posición) o con ▲▼; también duplicar ⧉ y eliminar ✕.
