@@ -1,5 +1,13 @@
 # Changelog — Mi-Tienda
 
+## v0.9.2 · 2026-09-24 · Fix: subida de imágenes en tiendas cloud
+- **Bug real (tienda `eze-pece`)**: al cambiar la imagen del hero desde el modo edición, la subida fallaba. Tres causas raíz corregidas:
+  1. **`mtRpc` cortaba a los 9 s con un solo intento**: una subida de ~100-400 KB de JSON a Supabase desde conexiones residenciales argentinas puede tardar más, y el abort mostraba "sin conexión" aunque el servidor muchas veces sí recibió el dato. Ahora el timeout de escritura (`api_save_cfg`) es de **45 s** (lecturas 12 s) y ante **fallo de red, timeout o error 5xx se reintenta una vez automáticamente** (`api_save_cfg` es idempotente: guarda estado completo). Los 4xx (RPC inexistente, clave inválida, plan) siguen siendo definitivos y no se reintentan.
+  2. **El espejo local podía tumbar un guardado ya aceptado por la nube**: si `localStorage` se quedaba sin cupo (tiendas con muchas fotos), `origWriteStore` lanzaba QuotaExceeded después del OK de la RPC y el dueño veía "almacenamiento lleno" para siempre. Ahora la escritura del espejo es best-effort (`mtMirrorSafe`): si no hay cupo se marca un flag y el guardado cloud queda hecho (el panel refresca desde la nube).
+  3. **Las imágenes ahora viajan con tope estricto**: `compressImage` acepta `maxChars` y usa una escalera de compresión (1400→1150→920→740→600 px, calidad decreciente) hasta cumplir el límite (850 KB de dataURL en portada, logo, fotos de producto y comprobantes). Payloads chicos = menos timeouts y espejo sano.
+- Mensaje de error de `sin_conexion` más accionable ("pasa con conexiones lentas o imágenes pesadas…").
+- 2 tests nuevos en [`tests/image-save.spec.js`](tests/image-save.spec.js): subida de imagen de hero en tienda cloud con tope de compresión verificado en el payload de `api_save_cfg`, y reintento automático ante fallo de red real (route.abort). Suite completa: 37/37.
+
 ## v0.9.0 · 2026-09-24 · Frentes de tienda
 - **Nuevo: el dueño elige la vidriera pública, el panel no cambia.** En Configuración → Apariencia hay un selector **"Frente de tienda"** con tres estilos, persistido en `settings.storefront` (mismos endpoints de siempre: `PUT /api/admin/settings` online + espejo local; retrocompatible — sin clave → `luma`):
   - **Boutique · Editorial** (`luma`): el frente clásico de siempre, intacto.
