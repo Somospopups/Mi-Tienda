@@ -33,18 +33,17 @@ dispositivo. Al regularizar, vuelve sola.
 - **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración (marca, contenidos, apariencia con paletas y contraste, legales, **cobros MP**, seguridad con cambio de clave propio).
 - **Extras POPUPS:** barra de plan con aviso al 80% y vencimiento · Guía de bienvenida en PDF con los datos del dueño · numeración de pedidos · reserva de stock y reembolsos automáticos al cancelar.
 
-## Arquitectura del archivo (5.833 líneas · 1,68 MB)
+## Arquitectura del archivo (5.931 líneas · 1,72 MB)
 
 | Líneas | Bloque | Peso |
 |---|---|---|
 | 1–10 | `<head>` + metadatos + favicon silencioso | 0,5 KB |
 | 11–1296 | CSS (tienda + admin, responsive) + CSS del modo edición visual (v0.8) | ~124 KB |
 | 1299–1695 | Script puerta POPUPS (gate de suspensión) | 3 KB |
-| 1696–2094 | Markup: sprite SVG, tienda, modales, panel + imágenes base64 + jsPDF embebido | ~380 KB |
-| 2095–2100 | html5-qrcode embebido | ~370 KB |
-| 2101–2860 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel, flujo MP async) | ~276 KB |
-| 2861–5509 | App principal (tienda + admin) + puente v0.7 (`window.mtCloudGlue`) | ~187 KB |
-| 5510–5806 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) | ~14 KB |
+| 1696–2110 | Markup: sprite SVG, tienda, modales, panel + imágenes base64 + jsPDF embebido | ~380 KB |
+| 2111–3070 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~276 KB |
+| 3071–5608 | App principal (tienda + admin) + puente v0.7 (`window.mtCloudGlue`) | ~187 KB |
+| 5609–5931 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) | ~14 KB |
 
 El backend (funciones SQL en Supabase) está documentado en [`supabase/`](supabase/README.md):
 contratos verificados en vivo, esquema reconstruido y procedimiento de exportación del SQL real.
@@ -72,7 +71,10 @@ npm test
 Los tests cubren: carga de vitrina, agregar al carrito, checkout demo, login al panel,
 navegación de secciones del admin, seguridad del cambio de clave y el **modo edición visual**
 (visibilidad del botón según sesión, edición con persistencia, editor de producto y paleta de colores,
-además del guardado en la nube con las RPC stubeadas, sin depender de la red).
+además del guardado en la nube con las RPC stubeadas). Desde v0.8.1 también se verifica la
+**integridad del guardado cloud**: un fallo de `api_save_cfg` se muestra como error real (sin falso
+"Guardado"), una tienda inexistente avisa en vez de caer a la demo, y los cambios locales sin
+sincronizar se preservan y reintentan al recargar.
 CI en `.github/workflows/ci.yml`.
 
 ## Estado / límites conocidos

@@ -2293,6 +2293,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       mtPub.t = Date.now();
       return mtPub.doc;
     }
+    if (data && data.error && data.error === 'store_not_found') return { notFound: true };
     if (data && data.error && data.error !== 'store_not_found') return { blocked: data.error };
     return null;
   }
@@ -2385,7 +2386,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   const MT_PLAN_LBL = { p25: 'Hasta 25 productos', p50: 'Hasta 50 productos', p100: 'Hasta 100 productos', pilim: '101 a 200 productos' };
   const MT_CFG_KEYS = ['settings', 'content', 'legal', 'customers', 'orders', 'finance', 'subscribers'];
   const origWriteStore = writeStore;
-  const mtAdm = { doc: null, baseDoc: null, q: Promise.resolve(), stale: false, t: 0, toasted: false };
+  const mtAdm = { doc: null, baseDoc: null, q: Promise.resolve(), stale: false, t: 0, toasted: false, dirty: false };
   function mtAdmKey() {
     try { var tk = sessionStorage.getItem('luma_admin_token') || ''; return tk.indexOf('ck:') === 0 ? tk.slice(3) : ''; } catch (_) { return ''; }
   }
@@ -2418,8 +2419,27 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!(cfg.settings && cfg.settings.brandName) && d.biz) store.settings.brandName = String(d.biz).slice(0, 30);
     store.plan = (d.plan && typeof d.plan === 'object') ? Object.assign({}, d.plan, { id: d.plan_id }) : null;
     store.paidUntil = d.paid_until || null;
+    // v0.8.1 · Si en este equipo quedaron cambios sin sincronizar (este slug), NO
+    // pisamos el espejo local con lo remoto: el dueño los perdió antes por un
+    // fallo silencioso de api_save_cfg. Se conservan, se reintenta subirlos y se avisa.
+    var mirrorSlug = ''; try { mirrorSlug = sessionStorage.getItem('luma_mirror_slug') || ''; } catch (_) {}
+    var syncDirty = false; try { syncDirty = sessionStorage.getItem('luma_sync_dirty') === '1'; } catch (_) {}
+    if (mtAdm.dirty || (syncDirty && mirrorSlug === slug)) {
+      var localSaved = readStore();
+      if (localSaved && Array.isArray(localSaved.products) && Array.isArray(localSaved.orders)) {
+        mtAdm.doc = localSaved; mtAdm.baseDoc = mtClo(store); mtAdm.t = Date.now(); mtAdm.stale = true;
+        var didQueue = mtAdmWrite(localSaved);
+        if (didQueue === false) {
+          mtAdm.dirty = false;
+          try { sessionStorage.removeItem('luma_sync_dirty'); } catch (_) {}
+        }
+        mtAdmFail();
+        return { ok: true };
+      }
+    }
+    try { sessionStorage.removeItem('luma_sync_dirty'); sessionStorage.setItem('luma_mirror_slug', slug); } catch (_) {}
     origWriteStore(store);
-    mtAdm.doc = store; mtAdm.baseDoc = mtClo(store); mtAdm.t = Date.now(); mtAdm.stale = false;
+    mtAdm.doc = store; mtAdm.baseDoc = mtClo(store); mtAdm.t = Date.now(); mtAdm.stale = false; mtAdm.dirty = false;
     return { ok: true };
   }
   async function mtAdmEnsure() {
@@ -2443,6 +2463,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function mtAdmBaseFresh() { try { mtAdm.baseDoc = mtClo(readStore()); } catch (_) { } }
   function mtAdmWrite(store) {
     origWriteStore(store);
+    try { sessionStorage.setItem('luma_mirror_slug', mtSlug() || ''); } catch (_) {}
     if (!mtAdm.doc) { mtAdm.doc = store; mtAdm.baseDoc = mtClo(store); return; }
     mtAdm.doc = store;
     var slug = mtSlug(), key = mtAdmKey(), base = mtAdm.baseDoc || store;
@@ -2453,14 +2474,21 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     var ups = [], del = [];
     (store.products || []).forEach(function (x) { var b = byId[x.id]; if (!b || mtJs(x) !== mtJs(b)) ups.push(x); });
     (base.products || []).forEach(function (x) { if (!(store.products || []).some(function (y) { return y.id === x.id; })) del.push(x); });
-    if (!parts.length && !ups.length && !del.length) return;
+    if (!parts.length && !ups.length && !del.length) return false;
     mtAdmQueue(function () {
       return (async function () {
         for (var i = 0; i < parts.length; i++) { var r = await mtRpc('api_save_cfg', { p_store: slug, p_key: key, p_cfg: parts[i] }); if (!r || r.ok !== true) throw new Error('cfg'); }
         for (var j = 0; j < ups.length; j++) { var r2 = await mtRpc('api_upsert_product', { p_store: slug, p_key: key, p: mtProdPayload(ups[j]) }); if (!r2 || r2.ok !== true) throw new Error('up'); }
         for (var k = 0; k < del.length; k++) { var r3 = await mtRpc('api_delete_product', { p_store: slug, p_key: key, p_id: del[k].id }); if (!r3 || r3.ok !== true) throw new Error('del'); }
-        mtAdm.baseDoc = mtClo(store); mtAdm.stale = false; mtAdmBumpPub();
-      })();
+        mtAdm.baseDoc = mtClo(store); mtAdm.stale = false; mtAdm.dirty = false;
+        try { sessionStorage.removeItem('luma_sync_dirty'); } catch (_) {}
+        mtAdmBumpPub();
+      })().catch(function () {
+        mtAdm.dirty = true;
+        try { sessionStorage.setItem('luma_sync_dirty', '1'); } catch (_) {}
+        mtAdmFail();
+      });
+      return true;
     });
   }
   writeStore = function (store) {
@@ -2588,6 +2616,65 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       origWriteStore(st4); mtAdm.doc = st4; mtAdmBaseFresh(); mtAdmBumpPub();
       return result({ product: r4.product || prod, previousStock: prev, added: qty });
     }
+    // v0.8.1 · Guardado ATÓMICO en la nube: el RPC api_save_cfg se espera antes de
+    // responder ok. Así un fallo de sincronización devuelve un error real (la UI
+    // muestra "No se pudo guardar") en lugar de festejar un guardado que nunca
+    // llega a la base y desaparece al recargar.
+    if (path === '/api/admin/content' && method === 'GET') return result({ content: readStore().content || {} });
+    if (path === '/api/admin/content' && method === 'PUT') {
+      var enC = await mtAdmEnsure();
+      if (!enC.ok && !mtAdm.doc) return error('No pudimos conectar con la nube. Revisá tu conexión e intentá de nuevo.', 503);
+      var curC = readStore().content || {};
+      var newC = {};
+      var cKeys = Object.keys(INITIAL_STORE.content);
+      Object.keys(curC).forEach(function (k) { if (cKeys.indexOf(k) === -1) cKeys.push(k); });
+      cKeys.forEach(function (k) {
+        var maxC = /Image$/i.test(k) ? 4000000 : 600;
+        newC[k] = clean(body[k] == null ? curC[k] : body[k], maxC);
+      });
+      var rC = await mtRpc('api_save_cfg', { p_store: slug, p_key: key, p_cfg: { content: newC } });
+      if (!rC || rC.ok !== true) return error(cloudErrMsg(rC), rC && rC.ok === false ? 400 : 503);
+      var stC = readStore(); stC.content = newC;
+      origWriteStore(stC); mtAdm.doc = stC; mtAdmBaseFresh(); mtAdmBumpPub();
+      return result({ content: newC });
+    }
+    if (path === '/api/admin/settings' && method === 'GET') {
+      var stGet = readStore();
+      return result({ settings: stGet.settings, integrations: { mercadoPago: false }, security: { changedAt: stGet.security && stGet.security.changedAt } });
+    }
+    if (path === '/api/admin/settings' && method === 'PUT') {
+      var enS = await mtAdmEnsure();
+      if (!enS.ok && !mtAdm.doc) return error('No pudimos conectar con la nube. Revisá tu conexión e intentá de nuevo.', 503);
+      var mS = readStore().settings || {};
+      var mpOn = typeof body.mercadoPagoEnabled === 'boolean' ? body.mercadoPagoEnabled : mS.mercadoPagoEnabled !== false;
+      var waOn = typeof body.whatsappEnabled === 'boolean' ? body.whatsappEnabled : mS.whatsappEnabled !== false;
+      if (!mpOn && !waOn) return error('Debe quedar al menos un medio de pago activo.');
+      Object.assign(mS, {
+        brandName: clean(body.brandName, 30) || mS.brandName,
+        logo: clean(body.logo == null ? mS.logo : body.logo, 4000000),
+        tagline: body.tagline == null ? mS.tagline : clean(body.tagline, 120),
+        announcement: body.announcement == null ? mS.announcement : clean(body.announcement, 140),
+        whatsappNumber: body.whatsappNumber == null ? mS.whatsappNumber : clean(body.whatsappNumber, 30),
+        mercadoPagoEnabled: mpOn, whatsappEnabled: waOn,
+        freeShippingThreshold: integer(body.freeShippingThreshold, mS.freeShippingThreshold),
+        shippingFlat: integer(body.shippingFlat, mS.shippingFlat),
+        pickupLabel: body.pickupLabel == null ? mS.pickupLabel : clean(body.pickupLabel, 120),
+        accentColor: /^#[0-9a-f]{6}$/i.test(body.accentColor || '') ? body.accentColor : mS.accentColor,
+        darkColor: /^#[0-9a-f]{6}$/i.test(body.darkColor || '') ? body.darkColor : mS.darkColor,
+        backgroundColor: /^#[0-9a-f]{6}$/i.test(body.backgroundColor || '') ? body.backgroundColor : mS.backgroundColor,
+        surfaceColor: /^#[0-9a-f]{6}$/i.test(body.surfaceColor || '') ? body.surfaceColor : mS.surfaceColor,
+        secondaryColor: /^#[0-9a-f]{6}$/i.test(body.secondaryColor || '') ? body.secondaryColor : mS.secondaryColor,
+        instagramUrl: body.instagramUrl == null ? mS.instagramUrl : (/^https?:\/\//i.test(body.instagramUrl) ? clean(body.instagramUrl, 500) : ''),
+        facebookUrl: body.facebookUrl == null ? mS.facebookUrl : (/^https?:\/\//i.test(body.facebookUrl) ? clean(body.facebookUrl, 500) : ''),
+        pinterestUrl: body.pinterestUrl == null ? mS.pinterestUrl : (/^https?:\/\//i.test(body.pinterestUrl) ? clean(body.pinterestUrl, 500) : ''),
+        tiktokUrl: body.tiktokUrl == null ? mS.tiktokUrl : (/^https?:\/\//i.test(body.tiktokUrl) ? clean(body.tiktokUrl, 500) : '')
+      });
+      var rS = await mtRpc('api_save_cfg', { p_store: slug, p_key: key, p_cfg: { settings: mS } });
+      if (!rS || rS.ok !== true) return error(cloudErrMsg(rS), rS && rS.ok === false ? 400 : 503);
+      var stS = readStore(); stS.settings = mS;
+      origWriteStore(stS); mtAdm.doc = stS; mtAdmBaseFresh(); mtAdmBumpPub();
+      return result({ settings: mS });
+    }
     var en = await mtAdmEnsure();
     if (!en.ok) {
       if (en.error === 'bad_key') { try { sessionStorage.removeItem('luma_admin_token'); } catch (_) { } return error('Tu clave ya no es válida o la cambiaste desde otro dispositivo. Volvé a entrar con tu clave actual.', 401); }
@@ -2640,6 +2727,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         }
         const cloudDoc = await mtPublicDoc();
         if (cloudDoc && cloudDoc.blocked) return error('Tienda no disponible.', 404);
+        if (cloudDoc && cloudDoc.notFound) return error('No encontramos esa tienda. Avisá al local para que revise el enlace.', 404);
         if (cloudDoc) {
           const viaCloud = await mtCloudFetch(path, method, body, cloudDoc);
           if (viaCloud.status !== 404) return viaCloud;

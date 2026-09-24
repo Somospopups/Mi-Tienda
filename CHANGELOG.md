@@ -1,5 +1,12 @@
 # Changelog — Mi-Tienda
 
+## v0.8.1 · 2026-09-24
+- **Fix: los cambios del dueño ya no se "pierden" en la nube.** Antes, guardar contenido o ajustes en una tienda cloud encolaba la sincronización (`mtAdmWrite`) y el PUT respondía `ok` aunque la RPC fallara después: la UI festejaba un guardado que nunca llegaba y, al recargar, el estado remoto pisaba el espejo local → los cambios desaparecían sin aviso.
+  - **Guardado atómico**: `PUT /api/admin/content` y `PUT /api/admin/settings` ahora esperan `api_save_cfg` y devuelven un error real si falla (el editor muestra "No se pudo guardar" y no cambia la tienda).
+  - **Cambios sin sincronizar protegidos**: si una sync falla (colas de pedidos/clientes/finanzas), queda un flag "dirty"; al recargar el panel NO pisa el espejo local, reenvía el trabajo a la nube y avisa con un toast ("los cambios quedaron en este equipo..."). Se llama por fin a `mtAdmFail()`, que estaba definido pero nunca activado.
+  - **"Tienda no encontrada" ≠ demo**: si la RPC devuelve `store_not_found` (URL sin `?tienda=` válido), la página muestra un aviso claro en vez de servirse la demo LUMA — que clavaba la sensación de "volvió a cero".
+- 3 tests nuevos en [`tests/edit-mode-cloud.spec.js`](tests/edit-mode-cloud.spec.js): error de nube visible en el editor (sin falso guardado), aviso de tienda inexistente, y preservación+reintento de cambios locales al recargar.
+
 ## v0.8.0 · 2026-09-24
 - **Modo edición visual (clic para editar)** en la tienda: con la sesión del dueño activa aparece el botón flotante **"Editar página"**. Hacés clic sobre cualquier parte del home y se abre un editor contextual para cambiarla al instante, guardando por los mismos endpoints del panel (demo en `localStorage`, cloud en Supabase):
   - **Textos**: títulos, botones, menú, beneficios (envío/cambios/protección/gift), nota del hero, tarjeta del producto destacado, manuscrito, manifiesto, newsletter y datos editoriales.

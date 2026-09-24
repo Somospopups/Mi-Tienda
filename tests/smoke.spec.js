@@ -179,12 +179,10 @@ test.describe('Panel de administración (demo offline)', () => {
     await expectNoPageErrors(page);
   });
 
-  test('10 · La puerta cloud NO interfiere con la demo offline', async ({ page }) => {
-    // Sin ?tienda= el gate no corre. Con una tienda inexistente, la RPC api_public
-    // responde store_not_found y el gate deja pasar (fallback legacy sin registro
-    // local). Stubeamos la RPC para que el test sea determinístico con o sin red:
-    // de lo contrario depende del estado real de Supabase en el runner (FALLECA
-    // con internet, donde el slug inexistente puede tardar o colgar el loader).
+  test('10 · Tienda inexistente: aviso claro y NO cae a la demo offline', async ({ page }) => {
+    // v0.8.1 · Si la RPC api_public responde store_not_found, la página muestra
+    // un aviso en vez de servirse la demo LUMA (antes parecía que "volvió a cero").
+    // Stubeamos la RPC para que el test sea determinístico con o sin red.
     const cors = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'apikey,authorization,content-type',
@@ -197,7 +195,10 @@ test.describe('Panel de administración (demo offline)', () => {
     });
 
     await page.goto('/index.html?tienda=__no_existe__');
-    await expect(page.locator('#productGrid [data-open-product]').first()).toBeVisible({ timeout: 20_000 });
+    // Aviso visible y sin productos de la demo offline por defecto.
+    await expect(page.locator('#emptyState')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#emptyState h3')).toHaveText('No pudimos cargar la tienda');
+    await expect(page.locator('.product-card')).toHaveCount(0);
     await expect(page.locator('#mt-gate')).toHaveCount(0);
   });
 

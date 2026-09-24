@@ -167,4 +167,81 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
     await expectNoPageErrors(page);
   });
 
+  test('16 · Si la nube falla al guardar se muestra un error (sin falso "Guardado")', async ({ page }) => {
+    const { state, handlers } = fakeCloudStore();
+    handlers.api_save_cfg = (body) => {
+      state.saveCfgWith.push(body.p_key);
+      return { ok: false, error: 'Sin conexión con la nube.' };
+    };
+    const calls = await stubCloud(page, handlers);
+    await enterEditModeCloud(page);
+
+    await page.locator('[data-content="heroCardName"]').click();
+    const pop = page.locator('.mt-edit-popover');
+    await expect(pop).toBeVisible();
+    await pop.locator('input').fill('Foco Norte');
+    await pop.locator('[data-mt-save]').click();
+
+    // El error de api_save_cfg llega a la UI: no se festeja un guardado inexistente.
+    await expect(pop.locator('.mt-err')).toBeVisible({ timeout: 15_000 });
+    await expect(pop.locator('.mt-err')).toContainText('Sin conexión con la nube');
+    // El contenido en pantalla NO cambió: no hubo falso éxito.
+    await expect(page.locator('[data-content="heroCardName"]')).toHaveText('Lámpara Aura');
+    // La RPC intentó el guardado con p_store/p_key correctas (aunque falló).
+    expect(calls.some((c) => c.name === 'api_save_cfg' && c.body.p_store === 'prueba' && c.body.p_key === 'clave-dueño-2026' && c.body.p_cfg && c.body.p_cfg.content && c.body.p_cfg.content.heroCardName === 'Foco Norte')).toBe(true);
+    expect(state.saveCfgWith.every((k) => k === 'clave-dueño-2026')).toBe(true);
+
+    await page.locator('.mt-edit-popover [data-mt-cancel]').click();
+    await page.locator('[data-mt-done]').click();
+    await expectNoPageErrors(page);
+  });
+
+  test('17 · Tienda no encontrada: aviso claro en vez de la demo offline (no "vuelve a cero")', async ({ page }) => {
+    await stubCloud(page, {
+      api_public: () => ({ ok: false, error: 'store_not_found' }),
+      api_panel: () => ({ ok: false, error: 'store_not_found' })
+    });
+    await page.goto('/index.html?tienda=no-existe');
+    // No se sirve la demo LUMA: la tienda avisa que no existe.
+    await expect(page.locator('#emptyState')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#emptyState h3')).toHaveText('No pudimos cargar la tienda');
+    // El grid no muestra productos de la demo offline por defecto.
+    await expect(page.locator('.product-card')).toHaveCount(0);
+    await expectNoPageErrors(page);
+  });
+
+  test('18 · Cambios locales sin sincronizar no se pisan al recargar; se reintentan a la nube', async ({ page }) => {
+    const { state, handlers } = fakeCloudStore();
+    const calls = await stubCloud(page, handlers);
+
+    // Simular una sesión con un fallo de sync previo: espejo local con un cambio
+    // que la nube todavía no tiene, y el flag "dirty" activo (como deja mtAdmWrite).
+    await page.goto('/index.html?tienda=prueba#admin');
+    await page.evaluate(() => {
+      sessionStorage.setItem('luma_mirror_slug', 'prueba');
+      sessionStorage.setItem('luma_sync_dirty', '1');
+      const local = {
+        version: 1, nextOrderNumber: 1001,
+        settings: { brandName: 'Panadería Test' },
+        content: { heroCardName: 'Mi Panadería Local' },
+        legal: {}, products: [], orders: [], customers: [], subscribers: [],
+        finance: { movements: [], accounts: [] }, security: { adminPin: 'cloud' }
+      };
+      localStorage.setItem('luma_offline_store_v1', JSON.stringify(local));
+    });
+
+    await page.locator('#loginForm input[name="pin"]').fill('clave-dueño-2026');
+    await page.locator('#loginForm button[type="submit"]').click();
+    await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
+
+    // mtAdmLoad NO pisó el cambio local: se reenvió a la nube (api_save_cfg con el contenido local).
+    await expect.poll(() => calls.filter((c) => c.name === 'api_save_cfg' && c.body.p_cfg && c.body.p_cfg.content && c.body.p_cfg.content.heroCardName === 'Mi Panadería Local').length, { timeout: 20_000 }).toBeGreaterThan(0);
+    const reSync = calls.find((c) => c.name === 'api_save_cfg' && c.body.p_cfg && c.body.p_cfg.content && c.body.p_cfg.content.heroCardName === 'Mi Panadería Local');
+    expect(reSync.body.p_key).toBe('clave-dueño-2026');
+    // Y la nube lo aceptó (el stub responde ok), el flag queda limpio.
+    expect(state.saveCfgWith.every((k) => k === 'clave-dueño-2026')).toBe(true);
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem('luma_sync_dirty'))).toBe(null);
+    await expectNoPageErrors(page);
+  });
+
 });
