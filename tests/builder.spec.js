@@ -117,7 +117,7 @@ test.describe('v0.10 · Constructor de página', () => {
     await expect(page.locator('#frontBuilder .bl-block')).toHaveCount(2);
     // Arrastrar el segundo bloque hacia arriba (drop encima de la primera mitad del primero)
     const dt = await page.evaluateHandle(() => new DataTransfer());
-    await page.locator('[data-bl-drag="1"]').dispatchEvent('dragstart', { dataTransfer: dt });
+    await page.locator('.bl-ctl .bl-drag[data-bl-drag="1"]').dispatchEvent('dragstart', { dataTransfer: dt });
     const first = page.locator('#frontBuilder .bl-block').first();
     const box = await first.boundingBox();
     await first.dispatchEvent('dragover', { dataTransfer: dt, clientY: box.y + box.height * 0.25 });
@@ -192,6 +192,37 @@ test.describe('v0.10 · Constructor de página', () => {
     await page.goto('/index.html');
     await expect(page.locator('body')).toHaveAttribute('data-front', 'libre', { timeout: 15_000 });
     await expect(page.locator('#frontBuilder iframe.bl-ig.post')).toHaveCount(1);
+    await expectNoPageErrors(page);
+  });
+
+  test('B6 · Mover bloques arrastrándolos por el cuerpo (la foto), controles siempre visibles', async ({ page }) => {
+    await openBuilder(page);
+    await page.locator('[data-bl-add="text"]').click();
+    await page.locator('#blEditorBody input[name="title"]').fill('FOTO-ARRIBA');
+    await page.locator('[data-bl-edone]').click();
+    await page.locator('[data-bl-add="text"]').click();
+    await page.locator('#blEditorBody input[name="title"]').fill('FOTO-ABAJO');
+    await page.locator('[data-bl-edone]').click();
+    await expect(page.locator('#frontBuilder .bl-block')).toHaveCount(2);
+    // En edición, el bloque entero es arrastrable (sin depender de la manija ⠿)
+    await expect(page.locator('#frontBuilder .bl-block').first()).toHaveAttribute('draggable', 'true');
+    // Y los controles ▲▼⠿ se ven SIN pasar el mouse (táctil)
+    const display = await page.evaluate(() => getComputedStyle(document.querySelector('#frontBuilder .bl-block .bl-ctl')).display);
+    expect(display).toBe('flex');
+    // Arrastrar el SEGUNDO bloque por su cuerpo (bl-inner) hacia el primero
+    const dt = await page.evaluateHandle(() => new DataTransfer());
+    const cuerpo = page.locator('#frontBuilder .bl-block').nth(1).locator('.bl-inner');
+    await cuerpo.dispatchEvent('dragstart', { dataTransfer: dt });
+    const first = page.locator('#frontBuilder .bl-block').first();
+    const box = await first.boundingBox();
+    await first.dispatchEvent('dragover', { dataTransfer: dt, clientY: box.y + box.height * 0.25 });
+    await first.dispatchEvent('drop', { dataTransfer: dt, clientY: box.y + box.height * 0.25 });
+    await expect(page.locator('#frontBuilder .bl-block').first()).toContainText('FOTO-ABAJO');
+    // Persiste tras guardar y recargar
+    await page.locator('[data-bl-save]').click();
+    await expect(page.locator('#toastRegion')).toContainText(/guardada/i, { timeout: 15_000 });
+    await page.goto('/index.html');
+    await expect(page.locator('#frontBuilder .bl-block').first()).toContainText('FOTO-ABAJO', { timeout: 15_000 });
     await expectNoPageErrors(page);
   });
 });

@@ -1467,7 +1467,11 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   body.bl-editing #frontBuilder .bl-block { outline: 2px dashed transparent; transition: outline-color .15s ease; }
   body.bl-editing #frontBuilder .bl-block:hover { outline-color: #6366f1; }
   .bl-ctl { position: absolute; top: 8px; right: 8px; display: none; gap: 5px; z-index: 6; }
-  body.bl-editing .bl-block:hover .bl-ctl, body.bl-editing .bl-block.bl-sel .bl-ctl { display: flex; }
+  /* v0.11.4: visibles SIEMPRE en edición (antes solo on hover — en táctil no aparecían nunca) */
+  body.bl-editing .bl-block .bl-ctl { display: flex; }
+  body.bl-editing .bl-block:hover .bl-ctl button:not(.bl-drag) { background: #111827ee; }
+  body.bl-editing #frontBuilder .bl-block { cursor: grab; }
+  body.bl-editing #frontBuilder .bl-block:active { cursor: grabbing; }
   .bl-ctl button { width: 30px; height: 30px; border-radius: 8px; border: none; background: #111827ee; color: #fff; cursor: pointer; font-size: 13px; display: grid; place-items: center; font-family: var(--sans); }
   .bl-ctl button.bl-drag { cursor: grab; }
   .bl-ctl button:hover { background: #6366f1; }
@@ -5358,7 +5362,9 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function blBlockHtml(block, index) {
     const pr = block.props || {};
     const wStyle = block.type !== 'hero' && pr.w && pr.w !== 'auto' && Number(pr.w) > 0 ? ` style="max-width:${Math.min(100, Math.max(20, Number(pr.w)))}%"` : '';
-    const open = `<div class="bl-block" data-bl-index="${index}" data-bl-id="${esc(block.id)}"><div class="bl-inner"${wStyle}>`;
+    // v0.11.4: en edición, el bloque ENTERO (foto incluida) se puede arrastrar para moverlo
+    const dragAttr = BL_EDIT.on ? ' draggable="true" data-bl-drag="' + index + '"' : '';
+    const open = `<div class="bl-block"${dragAttr} data-bl-index="${index}" data-bl-id="${esc(block.id)}"><div class="bl-inner"${wStyle}>`;
     const ctl = `<div class="bl-ctl"><button type="button" class="bl-drag" draggable="true" data-bl-drag="${index}" title="Arrastrar">⠿</button><button type="button" data-bl-up="${index}" title="Subir">▲</button><button type="button" data-bl-down="${index}" title="Bajar">▼</button><button type="button" data-bl-dup="${index}" title="Duplicar">⧉</button><button type="button" data-bl-del="${index}" title="Eliminar">✕</button></div>`;
     let inner = '';
     if (block.type === 'hero') {
@@ -5425,7 +5431,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           <div class="bl-grid">${['text', 'image', 'video', 'instagram', 'gallery', 'divider'].map(card).join('')}</div>
           <p class="bl-panel-sec">Bloques de tienda</p>
           <div class="bl-grid">${['hero', 'cta', 'products'].map(card).join('')}</div>
-          <small class="bl-panel-tip">Tocá un bloque de la página para editarlo. Arrastrá ⠿ para reordenarlo.</small>
+          <small class="bl-panel-tip">💡 Tocá un bloque para editarlo y <b>arrastralo (la foto entera)</b> para moverlo donde quieras. También con ▲▼ en la esquina.</small>
         </div>`;
       document.body.appendChild(bar);
     }

@@ -1,5 +1,11 @@
 # Changelog — Mi-Tienda
 
+## v0.11.4 · 2026-09-24 · Mover fotos y secciones arrastrándolas (constructor)
+- **Ahora se arrastra el bloque entero — la foto incluida — sin manija**: en el constructor, cualquier sección (imagen, texto, galería, video…) se mueve a donde quieras agarrándola directamente y arrastrándola arriba/abajo (antes solo podía agarrarse la manija chica ⠿ de la esquina, difícil de descubrir). El cursor muestra "agarrar" al pasar el mouse.
+- **Los controles ▲▼⧉✕ ahora se ven SIEMPRE en modo edición** (antes solo aparecían al pasar el mouse — en pantallas táctiles nunca se veían y parecía que no se podía mover nada).
+- Pista actualizada en el panel: "arrastralo (la foto entera) para moverlo donde quieras".
+- Test B6 nuevo: arrastre por el cuerpo del bloque (sin manija) reordena y persiste; B3 sigue cubriendo la manija. Suite completa: **48/48**.
+
 ## v0.11.3 · 2026-09-24 · FIX: el botón "Listo" del editor de imágenes no cerraba
 - **Causa**: `mtEditImage` (el editor que se abre al tocar una imagen en modo edición) nunca llamaba `mtEditBind()`, la función que conecta los botones del pie. La × y Escape cerraban, pero **"Listo" no hacía nada** — bug presente desde v0.8, recién reportado ahora. Basta con el call faltante; test de regresión agregado (abrir imagen editorial → reemplazar → "Listo" cierra el popover).
 - Suite completa: **47/47**.
