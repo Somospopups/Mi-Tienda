@@ -1472,14 +1472,31 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .bl-ctl button.bl-drag { cursor: grab; }
   .bl-ctl button:hover { background: #6366f1; }
   .bl-drop-mark { height: 4px; border-radius: 3px; background: #6366f1; margin: -11px 0 -11px; position: relative; z-index: 5; }
-  .bl-addbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; display: none; gap: 6px; flex-wrap: wrap; justify-content: center; background: #111827f2; border-radius: 14px; padding: 9px 11px; z-index: 60; box-shadow: var(--shadow-lg); max-width: 94vw; }
-  body.bl-editing .bl-addbar { display: flex; }
-  .bl-addbar button { border: none; background: #ffffff14; color: #f3f4f6; border-radius: 9px; padding: 8px 12px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: var(--sans); }
-  .bl-addbar button:hover { background: #6366f1; }
+  .bl-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(300px, 86vw); display: none; flex-direction: column; background: #fff; border-left: 1px solid var(--line); box-shadow: -20px 0 60px rgba(31, 29, 24, .14); z-index: 60; }
+  body.bl-editing .bl-panel { display: flex; }
+  .bl-panel-head { padding: 16px 16px 12px; border-bottom: 1px solid var(--line); }
+  .bl-panel-title { font-size: 15px; font-weight: 850; }
+  .bl-panel-actions { display: grid; gap: 8px; margin-top: 11px; }
+  .bl-panel-actions .bl-save { border: 0; background: var(--accent); color: #fff; border-radius: 10px; padding: 10px 12px; font-weight: 800; font-size: 12.5px; cursor: pointer; font-family: var(--sans); }
+  .bl-panel-actions .bl-exit { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 10px; padding: 9px 12px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: var(--sans); }
+  .bl-panel-body { flex: 1; overflow-y: auto; padding: 14px 14px 40px; }
+  .bl-panel-sec { margin: 2px 0 8px; color: var(--ink-soft); font-size: 10.5px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+  .bl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 16px; }
+  .bl-card { display: grid; place-items: center; gap: 5px; padding: 12px 4px 9px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font-weight: 720; font-size: 11.5px; cursor: pointer; font-family: var(--sans); }
+  .bl-card:hover { border-color: var(--accent); background: #fdf3ee; color: var(--accent-dark); }
+  .bl-card .bl-ico { font-size: 20px; line-height: 1; }
+  .bl-panel-tip { display: block; color: var(--ink-soft); font-size: 11.5px; line-height: 1.5; }
+  body.bl-editing .bl-front { padding-right: min(320px, 90vw); }
+  @media (max-width: 900px) { body.bl-editing .bl-front { padding-right: clamp(14px, 3.4vw, 36px); } }
+  .bl-ig { display: block; margin: 0 auto; width: min(420px, 100%); aspect-ratio: 9 / 16; border: 0; border-radius: 16px; background: #fafafa; box-shadow: var(--shadow-sm); }
+  .bl-ig.post { width: min(540px, 100%); aspect-ratio: 1; }
   .bl-addbar .bl-save { background: #22c55e; color: #06220f; font-weight: 900; }
   .bl-addbar .bl-exit { background: #ffffff22; }
   .bl-editor { position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 96vw); background: var(--paper, #fff); z-index: 70; box-shadow: var(--shadow-lg); transform: translateX(105%); transition: transform .22s ease; display: flex; flex-direction: column; border-left: 1px solid var(--line); color: var(--ink, #111); }
   .bl-editor.open { transform: none; }
+  body.bl-editing .bl-editor { right: min(300px, 86vw); transform: translateX(calc(110% + min(300px, 86vw))); }
+  body.bl-editing .bl-editor.open { transform: none; }
+  @media (max-width: 900px) { body.bl-editing .bl-editor { right: 0; transform: translateX(110%); } }
   .bl-editor header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--line); }
   .bl-editor header b { font-family: var(--sans); font-size: 14.5px; }
   .bl-editor-body { padding: 14px 16px 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
@@ -5315,14 +5332,15 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
 
   /* ================= v0.10 · CONSTRUCTOR DE PÁGINA (front libre) ================= */
   const BL_TYPES = {
-    hero: { label: 'Portada', make: () => ({ id: blId(), type: 'hero', w: 100, props: { title: 'Tu titular acá', subtitle: 'Una frase que cuente qué vendés.', btnText: 'Ver productos', btnLink: '#coleccion', image: '', overlay: 45, tone: 'dark', height: 'mid' } }) },
-    text: { label: 'Texto', make: () => ({ id: blId(), type: 'text', w: 100, props: { title: 'Un título', body: 'Contá tu historia, tus servicios o lo que quieras contarnos.', align: 'left', bg: '', color: '' } }) },
-    image: { label: 'Imagen', make: () => ({ id: blId(), type: 'image', w: 100, props: { src: '', link: '' } }) },
-    video: { label: 'Video', make: () => ({ id: blId(), type: 'video', w: 100, props: { url: '' } }) },
-    gallery: { label: 'Galería', make: () => ({ id: blId(), type: 'gallery', w: 100, props: { images: [] } }) },
-    products: { label: 'Productos', make: () => ({ id: blId(), type: 'products', w: 100, props: { title: 'Favoritos de la casa' } }) },
-    cta: { label: 'Banner con botón', make: () => ({ id: blId(), type: 'cta', w: 100, props: { title: '¿Consultás algo?', body: 'Escribinos por WhatsApp, te respondemos al toque.', btnText: 'Escribinos', btnLink: '', bg: '', color: '' } }) },
-    divider: { label: 'Separador', make: () => ({ id: blId(), type: 'divider', w: 100, props: { style: 'line', bg: '' } }) }
+    hero: { label: 'Portada', ico: '🌄', make: () => ({ id: blId(), type: 'hero', w: 100, props: { title: 'Tu titular acá', subtitle: 'Una frase que cuente qué vendés.', btnText: 'Ver productos', btnLink: '#coleccion', image: '', overlay: 45, tone: 'dark', height: 'mid' } }) },
+    text: { label: 'Cuadro de texto', ico: '📝', make: () => ({ id: blId(), type: 'text', w: 100, props: { title: 'Un título', body: 'Contá tu historia, tus servicios o lo que quieras contarnos.', align: 'left', bg: '', color: '' } }) },
+    image: { label: 'Imagen', ico: '🏞️', make: () => ({ id: blId(), type: 'image', w: 100, props: { src: '', link: '' } }) },
+    video: { label: 'Video de YouTube', ico: '📺', make: () => ({ id: blId(), type: 'video', w: 100, props: { url: '' } }) },
+    instagram: { label: 'Reel de Instagram', ico: '📱', make: () => ({ id: blId(), type: 'instagram', w: 100, props: { url: '', format: 'reel' } }) },
+    gallery: { label: 'Galería de fotos', ico: '🎞️', make: () => ({ id: blId(), type: 'gallery', w: 100, props: { images: [] } }) },
+    products: { label: 'Productos destacados', ico: '🛍️', make: () => ({ id: blId(), type: 'products', w: 100, props: { title: 'Favoritos de la casa' } }) },
+    cta: { label: 'Banner con botón', ico: '📣', make: () => ({ id: blId(), type: 'cta', w: 100, props: { title: '¿Consultás algo?', body: 'Escribinos por WhatsApp, te respondemos al toque.', btnText: 'Escribinos', btnLink: '', bg: '', color: '' } }) },
+    divider: { label: 'Separador', ico: '➖', make: () => ({ id: blId(), type: 'divider', w: 100, props: { style: 'line', bg: '' } }) }
   };
   function blId() { return 'bl' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   const blQ = (sel) => document.querySelector(sel);
@@ -5360,6 +5378,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     } else if (block.type === 'video') {
       const id = blYoutubeId(pr.url);
       inner = id ? `<iframe class="bl-video" src="https://www.youtube.com/embed/${esc(id)}" title="Video" allowfullscreen loading="lazy"></iframe>` : '<div class="bl-text" style="text-align:center;color:var(--ink-soft)">Pegá un link de YouTube en “Editar”</div>';
+    } else if (block.type === 'instagram') {
+      const m = String(pr.url || '').match(/instagram\.com\/(reel|reels|p|tv)\/([\w-]+)/);
+      const igType = m && (m[1] === 'p' || m[1] === 'tv') ? 'p' : 'reel';
+      inner = m ? `<iframe class="bl-ig ${pr.format === 'post' ? 'post' : ''}" src="https://www.instagram.com/${igType}/${m[2]}/embed" title="Instagram" loading="lazy" allowfullscreen></iframe>` : '<div class="bl-text" style="text-align:center;color:var(--ink-soft)">Pegá el link del reel o post en “Editar”</div>';
     } else if (block.type === 'gallery') {
       const imgs = Array.isArray(pr.images) ? pr.images : [];
       const colsClass = pr.cols === '2' ? 'g2' : pr.cols === '4' ? 'g4' : pr.cols === '3' ? 'g3' : (imgs.length <= 2 ? 'g2' : imgs.length >= 4 ? 'g4' : 'g3');
@@ -5392,19 +5414,27 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     applyStorefront();
     BL_EDIT.on = true; BL_EDIT.blocks = blBlocks().map((b) => JSON.parse(JSON.stringify(b)));
     document.body.classList.add('bl-editing');
-    if (!blQ('#blAddbar')) {
-      const bar = document.createElement('div');
-      bar.className = 'bl-addbar'; bar.id = 'blAddbar';
-      bar.innerHTML = Object.entries(BL_TYPES).map(([key, def]) => `<button type="button" data-bl-add="${key}">+ ${def.label}</button>`).join('') + '<button type="button" class="bl-save" data-bl-save>✓ Guardar página</button><button type="button" class="bl-exit" data-bl-exit>Salir</button>';
+    if (!blQ('#blPanel')) {
+      const bar = document.createElement('aside');
+      bar.className = 'bl-panel'; bar.id = 'blPanel';
+      const card = (key) => `<button type="button" class="bl-card" data-bl-add="${key}"><span class="bl-ico">${BL_TYPES[key].ico}</span>${BL_TYPES[key].label}</button>`;
+      bar.innerHTML = `<div class="bl-panel-head"><b class="bl-panel-title">Constructor</b><div class="bl-panel-actions"><button type="button" class="bl-save" data-bl-save>✓ Guardar página</button><button type="button" class="bl-exit" data-bl-exit>Salir</button></div></div>
+        <div class="bl-panel-body">
+          <p class="bl-panel-sec">Insertar</p>
+          <div class="bl-grid">${['text', 'image', 'video', 'instagram', 'gallery', 'divider'].map(card).join('')}</div>
+          <p class="bl-panel-sec">Bloques de tienda</p>
+          <div class="bl-grid">${['hero', 'cta', 'products'].map(card).join('')}</div>
+          <small class="bl-panel-tip">Tocá un bloque de la página para editarlo. Arrastrá ⠿ para reordenarlo.</small>
+        </div>`;
       document.body.appendChild(bar);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast('Constructor activo', 'Tocá un bloque para editarlo, arrastrá ⠿ para reordenar. Guardá cuando estés conforme.');
+    toast('Constructor activo', 'Insertá bloques desde el panel de la derecha. Guardá cuando estés conforme.');
   }
   function blClose() {
     BL_EDIT.on = false; BL_EDIT.selected = -1;
     document.body.classList.remove('bl-editing');
-    blQ('#blAddbar')?.remove();
+    blQ('#blPanel')?.remove();
     blEditorClose();
     renderBuilder();
   }
@@ -5451,6 +5481,9 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       fields += `<label>Imagen<button type="button" class="bl-btn-primary" data-bl-img="src" style="margin-top:4px">${pr.src ? 'Reemplazar imagen' : 'Subir imagen'}</button><input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file></label>` + blField('Link al tocar (opcional)', 'link', pr.link);
     } else if (block.type === 'video') {
       fields += blField('Link de YouTube', 'url', pr.url, 'placeholder="https://youtube.com/watch?v=…"');
+    } else if (block.type === 'instagram') {
+      fields += blField('Link del reel o post', 'url', pr.url, 'placeholder="https://www.instagram.com/reel/…"')
+        + `<label>Formato<select name="format"><option value="reel" ${(pr.format || 'reel') === 'reel' ? 'selected' : ''}>Reel (vertical)</option><option value="post" ${pr.format === 'post' ? 'selected' : ''}>Post (cuadrado)</option></select></label>`;
     } else if (block.type === 'gallery') {
       const imgs = Array.isArray(pr.images) ? pr.images : [];
       fields += `<label>Fotos (${imgs.length}/6)<button type="button" class="bl-btn-primary" data-bl-img="gallery" style="margin-top:4px" ${imgs.length >= 6 ? 'disabled' : ''}>Agregar foto</button><input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file multiple></label>`

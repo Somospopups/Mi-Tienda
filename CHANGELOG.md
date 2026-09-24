@@ -1,5 +1,12 @@
 # Changelog — Mi-Tienda
 
+## v0.11.0 · 2026-09-24 · Panel lateral del constructor (estilo Google Sites) + Reel de Instagram
+- **El constructor ahora tiene un panel lateral como Google Sites** (pedido con captura): al activarlo se abre un panel derecho con las secciones **"Insertar"** (Cuadro de texto, Imagen, Video de YouTube, **Reel de Instagram**, Galería de fotos, Separador) y **"Bloques de tienda"** (Portada, Banner con botón, Productos destacados), cada uno como tarjeta con ícono. Los botones **Guardar página** y **Salte** viven en la cabecera del panel; la página se corre a la izquierda para que nada la tape.
+- **Nuevo bloque: Reel de Instagram.** Se pega el link del reel o post (`instagram.com/reel/…` o `/p/…`) y se muestra incrustado con el formato elegido: **Reel (vertical 9:16)** o **Post (cuadrado)** — vía el embed oficial de Instagram, funciona en la tienda publicada.
+- El editor de propiedades de cada bloque ahora se despliega a la izquierda del panel (en pantallas angostas lo cubre y al cerrar vuelve a esconderse del todo).
+- La barra inferior del constructor fue reemplazada por el panel; los datos guardados no cambian (mismo `builderBlocks`, mismas claves y tamaños).
+- 1 test nuevo (B5: panel con 2 secciones y 9 tarjetas, inserción de reel, cambio de formato y persistencia). Suite completa: **45/45**.
+
 ## v0.10.1 · 2026-09-24 · Pista de credenciales en el login
 - **Aclaración de acceso al panel** (confusión reportada: "no puedo entrar"): en la **demo** (`/#admin` sin `?tienda=`) el panel entra con el **PIN 1234**; en una **tienda real** (`…?tienda=tu-tienda#admin`) entra con la **Clave de acceso que te dio POPUPS** — el PIN no funciona ahí. El login ahora lo muestra siempre: la demo indica "el PIN es 1234" y la tienda recuerda la Clave con el contacto para recuperarla. (El panel nunca dejó de funcionar: el servidor respondía "Clave incorrecta" correctamente.)
 - 2 tests nuevos en [`tests/login-hint.spec.js`](tests/login-hint.spec.js). Suite completa: **44/44**.

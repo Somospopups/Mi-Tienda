@@ -46,7 +46,7 @@ async function openBuilder(page) {
   await page.locator('[data-settings-view="appearance"]').click();
   await expect(page.locator('#mtOpenBuilder')).toBeVisible({ timeout: 15_000 });
   await page.locator('#mtOpenBuilder').click();
-  await expect(page.locator('.bl-addbar')).toBeVisible();
+  await expect(page.locator('#blPanel')).toBeVisible();
   await expect(page.locator('body')).toHaveAttribute('data-front', 'libre');
 }
 
@@ -167,6 +167,31 @@ test.describe('v0.10 · Constructor de página', () => {
     await expect(page.locator('body')).toHaveAttribute('data-front', 'libre', { timeout: 15_000 });
     await expect(page.locator('#frontBuilder .bl-block .bl-inner').first()).toHaveAttribute('style', /max-width:\s*65%/);
     await expect(page.locator('#frontBuilder .bl-gallery').last()).toHaveClass(/g2/);
+    await expectNoPageErrors(page);
+  });
+
+  test('B5 · Panel lateral estilo Google Sites: secciones y Reel de Instagram insertable', async ({ page }) => {
+    await openBuilder(page);
+    // El panel lateral existe, con secciones "Insertar" y "Bloques de tienda"
+    await expect(page.locator('#blPanel .bl-panel-title')).toHaveText('Constructor');
+    await expect(page.locator('#blPanel .bl-panel-sec')).toHaveCount(2);
+    await expect(page.locator('#blPanel .bl-card')).toHaveCount(9);
+    await expect(page.locator('#blPanel [data-bl-add="instagram"]')).toContainText('Reel de Instagram');
+    await expect(page.locator('#blPanel [data-bl-add="cta"]')).toContainText('Banner');
+    // Insertar un reel desde el panel
+    await page.locator('[data-bl-add="instagram"]').click();
+    await expect(page.locator('#blEditor')).toHaveClass(/open/);
+    await page.locator('#blEditorBody input[name="url"]').fill('https://www.instagram.com/reel/CxAbCdEfGhI/');
+    await expect(page.locator('#frontBuilder iframe.bl-ig')).toHaveAttribute('src', /instagram\.com\/reel\/CxAbCdEfGhI\/embed/);
+    // Formato post cambia la clase
+    await page.locator('#blEditorBody select[name="format"]').selectOption('post');
+    await expect(page.locator('#frontBuilder iframe.bl-ig.post')).toHaveCount(1);
+    // Persiste tras recargar
+    await page.locator('[data-bl-save]').click();
+    await expect(page.locator('#toastRegion')).toContainText(/guardada/i, { timeout: 15_000 });
+    await page.goto('/index.html');
+    await expect(page.locator('body')).toHaveAttribute('data-front', 'libre', { timeout: 15_000 });
+    await expect(page.locator('#frontBuilder iframe.bl-ig.post')).toHaveCount(1);
     await expectNoPageErrors(page);
   });
 });
