@@ -130,4 +130,28 @@ test.describe('Frentes de tienda (v0.9)', () => {
     await expectNoPageErrors(page);
   });
 
+  test('F6 · Click real sobre la tarjeta selecciona, resalta y previsualiza', async ({ page }) => {
+    await loginAdmin(page);
+    await page.locator('[data-admin-tab="settings"]').click();
+    await page.locator('[data-settings-view="appearance"]').click();
+    await expect(page.locator('.front-picker-card')).toBeVisible({ timeout: 15_000 });
+    // Estado inicial: Boutique activa
+    await expect(page.locator('.front-option.active')).toHaveCount(1);
+    await expect(page.locator('.front-option.active .front-meta b')).toHaveText(/Boutique/);
+    // El usuario hace click en la tarjeta Gamer (label, no el input oculto)
+    const gamerCard = page.locator('.front-option').filter({ hasText: 'Gamer · Hardware' });
+    await gamerCard.click();
+    // La tarjeta queda resaltada y la anterior se apaga
+    await expect(gamerCard).toHaveClass(/active/);
+    await expect(page.locator('.front-option.active')).toHaveCount(1);
+    // El preview en vivo aplica el frente sin guardar
+    await expect(page.locator('body')).toHaveAttribute('data-front', 'gamer');
+    // Y el guardar persiste el frente elegido con el click real
+    await page.locator('#appearanceForm button[type="submit"]').click();
+    await expect(page.locator('#toastRegion')).toContainText(/aplicada|actualizada/i, { timeout: 15_000 });
+    await page.goto('/index.html');
+    await expect(page.locator('body')).toHaveAttribute('data-front', 'gamer', { timeout: 15_000 });
+    await expectNoPageErrors(page);
+  });
+
 });

@@ -1432,9 +1432,11 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   /* ---- Admin: selector de frente (Configuración → Apariencia) ---- */
   .front-picker-card { margin-bottom: 18px; }
   .front-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .front-option { position: relative; display: flex; flex-direction: column; gap: 12px; border: 2px solid var(--line); border-radius: 16px; padding: 14px; cursor: pointer; background: var(--paper); transition: border-color .15s ease, box-shadow .15s ease; }
+  .front-option { position: relative; display: flex; flex-direction: column; gap: 12px; border: 2px solid var(--line); border-radius: 16px; padding: 14px; cursor: pointer; background: var(--paper); transition: border-color .15s ease, box-shadow .15s ease; user-select: none; -webkit-user-select: none; }
   .front-option:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
-  .front-option.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .front-option:active { transform: scale(.99); }
+  .front-option.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 10px 26px color-mix(in srgb, var(--accent) 14%, transparent); }
+  .front-option.active .front-meta b { color: var(--accent); }
   .front-option input { position: absolute; opacity: 0; pointer-events: none; }
   .front-thumb { height: 84px; border-radius: 10px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr 1fr; gap: 6px; }
   .front-thumb .ft-bar { grid-column: 1 / -1; height: 10px; border-radius: 4px; }
@@ -3546,9 +3548,27 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const open = event.target.closest?.('[data-front-open]');
     if (open) { event.preventDefault(); openProduct(open.dataset.frontOpen); }
   });
+  function syncFrontPickerVisual() {
+    document.querySelectorAll('.front-option').forEach((label) => {
+      const input = label.querySelector('input[name="storefront"]');
+      label.classList.toggle('active', Boolean(input && input.checked));
+    });
+  }
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const option = event.target.closest('.front-option');
+    if (!option) return;
+    const input = option.querySelector('input[name="storefront"]');
+    if (!input || event.target === input) return;
+    input.checked = true;
+    state.settings.storefront = input.value;
+    syncFrontPickerVisual();
+    applyStorefront();
+  });
   document.addEventListener('change', (event) => {
     if (event.target instanceof HTMLInputElement && event.target.name === 'storefront') {
       state.settings.storefront = event.target.value;
+      syncFrontPickerVisual();
       applyStorefront();
     }
   });
