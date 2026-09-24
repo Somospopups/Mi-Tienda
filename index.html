@@ -6740,6 +6740,7 @@ async function mtGuiaPdf() {
       try { await mtSaveContent(key, ''); toast('Imagen restaurada', 'Volvió la imagen original.'); mtEditClose(); }
       catch (error5) { toast('No se pudo restaurar', error5.message, 'error'); }
     });
+    mtEditBind(); /* v0.11.3: faltaba bindear los botones del pie — "Listo" no cerraba nunca el editor de imágenes */
     mtEditShow();
   }
   async function mtEditOpenProduct(id) {

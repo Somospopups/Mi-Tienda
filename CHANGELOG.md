@@ -1,5 +1,9 @@
 # Changelog — Mi-Tienda
 
+## v0.11.3 · 2026-09-24 · FIX: el botón "Listo" del editor de imágenes no cerraba
+- **Causa**: `mtEditImage` (el editor que se abre al tocar una imagen en modo edición) nunca llamaba `mtEditBind()`, la función que conecta los botones del pie. La × y Escape cerraban, pero **"Listo" no hacía nada** — bug presente desde v0.8, recién reportado ahora. Basta con el call faltante; test de regresión agregado (abrir imagen editorial → reemplazar → "Listo" cierra el popover).
+- Suite completa: **47/47**.
+
 ## v0.11.2 · 2026-09-24 · FIX: la imagen editorial del final no se podía reemplazar
 - **Causa**: la imagen grande del final de la página (sección "editorial", la que tiene el pie "Hecho para seguirte el ritmo") tiene un **velo degradado `::after` que cubre toda la foto**. Los clics caían en el contenedor, pero el modo edición buscaba el atributo de edición en el `<img>` (que quedaba debajo) → no abría el editor nunca. Las del hero no sufrían el problema por eso el usuario podía reemplazarlas.
 - **Fix**: el atributo de edición ahora va en el **contenedor** de la imagen (hero principal, hero secundaria y editorial) y el render resuelve el `<img>` interior. Un clic en cualquier punto de la foto abre el editor, aunque haya velos encima. El resaltado al pasar el mouse ahora marca toda la imagen (más claro).

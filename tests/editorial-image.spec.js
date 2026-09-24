@@ -41,8 +41,11 @@ test('La imagen editorial del final abre el editor con un clic en el centro (vel
   await expect(page.locator('#mtEditBody')).toBeVisible({ timeout: 10_000 });
   await expect(page.locator('#mtEditTitle')).toContainText('Imagen de la tienda');
   // Reemplazar con una foto real
-  await page.locator('#mtEditBody input[type="file"]').setInputFiles('/tmp/foto-editorial.png');
+  await page.locator('#mtEditBody input[type="file"]').setInputFiles('tests/fixtures/foto-editorial.png');
   await expect(page.locator('#mtEditBody')).toContainText('Imagen actualizada ✓', { timeout: 20_000 });
+  // v0.11.3 (regresión): el botón "Listo" del editor de imágenes cierra el popover
+  await page.locator('#mtEditBody [data-mt-cancel]').click();
+  await expect(page.locator('.mt-edit-popover')).toBeHidden({ timeout: 5_000 });
   // Persiste tras recargar: el src ya no es el de la demo (data:image/webp;UklGRkAq…)
   await page.goto('/index.html');
   const src = await page.locator('.editorial-image img').getAttribute('src');
