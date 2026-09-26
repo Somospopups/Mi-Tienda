@@ -1,0 +1,32 @@
+name: Keep-Alive Supabase
+
+on:
+  schedule:
+    - cron: '0 1,9,17 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Mantener activo el proyecto (free plan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUP_URL: https://zfnlcfnutnuatrhgbbci.supabase.co
+      SUP_KEY: sb_publishable_OXtOk77qP8Q1RX6IOOPj8A_qAqLEe_- # publishable: ya publica en index.html
+    steps:
+      - name: Ping a la base (SELECT con RLS = round-trip real a Postgres)
+        run: |
+          code=$(curl -sS -f -o /tmp/sup.json -w '%{http_code}' --retry 3 --retry-connrefused --max-time 25 \
+            -H "apikey: ${{ env.SUP_KEY }}" -H "Authorization: Bearer ${{ env.SUP_KEY }}" \
+            "${{ env.SUP_URL }}/rest/v1/stores?select=id&limit=1")
+          echo "GET stores -> HTTP $code"
+          if [ "$code" != "200" ]; then cat /tmp/sup.json; exit 1; fi
+
+      - name: Lectura real de una tienda (api_public, como un visitante)
+        run: |
+          curl -sS -f --retry 3 --retry-connrefused --max-time 25 \
+            -X POST -H "apikey: ${{ env.SUP_KEY }}" -H "Authorization: Bearer ${{ env.SUP_KEY }}" \
+            -H "Content-Type: application/json" -d '{"p_store":"juan"}' \
+            "${{ env.SUP_URL }}/rest/v1/rpc/api_public" > /tmp/pub.json
+          grep -q '"ok":true' /tmp/pub.json || { cat /tmp/pub.json; exit 1; }
+          echo "api_public -> ok:true"

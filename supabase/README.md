@@ -16,6 +16,15 @@ vive en estas funciones SQL.
 | `api_key_change.sql` | DDL de la RPC nueva (v0.7.3) para que el dueño cambie su clave | ⏳ **Listo, falta ejecutarlo** — ver abajo |
 | `alta-cliente.sql` | Plantilla reutilizable para **vender/crear una tienda** (api_admin + catálogo opcional + rotación de clave) | ✅ Listo para usar — copiar y ajustar por cliente |
 
+## Evitar la pausa automática (plan Free)
+
+El plan Free pausa el proyecto tras **7 días sin actividad** real (sin consultas a la
+base; los endpoints de salud no cuentan). El workflow
+[`.github/workflows/keepalive-supabase.yml`](../.github/workflows/keepalive-supabase.yml)
+corre **3 veces por día** y hace pings que llegan a Postgres (SELECT con RLS + una
+lectura real de `api_public`), así el proyecto nunca llega a los 7 días de inactividad.
+Si un ping falla (ej. proyecto pausado), GitHub notifica al equipo.
+
 ## Por qué falta `schema-real.sql` (y cómo resolverlo en 5 minutos)
 
 El changelog v0.6.1 menciona `mp_async.sql`, pero ningún SQL se commiteó jamás.
