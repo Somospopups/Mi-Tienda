@@ -1,5 +1,14 @@
 # Changelog — Mi-Tienda
 
+## v0.14.1 · 2026-09-26 · FIX: 5 bugs del constructor de página + arrastre para reordenar
+- **Abrir y guardar un bloque ya no te pinta los colores de negro**: los `<input type="color">` muestran `#000000` aunque el bloque no tenga color definido, y al guardar ese valor se guardaba. Ahora cada campo recuerda su valor inicial y los colores que el dueño no tocó se conservan vacíos.
+- **Subir o quitar una foto ya no borra lo escrito en los otros campos del bloque**: al recomponer la ficha (por ejemplo al subir una imagen de la galería) se perdían textos, links y selecciones que todavía no se habían guardado. Ahora la ficha se vuelca al borrador antes de re-renderizarse.
+- **Con la página personalizada, "Explorar la tienda" del carrito ahora muestra el catálogo**: el catálogo está oculto en las páginas armada a mano, y ese botón hacía scroll a una sección invisible (la pantalla se quedaba en la nada). Ahora todos los botones que apuntan al catálogo lo abren si hace falta.
+- **Un botón al catálogo ya no abre el catálogo mientras estás editando la página**: en modo edición quedan apagados los botones que saltan a otra sección, para no sacar al dueño del bloque que está editando.
+- **El oscurecido `0` de la Portada se respeta**: con `0` ya no queda un velo del 45% pegado arriba del gradiente.
+- **Vuelve el arrastre para mover bloques** (como en el constructor anterior): con el panel **Bloques** abierto se agarra el bloque entero y se suelta arriba o abajo del bloque destino, con la marca de inserción y el bloque arrastrado atenuado. Las imágenes no secuestran el arrastre. El cursor muestra "agarrar", como antes.
+- Tests: 5 regresiones de los bugs + 1 de arrastre en [`tests/page-builder.spec.js`](tests/page-builder.spec.js) (el spec de repro se integró al archivo y se borró). Suite completa: **56/56**.
+
 ## v0.14.0 · 2026-09-26 · Constructor de página en el modo edición (estilo Google Sites) + complementos
 - **Vuelve el armado de la página, ahora desde la barra del modo edición**: el botón **"Bloques"** abre un panel lateral (como el de Google Sites) con las plantillas para agregar secciones. El modo edición "clic para editar" sigue igual: se entra con **Ver tienda / Editar** y cada bloque se edita tocándolo.
 - **La página armada es todo el home.** Si el dueño guardó bloques, su home reemplaza al hogar clásico **y al catálogo automático**, en cualquier frente: se ocultan el hero de la tienda, las secciones de ofertas/gamer y la grilla de productos. El catálogo **no se pierde**: sigue alcanzable desde el menú y desde cualquier botón que apunte a `#coleccion` (Portada, Oferta, Banner), que lo muestra y baja hasta la grilla.

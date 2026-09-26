@@ -1530,6 +1530,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   body.bl-editing .bl-panel,
   body.bl-editing .bl-editor { top: 46px; }
   .bl-panel { color: var(--ink, #111); }
+  .bl-block.bl-dragging { opacity: .45; }
   .bl-panel-close { border: 0; background: transparent; color: var(--ink-soft); font-size: 21px; cursor: pointer; line-height: 1; padding: 2px 7px; border-radius: 8px; }
   .bl-panel-close:hover { color: var(--ink); background: rgba(0,0,0,.05); }
   .bl-panel-title { display: flex; justify-content: space-between; align-items: center; }
@@ -5411,17 +5412,21 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     };
     return { id: 'bl-' + Math.random().toString(36).slice(2, 9), type, props: D[type] || {} };
   }
-  function blBlockHtml(block, index) {
+  function blBlockHtml(block, index, editing) {
     const pr = block.props || {};
     const wStyle = block.type !== 'hero' && pr.w && pr.w !== 'auto' && Number(pr.w) > 0 ? ` style="max-width:${Math.min(100, Math.max(20, Number(pr.w)))}%"` : '';
-    const open = `<div class="bl-block" data-bl-index="${index}" data-bl-id="${esc(block.id)}"><div class="bl-inner"${wStyle}>`;
+    const open = `<div class="bl-block" data-bl-index="${index}" data-bl-id="${esc(block.id)}"${editing ? ' draggable="true"' : ''}><div class="bl-inner"${wStyle}>`;
     let inner = '';
     if (block.type === 'hero') {
       const bgStyle = pr.image ? `background-image:url('${pr.image}')` : '';
       const dark = (pr.tone || 'dark') === 'dark';
       const bgc = blHex(pr.bg, dark ? '#141a2e' : '#f3f4f6');
+      // 0 es un valor válido (sin velo), así que no se puede caer al default con "|| 45".
+      const ov = (pr.overlay === '' || pr.overlay == null) ? 45 : Math.max(0, Math.min(100, Number(pr.overlay) || 0));
+      // El stop superior es el extra detrás del título: con velo 0 tampoco puede quedar.
+      const ovTop = ov === 0 ? 0 : 0.45;
       inner = `<div class="bl-hero ${pr.height === 'tall' ? 'tall' : pr.height === 'short' ? 'short' : ''}" style="${bgStyle};background-color:${bgc}">
-        <div class="bl-overlay" style="background:${dark ? 'linear-gradient(180deg, rgba(8,10,20,.45), rgba(8,10,20,' + (Number(pr.overlay) || 45) / 100 + '))' : 'rgba(255,255,255,.35)'}"></div>
+        <div class="bl-overlay" style="background:${dark ? `linear-gradient(180deg, rgba(8,10,20,${ovTop}), rgba(8,10,20,${ov / 100}))` : 'rgba(255,255,255,.35)'}"></div>
         <div class="bl-hero-copy" style="color:${dark ? '#fff' : '#1f2430'};text-align:center;margin:0 auto">
           <h2>${esc(pr.title || '')}</h2>${pr.subtitle ? `<p>${esc(pr.subtitle)}</p>` : ''}
           ${pr.btnText ? `<a class="bl-btn" href="#coleccion" style="background:${dark ? '#fff' : '#1f2430'};color:${dark ? '#141a2e' : '#fff'}">${esc(pr.btnText)}</a>` : ''}
@@ -5474,9 +5479,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!root) return;
     const blocks = blBlocks();
     const editing = Boolean(document.body.classList.contains('bl-editing'));
-    root.innerHTML = blocks.length ? blocks.map(blBlockHtml).join('') : editing
+    root.innerHTML = blocks.length ? blocks.map((b, i) => blBlockHtml(b, i, editing)).join('') : editing
       ? '<div class="bl-text" style="text-align:center;padding:60px 10px;color:var(--ink-soft)"><h3>Tu página está vacía</h3><p>Agregá una <b>Portada</b>, un <b>Banner</b> o <b>Productos</b> desde el botón <b>Bloques</b> de la barra superior.</p></div>'
       : '<div class="bl-text" style="text-align:center;padding:40px 10px;color:var(--ink-soft)"><h3>Tu página, a tu manera</h3><p>Este frente usa el constructor visual. Escribinos a <b>POPUPS</b> y lo ajustamos por vos.</p></div>';
+    if (editing) {
+      // Las fotos no deben "arrastrarse" solas: el arrastre es del bloque entero.
+      root.querySelectorAll('.bl-block img').forEach((img) => { img.draggable = false; });
+    }
   }
   function blApplyHome() {
     const personalized = blBlocks().length > 0;
@@ -5515,17 +5524,21 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function blFieldHtml(field, draft) {
     const [kind, key, label, options] = field;
     const value = draft[key] == null ? '' : String(draft[key]);
+    // v0.14: data-init deja registro del valor con el que se pintó el campo. Un color
+    // sin definir se muestra como #000000 pero no debe guardarse si nadie lo tocó.
+    const init = (v) => ` data-init="${esc(v)}" data-kind="${kind}"`;
     if (kind === 'text' || kind === 'url' || kind === 'number') {
-      return `<label>${label}<input type="${kind === 'number' ? 'number' : kind === 'url' ? 'url' : 'text'}" name="${key}" value="${esc(value)}"></label>`;
+      return `<label>${label}<input type="${kind === 'number' ? 'number' : kind === 'url' ? 'url' : 'text'}" name="${key}" value="${esc(value)}"${init(value)}></label>`;
     }
     if (kind === 'textarea') {
-      return `<label>${label}<textarea name="${key}" rows="5">${esc(value)}</textarea></label>`;
+      return `<label>${label}<textarea name="${key}" rows="5"${init(value)}>${esc(value)}</textarea></label>`;
     }
     if (kind === 'select') {
-      return `<label>${label}<select name="${key}">${options.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === value ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+      return `<label>${label}<select name="${key}"${init(value)}>${options.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === value ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
     }
     if (kind === 'color') {
-      return `<label><span>${label}</span><input type="color" name="${key}" value="${value || '#000000'}"></label>`;
+      const shown = value || '#000000';
+      return `<label><span>${label}</span><input type="color" name="${key}" value="${shown}"${init(shown)}></label>`;
     }
     if (kind === 'image') {
       return `<label><span>${label}</span><div class="bl-upload" data-bl-upload="${key}"><span>${value ? 'Reemplazar imagen' : 'Elegir imagen (PNG, JPG o WEBP)'}</span></div>${value ? `<img class="bl-upimg" src="${safeImage(value)}" alt="">` : ''}<input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file="${key}"></label>`;
@@ -5546,7 +5559,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       </div>
       <div class="bl-panel-body"><div class="bl-panel-sec">Complementos</div><div class="bl-grid">${blCards([['hero', '🌟', 'Portada'], ['offer', '🏷️', 'Oferta'], ['testimonial', '💬', 'Testimonios'], ['video', '▶️', 'Video'], ['products', '🛍️', 'Productos'], ['cta', '📣', 'Banner']])}</div>
         <div class="bl-panel-sec">Bloques</div><div class="bl-grid">${blCards([['text', '✍️', 'Texto'], ['image', '🖼️', 'Imagen'], ['gallery', '🛖', 'Galería'], ['instagram', '📸', 'Reel IG'], ['divider', '➖', 'Separador']])}</div>
-        <span class="bl-panel-tip">Tip: agregá una sección de <b>Productos</b> para que se pueda comprar desde la página.</span>
+        <span class="bl-panel-tip">Tip: agregá una sección de <b>Productos</b> para que se pueda comprar desde la página. Movés los bloques con ▲▼ o arrastrándolos.</span>
       </div>`;
     panel.addEventListener('click', (event) => {
       const add = event.target.closest('[data-bl-add]');
@@ -5606,6 +5619,9 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     const blocks = blBlocks();
     const block = blocks[BL_EDIT.index];
     if (!block || !BL_EDIT.editor || !BL_EDIT.draft) return;
+    // Recolectar antes de repintar: si no, al subir o quitar una foto se pierde lo
+    // que el dueño ya había escrito en los otros campos de la ficha.
+    blCollectFields();
     const fields = BL_FIELDS[block.type] || [];
     const html = fields.map((f) => blFieldHtml(f, BL_EDIT.draft)).join('');
     const thumbs = (BL_EDIT.draft.images || []).map((src, i) => `<span class="bl-thumb"><img src="${safeImage(src)}" alt=""><button type="button" class="bl-thumb-x" data-bl-rem="${i}" aria-label="Quitar foto">×</button></span>`).join('');
@@ -5616,6 +5632,16 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     if (!BL_EDIT.draft || !Array.isArray(BL_EDIT.draft.images)) return;
     BL_EDIT.draft.images.splice(index, 1);
     blRenderEditorFields();
+  }
+  /* Vuelca los campos al borrador. Sólo los <input type="color"> se saltean cuando no
+     cambiaron: muestran #000000 aunque el bloque no tenga color definido, y guardarlo
+     volvería negro un fondo que el dueño nunca tocó. */
+  function blCollectFields() {
+    if (!BL_EDIT.draft || !BL_EDIT.editor) return;
+    BL_EDIT.editor.querySelectorAll('#blEditorBody input[name], #blEditorBody textarea[name], #blEditorBody select[name]').forEach((el) => {
+      if (el.dataset.kind === 'color' && el.dataset.init === el.value) return;
+      BL_EDIT.draft[el.name] = el.value;
+    });
   }
   function blEditorOpen(index) {
     blEnsureDom();
@@ -5663,8 +5689,8 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     const blocks = blBlocks();
     const block = blocks[BL_EDIT.index];
     if (!block || !BL_EDIT.draft) return blEditorClose();
+    blCollectFields();
     const draft = { ...BL_EDIT.draft };
-    BL_EDIT.editor.querySelector('#blEditorBody').querySelectorAll('input[name], textarea[name], select[name]').forEach((el) => { draft[el.name] = el.value; });
     block.props = draft;
     blEditorClose();
     await blPersist(blocks);
@@ -5708,13 +5734,78 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     if (open) { event.preventDefault(); openProduct(open.dataset.openProduct); }
   });
   /* Catálogo a demanda: la página armada reemplaza el home, pero el catálogo sigue
-     disponible desde el menú "Tienda" y desde los botones que apuntan a #coleccion. */
+     disponible desde el menú "Tienda", desde los botones que apuntan a #coleccion y
+     desde cualquier acción que lo scrollee (carrito, saltos de categoría). */
+  function blShowCatalog() {
+    if (!document.body.classList.contains('mt-page')) return false;
+    document.body.classList.add('show-catalog');
+    return true;
+  }
+  /* Reordenar arrastrando el bloque entero (v0.11.4): la línea violeta marca dónde cae. */
+  let BL_DRAG = null;
+  function blDragBlock(event) { return event.target instanceof Element ? event.target.closest('#frontBuilder .bl-block') : null; }
+  function blDragClear() {
+    BL_DRAG = null;
+    document.querySelectorAll('#frontBuilder .bl-drop-mark').forEach((m) => m.remove());
+    document.querySelectorAll('#frontBuilder .bl-dragging').forEach((m) => m.classList.remove('bl-dragging'));
+  }
+  document.addEventListener('dragstart', (event) => {
+    if (!BL_EDIT.editing) return;
+    const blockEl = blDragBlock(event);
+    if (!blockEl) return;
+    BL_DRAG = Number(blockEl.dataset.blIndex);
+    blockEl.classList.add('bl-dragging');
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      try { event.dataTransfer.setData('text/plain', String(BL_DRAG)); } catch (_) {}
+    }
+  });
+  document.addEventListener('dragover', (event) => {
+    if (BL_DRAG == null) return;
+    const blockEl = blDragBlock(event);
+    if (!blockEl) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('#frontBuilder .bl-drop-mark').forEach((m) => m.remove());
+    const rect = blockEl.getBoundingClientRect();
+    const after = event.clientY > rect.top + rect.height / 2;
+    const mark = document.createElement('div');
+    mark.className = 'bl-drop-mark';
+    if (after) blockEl.appendChild(mark); else blockEl.insertBefore(mark, blockEl.firstChild);
+  });
+  document.addEventListener('dragleave', (event) => {
+    const blockEl = blDragBlock(event);
+    const mark = blockEl && blockEl.querySelector(':scope > .bl-drop-mark');
+    if (mark) mark.remove();
+  });
+  document.addEventListener('dragend', blDragClear);
+  document.addEventListener('drop', async (event) => {
+    if (BL_DRAG == null) return;
+    event.preventDefault();
+    const from = BL_DRAG;
+    const blockEl = blDragBlock(event);
+    const mark = blockEl ? blockEl.querySelector(':scope > .bl-drop-mark') : null;
+    const after = mark ? mark === blockEl.lastElementChild : true;
+    blDragClear();
+    if (!blockEl) return;
+    const toIndex = Number(blockEl.dataset.blIndex);
+    let to = toIndex + (after ? 1 : 0);
+    if (from < to) to -= 1;
+    if (to === from || !Number.isInteger(to)) return;
+    const blocks = blBlocks();
+    const moved = blocks.splice(from, 1)[0];
+    if (!moved) return;
+    blocks.splice(to, 0, moved);
+    blEditorClose();
+    await blPersist(blocks);
+  });
   document.addEventListener('click', (event) => {
+    if (BL_EDIT.editing) return;
     if (!document.body.classList.contains('mt-page')) return;
     const link = event.target.closest('a[href="#coleccion"]');
     if (!link || document.body.classList.contains('show-catalog')) return;
     event.preventDefault();
-    document.body.classList.add('show-catalog');
+    blShowCatalog();
     requestAnimationFrame(() => { const c = document.getElementById('coleccion'); if (c) c.scrollIntoView({ behavior: 'smooth' }); });
   });
   /* ---- v0.9.2/0.10 · Presupuesto de payload para la nube ---- */
@@ -6176,9 +6267,9 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     const jump = event.target.closest('[data-category-jump]');
     if (jump) {
       state.category = jump.dataset.categoryJump; state.query = ''; $('searchInput').value = '';
-      renderCategories(); renderProducts(); $('coleccion').scrollIntoView({ behavior: 'smooth' });
+      renderCategories(); renderProducts(); blShowCatalog(); $('coleccion').scrollIntoView({ behavior: 'smooth' });
     }
-    if (event.target.closest('[data-close-and-shop]')) { closeCart(); setTimeout(() => $('coleccion').scrollIntoView({ behavior: 'smooth' }), 250); }
+    if (event.target.closest('[data-close-and-shop]')) { closeCart(); blShowCatalog(); setTimeout(() => $('coleccion').scrollIntoView({ behavior: 'smooth' }), 250); }
   }
 
   function cartClick(event) {

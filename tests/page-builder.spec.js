@@ -63,6 +63,42 @@ async function loginAdmin(page) {
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
 
+/**
+ * Lectura de los bloques guardados esperando a que el guardado async termine.
+ * `check` recibe los bloques y devuelve true cuando el store ya refleja lo esperado:
+ * el store existe desde el seed, así que alcanza con "no es null" para esperar de más.
+ */
+async function waitBlocks(page, check, timeout = 15_000) {
+  let blocks = [];
+  await expect
+    .poll(
+      async () => {
+        blocks = await page.evaluate((key) => {
+          const raw = localStorage.getItem(key);
+          if (!raw) return null;
+          const content = JSON.parse(raw).content || {};
+          try {
+            return JSON.parse(content.builderBlocks || '[]');
+          } catch (_) {
+            return null;
+          }
+        }, STORE_KEY);
+        return blocks !== null && check(blocks);
+      },
+      { timeout, message: 'el store offline no reflejó el guardado' }
+    )
+    .toBe(true);
+  return blocks;
+}
+
+/** Entra al modo edición, abre el panel de bloques y abre la ficha del bloque pedido. */
+async function openBlockEditor(page, index) {
+  await enterEditMode(page);
+  await page.locator('[data-mt-blocks]').click();
+  await page.locator(`.bl-block[data-bl-index="${index}"] .bl-ctl [data-bl-edit="${index}"]`).click();
+  await expect(page.locator('.bl-editor')).toHaveClass(/open/);
+}
+
 async function enterEditMode(page) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
@@ -96,10 +132,7 @@ test('1 · El botón "Bloques" abre el panel lateral y los complementos se agreg
   await expect(page.locator('.bl-block[data-bl-index="1"] .bl-products')).toBeVisible();
 
   // Quedó persistido en el store offline.
-  const stored = await page.evaluate(
-    (key) => JSON.parse(JSON.parse(localStorage.getItem(key)).content.builderBlocks),
-    STORE_KEY
-  );
+  const stored = await waitBlocks(page, (b) => b.length === 2 && b[1].type === 'products');
   expect(stored).toHaveLength(2);
   expect(stored.map((b) => b.type)).toEqual(['hero', 'products']);
   expect(stored[0].id).toMatch(/^bl-/);
@@ -156,10 +189,7 @@ test('3 · Editar las propiedades de un bloque guarda el texto nuevo', async ({ 
   await page.locator('[data-bl-editor-save]').click();
   await expect(page.locator('.bl-editor')).not.toHaveClass(/open/);
 
-  const stored = await page.evaluate(
-    (key) => JSON.parse(JSON.parse(localStorage.getItem(key)).content.builderBlocks),
-    STORE_KEY
-  );
+  const stored = await waitBlocks(page, (b) => b[0].props.title === 'Título nuevo');
   expect(stored[0].props.title).toBe('Título nuevo');
   expect(stored[0].props.body).toBe('Cuerpo nuevo');
   await expect(page.locator('.bl-text h3')).toHaveText('Título nuevo');
@@ -192,10 +222,7 @@ test('4 · Reordenar, duplicar y eliminar bloques persiste el resultado', async 
   await page.locator('.bl-block[data-bl-index="1"] [data-bl-del="1"]').click();
   await expect(page.locator('#frontBuilder .bl-block')).toHaveCount(2);
 
-  const stored = await page.evaluate(
-    (key) => JSON.parse(JSON.parse(localStorage.getItem(key)).content.builderBlocks),
-    STORE_KEY
-  );
+  const stored = await waitBlocks(page, (b) => b.length === 2 && b.map((x) => x.id).join() === 'bl-a,bl-b');
   expect(stored.map((b) => b.id)).toEqual(['bl-a', 'bl-b']);
   expect(new Set(stored.map((b) => b.id)).size).toBe(2);
 
@@ -283,5 +310,105 @@ test('6 · El panel y el editor se abren sin taparse ni tapar la barra de edici�
   await page.locator('[data-mt-done]').click();
   await expect(page.locator('.bl-panel')).toBeHidden();
   await expect(page.locator('body')).not.toHaveClass(/bl-editing/);
+  expectNoPageErrors(page);
+});
+
+// ── Regresiones de la auditoría de bugs ──────────────────────────────────────
+
+/** cta con colores vacíos + galería con 3 columnas + portada con overlay 0. */
+function bugBlocks() {
+  return [
+    { id: 'b-cta', type: 'cta', props: { title: 'Sumate', body: 'Escribinos', btnText: 'Escribir', btnLink: '', color: '', bg: '' } },
+    { id: 'b-gal', type: 'gallery', props: { images: [], cols: '3' } },
+    { id: 'b-hero', type: 'hero', props: { title: 'Portada', subtitle: '', tone: 'dark', height: '', bg: '#141a2e', overlay: 0, btnText: 'Ver catálogo' } },
+  ];
+}
+
+test('un color sin definir no se vuelve negro si el dueño no lo tocó', async ({ page }) => {
+  await seedBlocks(page, bugBlocks());
+  await openBlockEditor(page, 0); // el bloque cta tiene color y bg vacíos
+  await page.locator('.bl-editor input[name="title"]').fill('Otro título');
+  await page.locator('[data-bl-editor-save]').click();
+  const stored = await waitBlocks(page, (b) => b[0].props.title === 'Otro título');
+  expect(stored[0].props.title).toBe('Otro título');
+  expect(stored[0].props.bg, 'el fondo vacío debería seguir vacío').toBe('');
+  expect(stored[0].props.color, 'el color vacío debería seguir vacío').toBe('');
+  expectNoPageErrors(page);
+});
+
+test('subir una foto de galería no borra lo escrito en los otros campos', async ({ page }) => {
+  await seedBlocks(page, bugBlocks());
+  await openBlockEditor(page, 1); // galería
+  await page.locator('.bl-editor select[name="cols"]').selectOption('2');
+  await page.setInputFiles('.bl-editor [data-bl-file="images"]', {
+    name: 'pixel.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64'),
+  });
+  await expect(page.locator('.bl-thumb')).toHaveCount(1, { timeout: 15_000 });
+  // El re-render del editor no puede pisar lo que ya estaba escrito.
+  await expect(page.locator('.bl-editor select[name="cols"]')).toHaveValue('2');
+  await page.locator('[data-bl-editor-save]').click();
+  const stored = await waitBlocks(page, (b) => b[1].props.cols === '2' && (b[1].props.images || []).length === 1);
+  expect(stored[1].props.cols).toBe('2');
+  expect(stored[1].props.images).toHaveLength(1);
+  expectNoPageErrors(page);
+});
+
+test('con página personalizada, "Explorar la tienda" del carrito muestra el catálogo', async ({ page }) => {
+  await seedBlocks(page, bugBlocks());
+  await expect(page.locator('body')).toHaveClass(/mt-page/);
+  await expect(page.locator('#coleccion')).toBeHidden();
+  await page.locator('#cartButton').click();
+  await expect(page.locator('[data-close-and-shop]')).toBeVisible();
+  await page.locator('[data-close-and-shop]').click();
+  // Sin catálogo a la vista, el scroll se quedaba en la nada.
+  await expect(page.locator('#coleccion')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('body')).toHaveClass(/show-catalog/);
+});
+
+test('mientras se edita la página, un botón al catálogo no abre el catálogo', async ({ page }) => {
+  await seedBlocks(page, bugBlocks());
+  await openBlockEditor(page, 2); // portada
+  await page.locator('[data-bl-editor-save]').click();
+  const heroCta = page.locator('.bl-block[data-bl-index="2"] .bl-hero a[href="#coleccion"]');
+  await expect(heroCta).toBeVisible();
+  await heroCta.click({ force: true });
+  await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
+  await expect(page.locator('#coleccion')).toBeHidden();
+  expectNoPageErrors(page);
+});
+
+test('arrastrar un bloque lo reordena y persiste el orden', async ({ page }) => {
+  await seedBlocks(page, bugBlocks());
+  await enterEditMode(page);
+  await page.locator('[data-mt-blocks]').click();
+  await expect(page.locator('.bl-panel')).toBeVisible();
+  // Con el panel de bloques abierto los bloques se pueden arrastrar.
+  await expect(page.locator('#frontBuilder .bl-block[data-bl-index="0"]')).toHaveAttribute('draggable', 'true');
+
+  const target = page.locator('#frontBuilder .bl-block[data-bl-index="2"]');
+  const box = await target.boundingBox();
+  // Soltar en la mitad inferior = "dejarlo después" de ese bloque.
+  await page.locator('#frontBuilder .bl-block[data-bl-index="0"]').dragTo(target, {
+    targetPosition: { x: Math.round(box.width / 2), y: Math.round(box.height - 8) },
+  });
+
+  await expect
+    .poll(async () =>
+      page.locator('#frontBuilder .bl-block').evaluateAll((els) => els.map((e) => e.dataset.blId).join())
+    )
+    .toBe('b-gal,b-hero,b-cta');
+  const stored = await waitBlocks(page, (b) => b.map((x) => x.id).join() === 'b-gal,b-hero,b-cta');
+  expect(stored.map((b) => b.id)).toEqual(['b-gal', 'b-hero', 'b-cta']);
+  expectNoPageErrors(page);
+});
+
+test('el oscurecido 0 de la portada se respeta en el render', async ({ page }) => {
+  await seedBlocks(page, bugBlocks());
+  const style = await page.locator('.bl-block[data-bl-index="2"] .bl-overlay').getAttribute('style');
+  expect(style, 'overlay 0 no debería caer al default de 45').toContain('rgba(8,10,20,0)');
+  // Ni el stop superior puede quedar fijo en 45%: con velo 0 no hay velo.
+  expect(style, 'no debe quedar un velo 45% arriba').not.toContain('.45');
   expectNoPageErrors(page);
 });
