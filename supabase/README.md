@@ -25,6 +25,17 @@ corre **3 veces por día** y hace pings que llegan a Postgres (SELECT con RLS + 
 lectura real de `api_public`), así el proyecto nunca llega a los 7 días de inactividad.
 Si un ping falla (ej. proyecto pausado), GitHub notifica al equipo.
 
+## Monitoreo diario y respaldo
+
+[`.github/workflows/monitoreo-diario.yml`](../.github/workflows/monitoreo-diario.yml)
+corre **1 vez por día** y además del keep-alive:
+- chequea la **salud de cada tienda** (`api_public`) y falla si alguna activa no responde;
+- si alguna tienda **vence en ≤7 días** abre/actualiza un issue automático;
+- sube un **respaldo JSON completo** (catálogo + config + productos de todas las tiendas)
+  como artefacto privado del run (retención 90 días). Si se configuran los secretos
+  `BACKUP_PAT` + `BACKUP_REPO`, el respaldo se pushea además a un repo privado.
+- script local: `.github/scripts/monitoreo-supabase.py` (probado en vivo, 7 tiendas OK).
+
 ## Por qué falta `schema-real.sql` (y cómo resolverlo en 5 minutos)
 
 El changelog v0.6.1 menciona `mp_async.sql`, pero ningún SQL se commiteó jamás.

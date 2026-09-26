@@ -1,0 +1,63 @@
+name: Monitoreo diario Supabase
+
+on:
+  schedule:
+    - cron: '30 5 * * *'    # 05:30 UTC todos los dias
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  monitor:
+    name: Salud + vencimientos + respaldo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUP_URL: https://zfnlcfnutnuatrhgbbci.supabase.co
+      SUP_KEY: sb_publishable_OXtOk77qP8Q1RX6IOOPj8A_qAqLEe_- # publishable: ya publica en index.html
+      SUP_PIN: ${{ secrets.SUP_PIN || '2468' }}
+      RUNNER_OUT: /tmp/mt-monitor
+      BACKUP_PAT: ${{ secrets.BACKUP_PAT }}
+      BACKUP_REPO: ${{ secrets.BACKUP_REPO }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Chequear salud de cada tienda + respaldo
+        run: |
+          mkdir -p "$RUNNER_OUT"
+          python3 .github/scripts/monitoreo-supabase.py
+
+      - name: Avisar vencimientos (issue automatico)
+        if: hashFiles(format('{0}/vencimientos.txt', env.RUNNER_OUT)) != ''
+        run: |
+          body_file="$RUNNER_OUT/vencimientos.txt"
+          id=$(gh issue list --state open --limit 50 --json number,title --jq '.[] | select(.title | startswith("Tiendas por vencer")) | .number' | head -1)
+          if [ -n "$id" ]; then
+            gh issue comment "$id" --body-file "$body_file"
+          else
+            gh issue create --title "Tiendas por vencer en <=7 dias" --body-file "$body_file"
+          fi
+
+      - name: Subir respaldo (artefacto privado, 90 dias)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mt-backup-${{ github.run_id }}
+          path: ${{ env.RUNNER_OUT }}/backup-*.json
+          retention-days: 90
+
+      - name: Respaldo a repo privado (si esta configurado)
+        if: env.BACKUP_PAT != ''
+        run: |
+          set -eu
+          [ -n "$BACKUP_REPO" ]
+          git clone --depth 1 "https://x-access-token:${BACKUP_PAT}@github.com/${BACKUP_REPO}.git" "$RUNNER_OUT/repo"
+          cd "$RUNNER_OUT/repo"
+          cp "$RUNNER_OUT"/backup-*.json .
+          git config user.name "mt-monitor"
+          git config user.email "mt-monitor@users.noreply.github.com"
+          git add -A
+          git -c user.name="mt-monitor" -c user.email="mt-monitor@users.noreply.github.com" commit -m "respaldo $(date -u +%F)" 2>/dev/null || echo "sin cambios para commitear"
+          git push origin HEAD:main
