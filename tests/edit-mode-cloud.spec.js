@@ -101,7 +101,7 @@ function fakeCloudStore(seed = { slug: 'prueba', key: 'clave-dueño-2026', biz: 
   return { state, handlers };
 }
 
-/** Login cloud (dueño) → "Ver tienda" → botón flotante visible → modo edición activo. */
+/** Login cloud (dueño) → "Ver tienda / Editar" → el modo edición queda activo. */
 async function enterEditModeCloud(page) {
   await page.goto('/index.html?tienda=prueba#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
@@ -112,8 +112,6 @@ async function enterEditModeCloud(page) {
 
   await page.locator('#viewStore').click();
   await expect(page.locator('#shopApp')).toBeVisible();
-  await expect(page.locator('.mt-edit-float')).toBeVisible();
-  await page.locator('.mt-edit-float').click();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
 }
@@ -276,9 +274,8 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
 
     await page.locator('#viewStore').click();
-    await expect(page.locator('.mt-edit-float')).toBeVisible();
-    await page.locator('.mt-edit-float').click();
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
+    await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
 
     // El cliente ve los defaults (la tienda estaba vacía) y edita el 1er texto.
     await page.locator('[data-content="heroCardName"]').click();

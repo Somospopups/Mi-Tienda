@@ -733,7 +733,7 @@ svg { width: 1.25em; height: 1.25em; }
 .order-actions { padding: 14px 0; border-top: 1px solid #e5e3de; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
 .order-actions label { display: flex; align-items: center; gap: 9px; color: var(--ink-soft); font-size: .57rem; }
 .order-actions select { height: 37px; padding: 0 28px 0 10px; border: 1px solid #d9d7d1; border-radius: 7px; outline: 0; background: #fff; font-size: .59rem; }
-.settings-subnav { margin: -3px 0 19px; padding: 5px; border: 1px solid #dfddd7; border-radius: 12px; display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; background: #e9e7e1; }
+.settings-subnav { margin: -3px 0 19px; padding: 5px; border: 1px solid #dfddd7; border-radius: 12px; display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; background: #e9e7e1; }
 .settings-subnav button { min-height: 61px; padding: 9px 15px; border-radius: 8px; display: flex; align-items: center; gap: 11px; color: #666860; background: transparent; text-align: left; transition: color .2s ease, background .2s ease, box-shadow .2s ease; }
 .settings-subnav button:hover { color: var(--ink); background: rgba(255,255,255,.58); }
 .settings-subnav button.active { color: var(--ink); background: #fff; box-shadow: 0 4px 13px rgba(34,35,31,.08); }
@@ -1927,9 +1927,9 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-admin-tab="finance"><svg><use href="#i-finance"></use></svg><span>Finanzas</span></button>
           <button data-admin-tab="settings"><svg><use href="#i-settings"></use></svg><span>Configuración</span></button>
         </nav>
-        <div class="admin-sidebar-bottom"><button id="viewStore"><svg><use href="#i-external"></use></svg><span>Ver tienda</span></button><button id="guidePdfButton"><svg><use href="#i-orders"></use></svg><span>Guía (PDF)</span></button><button id="logoutButton"><svg><use href="#i-user"></use></svg><span>Cerrar sesión</span></button></div>
+        <div class="admin-sidebar-bottom"><button id="viewStore" title="Ver tienda / Editar"><svg><use href="#i-external"></use></svg><span>Ver tienda / Editar</span></button><button id="guidePdfButton"><svg><use href="#i-orders"></use></svg><span>Guía (PDF)</span></button><button id="logoutButton"><svg><use href="#i-user"></use></svg><span>Cerrar sesión</span></button></div>
       </aside>
-      <header class="admin-mobile-header"><button id="adminMenuButton"><svg><use href="#i-menu"></use></svg></button><div class="admin-logo"><span data-brand>LUMA</span><small>ADMIN</small></div><button id="adminMobileStore"><svg><use href="#i-external"></use></svg></button></header>
+      <header class="admin-mobile-header"><button id="adminMenuButton"><svg><use href="#i-menu"></use></svg></button><div class="admin-logo"><span data-brand>LUMA</span><small>ADMIN</small></div><button id="adminMobileStore" title="Ver tienda / Editar" aria-label="Ver tienda / Editar"><svg><use href="#i-external"></use></svg></button></header>
       <main class="admin-main"><div id="adminContent" class="admin-content"><div class="admin-loader"><i></i><span>Preparando tu panel…</span></div></div></main>
     </div>
   </section>
@@ -3701,46 +3701,6 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const open = event.target.closest?.('[data-front-open]');
     if (open) { event.preventDefault(); openProduct(open.dataset.frontOpen); }
   });
-  function syncFrontPickerVisual() {
-    document.querySelectorAll('.front-option').forEach((label) => {
-      const input = label.querySelector('input[name="storefront"]');
-      label.classList.toggle('active', Boolean(input && input.checked));
-    });
-  }
-  document.addEventListener('click', (event) => {
-    if (!(event.target instanceof Element)) return;
-    const option = event.target.closest('.front-option');
-    if (!option) return;
-    const input = option.querySelector('input[name="storefront"]');
-    if (!input || event.target === input) return;
-    input.checked = true;
-    state.settings.storefront = input.value;
-    syncFrontPickerVisual();
-    applyStorefront();
-  });
-  document.addEventListener('change', (event) => {
-    if (event.target instanceof HTMLInputElement && event.target.name === 'storefront') {
-      state.settings.storefront = event.target.value;
-      syncFrontPickerVisual();
-      applyStorefront();
-    }
-  });
-  function frontPickerHtml(settings) {
-    const active = MT_FRONTS[settings.storefront] ? settings.storefront : 'luma';
-    const options = [
-      { id: 'luma', name: 'Boutique · Editorial', desc: 'El frente clásico: portada cálida, historias de marca y catálogo curado.', cls: 'thumb-luma' },
-      { id: 'ofertas', name: 'Ofertas · Consumo', desc: 'Estilo tienda tech masiva: descuentos destacados, cuotas y acceso por categoría.', cls: 'thumb-ofertas' },
-      { id: 'gamer', name: 'Gamer · Hardware', desc: 'Oscuro y neón: categorías grandes, foco en componentes y armado de setup.', cls: 'thumb-gamer' },
-      { id: 'libre', name: 'Libre · Constructor', desc: 'Armá la portada a tu gusto: arrastrá bloques, fotos, videos y fondos, estilo Google Sites.', cls: 'thumb-libre' }
-    ];
-    return `<section class="settings-card front-picker-card"><h2>Frente de tienda</h2><p>Elegí cómo ve la tienda quien te visita. El panel de gestión y tus datos no cambian: solo la vidriera pública.</p><div class="front-picker-actions"><button type="button" class="button button-light button-small" id="mtOpenBuilder"><svg><use href="#i-edit"></use></svg> Abrir constructor visual</button><small>Con el frente Libre: arrastrás bloques, fotos, videos y fondos.</small></div><div class="front-picker">${options.map((option) => `
-      <label class="front-option ${active === option.id ? 'active' : ''}">
-        <input type="radio" name="storefront" value="${option.id}" ${active === option.id ? 'checked' : ''}>
-        <span class="front-thumb ${option.cls}" aria-hidden="true"><i class="ft-bar"></i><i class="ft-chip"></i><i class="ft-chip"></i><i class="ft-chip"></i></span>
-        <span class="front-meta"><b>${option.name}</b><small>${option.desc}</small></span>
-        <span class="front-check"><svg><use href="#i-check"></use></svg></span>
-      </label>`).join('')}</div></section>`;
-  }
 
   function configurePaymentMethods() {
     const mpEnabled=state.settings.mercadoPagoEnabled!==false,waEnabled=state.settings.whatsappEnabled!==false;
@@ -4171,6 +4131,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('adminSidebar')?.classList.remove('open');
     window.scrollTo(0, 0);
   }
+  function goStoreAndEdit() {
+    closeAdmin();
+    if (mtEditHasSession()) mtEditToggle(true);
+  }
 
   function showAdminLogin() {
     $('adminLogin').hidden = false;
@@ -4272,10 +4236,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         return renderAdminFinance();
       }
       if (state.admin.tab === 'settings') {
-        if (state.admin.settingsView === 'appearance') return renderAdminAppearance((await api('/api/admin/settings', { admin: true })).settings);
-        if (state.admin.settingsView === 'content') return renderAdminContent(await api('/api/admin/content', { admin: true }));
         if (state.admin.settingsView === 'payments') { if (!(window.mtCloudGlue && window.mtCloudGlue.slug && window.mtCloudGlue.slug())) return renderAdminPayments({ ok: false, connected: false }, {}); const [mpData, settingsData] = await Promise.all([api('/api/admin/mp/status', { admin: true }), api('/api/admin/settings', { admin: true })]); state.admin.mp = mpData || {}; return renderAdminPayments(mpData, settingsData.settings); }
-      if (state.admin.settingsView === 'legal') { const [legalData, settingsData] = await Promise.all([api('/api/admin/legal', { admin: true }), api('/api/admin/settings', { admin: true })]); return renderAdminLegal(legalData.legal, settingsData.settings); }
+        if (state.admin.settingsView === 'legal') { const [legalData, settingsData] = await Promise.all([api('/api/admin/legal', { admin: true }), api('/api/admin/settings', { admin: true })]); return renderAdminLegal(legalData.legal, settingsData.settings); }
         return renderAdminSettings(await api('/api/admin/settings', { admin: true }));
       }
     } catch (error) {
@@ -5362,7 +5324,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function settingsSubnav(active) {
-    return `<div class="settings-subnav" role="tablist" aria-label="Secciones de configuración"><button type="button" class="${active === 'general' ? 'active' : ''}" data-settings-view="general" role="tab" aria-selected="${active === 'general'}"><svg><use href="#i-settings"></use></svg><span><b>General</b><small>Marca, envíos e integraciones</small></span></button><button type="button" class="${active === 'appearance' ? 'active' : ''}" data-settings-view="appearance" role="tab" aria-selected="${active === 'appearance'}"><svg><use href="#i-eye"></use></svg><span><b>Apariencia</b><small>Paleta, contraste y estilos</small></span></button><button type="button" class="${active === 'content' ? 'active' : ''}" data-settings-view="content" role="tab" aria-selected="${active === 'content'}"><svg><use href="#i-edit"></use></svg><span><b>Contenido de página</b><small>Portada, textos y newsletter</small></span></button><button type="button" class="${active === 'payments' ? 'active' : ''}" data-settings-view="payments" role="tab" aria-selected="${active === 'payments'}"><svg><use href="#i-orders"></use></svg><span><b>Cobros</b><small>Mercado Pago del local</small></span></button><button type="button" class="${active === 'legal' ? 'active' : ''}" data-settings-view="legal" role="tab" aria-selected="${active === 'legal'}"><svg><use href="#i-shield"></use></svg><span><b>Legal y redes</b><small>Políticas, contacto y enlaces</small></span></button></div>`;
+    return `<div class="settings-subnav" role="tablist" aria-label="Secciones de configuración"><button type="button" class="${active === 'general' ? 'active' : ''}" data-settings-view="general" role="tab" aria-selected="${active === 'general'}"><svg><use href="#i-settings"></use></svg><span><b>General</b><small>Marca, paleta, envíos e integraciones</small></span></button><button type="button" class="${active === 'payments' ? 'active' : ''}" data-settings-view="payments" role="tab" aria-selected="${active === 'payments'}"><svg><use href="#i-orders"></use></svg><span><b>Cobros</b><small>Mercado Pago del local</small></span></button><button type="button" class="${active === 'legal' ? 'active' : ''}" data-settings-view="legal" role="tab" aria-selected="${active === 'legal'}"><svg><use href="#i-shield"></use></svg><span><b>Legal y redes</b><small>Políticas, contacto y enlaces</small></span></button></div>`;
   }
 
   const palettePresets = {
@@ -5374,27 +5336,15 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   let lastRandomPalette = '';
   function hslToHex(h,s,l){s/=100;l/=100;const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;let r=0,g=0,b=0;if(h<60)[r,g,b]=[c,x,0];else if(h<120)[r,g,b]=[x,c,0];else if(h<180)[r,g,b]=[0,c,x];else if(h<240)[r,g,b]=[0,x,c];else if(h<300)[r,g,b]=[x,0,c];else[r,g,b]=[c,0,x];return '#'+[r,g,b].map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('').toUpperCase();}
   function createRandomPalette(){const base=Math.floor(Math.random()*360),schemes=[[28,55],[45,180],[120,240],[150,300],[180,40],[210,330]],scheme=schemes[Math.floor(Math.random()*schemes.length)],jitter=()=>Math.floor(Math.random()*17)-8;let palette={accentColor:hslToHex((base+jitter()+360)%360,58+Math.floor(Math.random()*24),43+Math.floor(Math.random()*13)),darkColor:hslToHex((base+scheme[0]+jitter()+360)%360,34+Math.floor(Math.random()*30),11+Math.floor(Math.random()*8)),backgroundColor:hslToHex((base+scheme[1]+jitter()+360)%360,22+Math.floor(Math.random()*30),96+Math.floor(Math.random()*3)),surfaceColor:hslToHex((base+scheme[0]+jitter()+360)%360,30+Math.floor(Math.random()*35),88+Math.floor(Math.random()*7)),secondaryColor:hslToHex((base+scheme[1]+jitter()+360)%360,30+Math.floor(Math.random()*35),43+Math.floor(Math.random()*19))};if(colorContrast(palette.darkColor,palette.backgroundColor)<7)palette.darkColor=hslToHex(base,45,10);return palette;}
-  function applyRandomPalette(){const form=$('appearanceForm');if(!form)return;let palette,signature;do{palette=createRandomPalette();signature=Object.values(palette).join('');}while(signature===lastRandomPalette);lastRandomPalette=signature;for(const[name,value]of Object.entries(palette))if(form.elements[name])form.elements[name].value=value;updatePalettePreview();const button=$('randomPaletteButton');if(button){button.animate([{transform:'rotate(0deg) scale(1)'},{transform:'rotate(5deg) scale(1.04)'},{transform:'rotate(0deg) scale(1)'}],{duration:280});}}
+  async function applyRandomPalette(){let palette,signature;do{palette=createRandomPalette();signature=Object.values(palette).join('');}while(signature===lastRandomPalette);lastRandomPalette=signature;await applyPaletteLive(palette);}
 
-  /* ================= v0.10 · CONSTRUCTOR DE PÁGINA (front libre) ================= */
-  const BL_TYPES = {
-    hero: { label: 'Portada', ico: '🌄', make: () => ({ id: blId(), type: 'hero', w: 100, props: { title: 'Tu titular acá', subtitle: 'Una frase que cuente qué vendés.', btnText: 'Ver productos', btnLink: '#coleccion', image: '', overlay: 45, tone: 'dark', height: 'mid' } }) },
-    text: { label: 'Cuadro de texto', ico: '📝', make: () => ({ id: blId(), type: 'text', w: 100, props: { title: 'Un título', body: 'Contá tu historia, tus servicios o lo que quieras contarnos.', align: 'left', bg: '', color: '' } }) },
-    image: { label: 'Imagen', ico: '🏞️', make: () => ({ id: blId(), type: 'image', w: 100, props: { src: '', link: '' } }) },
-    video: { label: 'Video de YouTube', ico: '📺', make: () => ({ id: blId(), type: 'video', w: 100, props: { url: '' } }) },
-    instagram: { label: 'Reel de Instagram', ico: '📱', make: () => ({ id: blId(), type: 'instagram', w: 100, props: { url: '', format: 'reel' } }) },
-    gallery: { label: 'Galería de fotos', ico: '🎞️', make: () => ({ id: blId(), type: 'gallery', w: 100, props: { images: [] } }) },
-    products: { label: 'Productos destacados', ico: '🛍️', make: () => ({ id: blId(), type: 'products', w: 100, props: { title: 'Favoritos de la casa' } }) },
-    cta: { label: 'Banner con botón', ico: '📣', make: () => ({ id: blId(), type: 'cta', w: 100, props: { title: '¿Consultás algo?', body: 'Escribinos por WhatsApp, te respondemos al toque.', btnText: 'Escribinos', btnLink: '', bg: '', color: '' } }) },
-    divider: { label: 'Separador', ico: '➖', make: () => ({ id: blId(), type: 'divider', w: 100, props: { style: 'line', bg: '' } }) }
-  };
-  function blId() { return 'bl' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-  const blQ = (sel) => document.querySelector(sel);
+/* ================= v0.10 · CONSTRUCTOR DE PÁGINA (front libre) ================= */
+  /* v0.13.0: el editor del constructor se retiró del panel; el frente "libre" solo se renderiza.
+     Los bloques guardados siguen mostrándose y los productos que contienen funcionan para el público. */
   function blBlocks() {
     try { const parsed = JSON.parse(state.content.builderBlocks || '[]'); return Array.isArray(parsed) ? parsed : []; }
     catch (_) { return []; }
   }
-  function blSetBlocks(blocks) { state.content.builderBlocks = JSON.stringify(blocks); }
   function blYoutubeId(url) {
     const m = String(url || '').match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
     return m ? m[1] : '';
@@ -5403,10 +5353,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function blBlockHtml(block, index) {
     const pr = block.props || {};
     const wStyle = block.type !== 'hero' && pr.w && pr.w !== 'auto' && Number(pr.w) > 0 ? ` style="max-width:${Math.min(100, Math.max(20, Number(pr.w)))}%"` : '';
-    // v0.11.4: en edición, el bloque ENTERO (foto incluida) se puede arrastrar para moverlo
-    const dragAttr = BL_EDIT.on ? ' draggable="true" data-bl-drag="' + index + '"' : '';
-    const open = `<div class="bl-block"${dragAttr} data-bl-index="${index}" data-bl-id="${esc(block.id)}"><div class="bl-inner"${wStyle}>`;
-    const ctl = `<div class="bl-ctl"><button type="button" class="bl-drag" draggable="true" data-bl-drag="${index}" title="Arrastrar">⠿</button><button type="button" data-bl-up="${index}" title="Subir">▲</button><button type="button" data-bl-down="${index}" title="Bajar">▼</button><button type="button" data-bl-dup="${index}" title="Duplicar">⧉</button><button type="button" data-bl-del="${index}" title="Eliminar">✕</button></div>`;
+    const open = `<div class="bl-block" data-bl-index="${index}" data-bl-id="${esc(block.id)}"><div class="bl-inner"${wStyle}>`;
     let inner = '';
     if (block.type === 'hero') {
       const bgStyle = pr.image ? `background-image:url('${pr.image}')` : '';
@@ -5422,18 +5369,18 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       inner = `<div class="bl-text" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : ''}${blHex(pr.color, '') ? `color:${pr.color};` : ''}text-align:${pr.align || 'left'}">
         ${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<p>${esc(pr.body || '').replace(/\n/g, '<br>')}</p></div>`;
     } else if (block.type === 'image') {
-      inner = pr.src ? `<div class="bl-imgblock">${pr.link ? `<a href="${esc(pr.link)}" target="_blank" rel="noopener"><img src="${esc(pr.src)}" alt=""></a>` : `<img src="${esc(pr.src)}" alt="">`}</div>` : '<div class="bl-text" style="text-align:center;color:var(--ink-soft)">Tocá “Editar” para elegir una imagen</div>';
+      inner = pr.src ? `<div class="bl-imgblock">${pr.link ? `<a href="${esc(pr.link)}" target="_blank" rel="noopener"><img src="${esc(pr.src)}" alt=""></a>` : `<img src="${esc(pr.src)}" alt="">`}</div>` : '';
     } else if (block.type === 'video') {
       const id = blYoutubeId(pr.url);
-      inner = id ? `<iframe class="bl-video" src="https://www.youtube.com/embed/${esc(id)}" title="Video" allowfullscreen loading="lazy"></iframe>` : '<div class="bl-text" style="text-align:center;color:var(--ink-soft)">Pegá un link de YouTube en “Editar”</div>';
+      inner = id ? `<iframe class="bl-video" src="https://www.youtube.com/embed/${esc(id)}" title="Video" allowfullscreen loading="lazy"></iframe>` : '';
     } else if (block.type === 'instagram') {
       const m = String(pr.url || '').match(/instagram\.com\/(reel|reels|p|tv)\/([\w-]+)/);
       const igType = m && (m[1] === 'p' || m[1] === 'tv') ? 'p' : 'reel';
-      inner = m ? `<iframe class="bl-ig ${pr.format === 'post' ? 'post' : ''}" src="https://www.instagram.com/${igType}/${m[2]}/embed" title="Instagram" loading="lazy" allowfullscreen></iframe>` : '<div class="bl-text" style="text-align:center;color:var(--ink-soft)">Pegá el link del reel o post en “Editar”</div>';
+      inner = m ? `<iframe class="bl-ig ${pr.format === 'post' ? 'post' : ''}" src="https://www.instagram.com/${igType}/${m[2]}/embed" title="Instagram" loading="lazy" allowfullscreen></iframe>` : '';
     } else if (block.type === 'gallery') {
       const imgs = Array.isArray(pr.images) ? pr.images : [];
       const colsClass = pr.cols === '2' ? 'g2' : pr.cols === '4' ? 'g4' : pr.cols === '3' ? 'g3' : (imgs.length <= 2 ? 'g2' : imgs.length >= 4 ? 'g4' : 'g3');
-      inner = imgs.length ? `<div class="bl-gallery ${colsClass}">${imgs.map((src) => `<img src="${esc(src)}" alt="">`).join('')}</div>` : '<div class="bl-text" style="text-align:center;color:var(--ink-soft)">Galería vacía: tocá “Editar” para subir fotos</div>';
+      inner = imgs.length ? `<div class="bl-gallery ${colsClass}">${imgs.map((src) => `<img src="${esc(src)}" alt="">`).join('')}</div>` : '';
     } else if (block.type === 'products') {
       const featured = state.products.filter((product) => product.active !== false).slice(0, 8);
       inner = `<div class="bl-products">${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<div class="bl-products-grid">${featured.map(productCard).join('')}</div></div>`;
@@ -5444,223 +5391,21 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     } else if (block.type === 'divider') {
       inner = pr.style === 'space' ? '<div class="bl-space"></div>' : `<hr class="bl-divider" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : 'background:var(--line);'}">`;
     }
-    return open + inner + `</div>${ctl}</div>`;
+    return open + inner + '</div></div>';
   }
   function renderBuilder() {
     const root = $('frontBuilder');
     if (!root) return;
     const blocks = blBlocks();
-    root.innerHTML = blocks.length ? blocks.map(blBlockHtml).join('') : '<div class="bl-text" style="text-align:center;padding:40px 10px;color:var(--ink-soft)"><h3>Tu página, a tu manera</h3><p>Este frente se arma con el constructor: entrá al Panel → Configuración → Apariencia → “Abrir constructor visual”.</p></div>';
+    root.innerHTML = blocks.length ? blocks.map(blBlockHtml).join('') : '<div class="bl-text" style="text-align:center;padding:40px 10px;color:var(--ink-soft)"><h3>Tu página, a tu manera</h3><p>Este frente usa el constructor visual. Escribinos a <b>POPUPS</b> y lo ajustamos por vos.</p></div>';
   }
-  /* ---- Editor del constructor ---- */
-  const BL_EDIT = { on: false, blocks: [], dragFrom: -1, selected: -1 };
-  function blHasSession() { return Boolean(state.admin.token) || Boolean(sessionStorage.getItem('luma_admin_token')); }
-  async function blOpen() {
-    if (!blHasSession()) return toast('Entrá al panel', 'Necesitás sesión de dueño para usar el constructor.', 'error');
-    if (typeof closeAdmin === 'function' && !$('adminApp').hidden) closeAdmin();
-    state.settings.storefront = 'libre';
-    applyStorefront();
-    BL_EDIT.on = true; BL_EDIT.blocks = blBlocks().map((b) => JSON.parse(JSON.stringify(b)));
-    document.body.classList.add('bl-editing');
-    if (!blQ('#blPanel')) {
-      const bar = document.createElement('aside');
-      bar.className = 'bl-panel'; bar.id = 'blPanel';
-      const card = (key) => `<button type="button" class="bl-card" data-bl-add="${key}"><span class="bl-ico">${BL_TYPES[key].ico}</span>${BL_TYPES[key].label}</button>`;
-      bar.innerHTML = `<div class="bl-panel-head"><b class="bl-panel-title">Constructor</b><div class="bl-panel-actions"><button type="button" class="bl-save" data-bl-save>✓ Guardar página</button><button type="button" class="bl-exit" data-bl-exit>Salir</button></div></div>
-        <div class="bl-panel-body">
-          <p class="bl-panel-sec">Insertar</p>
-          <div class="bl-grid">${['text', 'image', 'video', 'instagram', 'gallery', 'divider'].map(card).join('')}</div>
-          <p class="bl-panel-sec">Bloques de tienda</p>
-          <div class="bl-grid">${['hero', 'cta', 'products'].map(card).join('')}</div>
-          <small class="bl-panel-tip">💡 Tocá un bloque para editarlo y <b>arrastralo (la foto entera)</b> para moverlo donde quieras. También con ▲▼ en la esquina.</small>
-        </div>`;
-      document.body.appendChild(bar);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast('Constructor activo', 'Insertá bloques desde el panel de la derecha. Guardá cuando estés conforme.');
-  }
-  function blClose() {
-    BL_EDIT.on = false; BL_EDIT.selected = -1;
-    document.body.classList.remove('bl-editing');
-    blQ('#blPanel')?.remove();
-    blEditorClose();
-    renderBuilder();
-  }
-  function blPersist() {
-    blSetBlocks(BL_EDIT.blocks);
-    renderBuilder();
-  }
-  async function blSave() {
-    blPersist();
-    try {
-      await api('/api/admin/content', { admin: true, method: 'PUT', body: JSON.stringify({ builderBlocks: JSON.stringify(BL_EDIT.blocks) }) });
-      // El frente libre se persiste SIEMPRE al guardar (blOpen solo lo cambia en memoria)
-      await api('/api/admin/settings', { admin: true, method: 'PUT', body: JSON.stringify({ storefront: 'libre' }) });
-      state.settings.storefront = 'libre';
-      toast('Página guardada', 'La vidriera ya muestra tu diseño.');
-    } catch (error) { toast('No se pudo guardar', error.message, 'error'); }
-  }
-  function blEditorClose() { blQ('#blEditor')?.classList.remove('open'); }
-  function blField(label, name, value, extra) {
-    return `<label>${label}<input type="text" name="${name}" value="${esc(value == null ? '' : value)}" ${extra || ''}></label>`;
-  }
-  function blOpenEditor(index) {
-    BL_EDIT.selected = index;
-    const block = BL_EDIT.blocks[index];
-    if (!block) return;
-    const pr = block.props || {};
-    let fields = '';
-    const wSel = (extra) => `<div class="bl-row">${extra || ''}<label>Ancho del bloque<select name="w"><option value="auto" ${!pr.w || pr.w === 'auto' ? 'selected' : ''}>Todo el ancho</option><option value="85" ${pr.w === '85' ? 'selected' : ''}>Grande (85%)</option><option value="65" ${pr.w === '65' ? 'selected' : ''}>Mediano (65%)</option><option value="45" ${pr.w === '45' ? 'selected' : ''}>Chico (45%)</option></select></label></div>`;
-    if (block.type !== 'hero') {
-      fields += block.type === 'gallery'
-        ? wSel(`<label>Columnas<select name="cols"><option value="2" ${pr.cols === '2' ? 'selected' : ''}>2 columnas</option><option value="3" ${(!pr.cols || pr.cols === '3') ? 'selected' : ''}>3 columnas</option><option value="4" ${pr.cols === '4' ? 'selected' : ''}>4 columnas</option></select></label>`)
-        : wSel('');
-    }
-    if (block.type === 'hero') {
-      fields = blField('Título', 'title', pr.title) + blField('Bajada', 'subtitle', pr.subtitle)
-        + `<div class="bl-row">${blField('Texto del botón', 'btnText', pr.btnText)}${blField('Link del botón', 'btnLink', pr.btnLink, 'placeholder="https://wa.me/…"')}</div>
-        <div class="bl-row"><label>Altura<select name="height"><option value="short" ${pr.height === 'short' ? 'selected' : ''}>Baja</option><option value="mid" ${!pr.height || pr.height === 'mid' ? 'selected' : ''}>Media</option><option value="tall" ${pr.height === 'tall' ? 'selected' : ''}>Alta</option></select></label><label>Tono del texto<select name="tone"><option value="dark" ${(pr.tone || 'dark') === 'dark' ? 'selected' : ''}>Claro sobre fondo oscuro</option><option value="light" ${pr.tone === 'light' ? 'selected' : ''}>Oscuro sobre fondo claro</option></select></label></div>
-        <div class="bl-row"><label>Opacidad del velo: <span data-bl-overlay-val>${Number(pr.overlay) || 45}</span>%<input type="range" name="overlay" min="0" max="85" value="${Number(pr.overlay) || 45}"></label><label>Color de fondo<input type="color" name="bg" value="${blHex(pr.bg, '#141a2e')}"></label></div>
-        <label>Imagen de fondo<button type="button" class="bl-btn-primary" data-bl-img="image" style="margin-top:4px">${pr.image ? 'Reemplazar imagen' : 'Subir imagen'}</button><input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file></label>`;
-    } else if (block.type === 'text') {
-      fields += blField('Título (opcional)', 'title', pr.title) + `<label>Texto<textarea name="body">${esc(pr.body || '')}</textarea></label>
-        <div class="bl-row"><label>Alineación<select name="align"><option value="left" ${(pr.align || 'left') === 'left' ? 'selected' : ''}>Izquierda</option><option value="center" ${pr.align === 'center' ? 'selected' : ''}>Centro</option></select></label><label>Color de fondo<input type="color" name="bg" value="${blHex(pr.bg, '#ffffff')}"></label></div>`;
-    } else if (block.type === 'image') {
-      fields += `<label>Imagen<button type="button" class="bl-btn-primary" data-bl-img="src" style="margin-top:4px">${pr.src ? 'Reemplazar imagen' : 'Subir imagen'}</button><input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file></label>` + blField('Link al tocar (opcional)', 'link', pr.link);
-    } else if (block.type === 'video') {
-      fields += blField('Link de YouTube', 'url', pr.url, 'placeholder="https://youtube.com/watch?v=…"');
-    } else if (block.type === 'instagram') {
-      fields += blField('Link del reel o post', 'url', pr.url, 'placeholder="https://www.instagram.com/reel/…"')
-        + `<label>Formato<select name="format"><option value="reel" ${(pr.format || 'reel') === 'reel' ? 'selected' : ''}>Reel (vertical)</option><option value="post" ${pr.format === 'post' ? 'selected' : ''}>Post (cuadrado)</option></select></label>`;
-    } else if (block.type === 'gallery') {
-      const imgs = Array.isArray(pr.images) ? pr.images : [];
-      fields += `<label>Fotos (${imgs.length}/6)<button type="button" class="bl-btn-primary" data-bl-img="gallery" style="margin-top:4px" ${imgs.length >= 6 ? 'disabled' : ''}>Agregar foto</button><input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file multiple></label>`
-        + imgs.map((src, i) => `<label>Foto ${i + 1}<button type="button" data-bl-gremove="${i}" class="bl-btn-danger">Quitar foto ${i + 1}</button></label>`).join('');
-    } else if (block.type === 'products') {
-      fields += blField('Título de la sección', 'title', pr.title) + '<small>Muestra los productos destacados de tu catálogo real.</small>';
-    } else if (block.type === 'cta') {
-      fields += blField('Título', 'title', pr.title) + `<label>Texto<textarea name="body">${esc(pr.body || '')}</textarea></label>
-        <div class="bl-row">${blField('Texto del botón', 'btnText', pr.btnText)}${blField('Link del botón', 'btnLink', pr.btnLink, 'placeholder="https://wa.me/…"')}</div>
-        <div class="bl-row"><label>Color de fondo<input type="color" name="bg" value="${blHex(pr.bg, '#f4efe6')}"></label><label>Color de texto<input type="color" name="color" value="${blHex(pr.color, '#20221e')}"></label></div>`;
-    } else if (block.type === 'divider') {
-      fields += `<label>Estilo<select name="style"><option value="line" ${(pr.style || 'line') === 'line' ? 'selected' : ''}>Línea</option><option value="space" ${pr.style === 'space' ? 'selected' : ''}>Espacio en blanco</option></select></label>`;
-    }
-    let editor = blQ('#blEditor');
-    if (!editor) {
-      editor = document.createElement('aside');
-      editor.className = 'bl-editor'; editor.id = 'blEditor';
-      editor.innerHTML = '<header><b id="blEditorTitle">Editar bloque</b><button type="button" class="round-close" data-bl-eclose aria-label="Cerrar"><svg><use href="#i-close"></use></svg></button></header><div class="bl-editor-body" id="blEditorBody"></div><div class="bl-editor-actions"><button type="button" class="bl-btn-danger" data-bl-delete>Borrar bloque</button><button type="button" class="bl-btn-primary" data-bl-edone>Listo</button></div>';
-      document.body.appendChild(editor);
-    }
-    blQ('#blEditorTitle').textContent = 'Editar · ' + (BL_TYPES[block.type] ? BL_TYPES[block.type].label : block.type);
-    blQ('#blEditorBody').innerHTML = fields;
-    editor.classList.add('open');
-  }
-  function blBindEditorEvents() {
-    document.addEventListener('input', (event) => {
-      const editor = event.target.closest?.('#blEditorBody');
-      if (!editor || BL_EDIT.selected < 0) return;
-      const block = BL_EDIT.blocks[BL_EDIT.selected];
-      if (!block) return;
-      const name = event.target.name;
-      if (!name) return;
-      block.props[name] = event.target.value;
-      blPersist();
-      if (name === 'overlay') { const out = document.querySelector('[data-bl-overlay-val]'); if (out) out.textContent = event.target.value; }
-    });
-    document.addEventListener('click', async (event) => {
-      const target = event.target instanceof Element ? event.target : null;
-      if (!target) return;
-      const openBtn = target.closest('#mtOpenBuilder');
-      if (openBtn) { event.preventDefault(); blOpen(); return; }
-      if (!BL_EDIT.on) {
-        const add = target.closest('#frontBuilder [data-add-product]');
-        if (add) { event.preventDefault(); return addToCart(add.dataset.addProduct); }
-        const open = target.closest('#frontBuilder [data-open-product]');
-        if (open) { event.preventDefault(); return openProduct(open.dataset.openProduct); }
-        return;
-      }
-      const addBlock = target.closest('[data-bl-add]');
-      if (addBlock) { BL_EDIT.blocks.push(BL_TYPES[addBlock.dataset.blAdd].make()); blPersist(); BL_EDIT.selected = BL_EDIT.blocks.length - 1; blOpenEditor(BL_EDIT.selected); document.querySelector(`[data-bl-index="${BL_EDIT.selected}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
-      const del = target.closest('[data-bl-del]');
-      if (del) { BL_EDIT.blocks.splice(Number(del.dataset.blDel), 1); blPersist(); blEditorClose(); return; }
-      const dup = target.closest('[data-bl-dup]');
-      if (dup) { const i = Number(dup.dataset.blDup); const copy = JSON.parse(JSON.stringify(BL_EDIT.blocks[i])); copy.id = blId(); BL_EDIT.blocks.splice(i + 1, 0, copy); blPersist(); return; }
-      const up = target.closest('[data-bl-up]');
-      if (up) { const i = Number(up.dataset.blUp); if (i > 0) { const [b] = BL_EDIT.blocks.splice(i, 1); BL_EDIT.blocks.splice(i - 1, 0, b); blPersist(); } return; }
-      const down = target.closest('[data-bl-down]');
-      if (down) { const i = Number(down.dataset.blDown); if (i < BL_EDIT.blocks.length - 1) { const [b] = BL_EDIT.blocks.splice(i, 1); BL_EDIT.blocks.splice(i + 1, 0, b); blPersist(); } return; }
-      const gremove = target.closest('[data-bl-gremove]');
-      if (gremove) { const block = BL_EDIT.blocks[BL_EDIT.selected]; if (block) { (block.props.images || []).splice(Number(gremove.dataset.blGremove), 1); blPersist(); blOpenEditor(BL_EDIT.selected); } return; }
-      if (target.closest('[data-bl-img]')) {
-        const fileInput = document.querySelector('#blEditorBody [data-bl-file]');
-        if (fileInput) fileInput.click();
-        return;
-      }
-      const eclose = target.closest('[data-bl-eclose], [data-bl-edone]');
-      if (eclose) { blEditorClose(); BL_EDIT.selected = -1; return; }
-      const bdel = target.closest('[data-bl-delete]');
-      if (bdel) { if (BL_EDIT.selected > -1) BL_EDIT.blocks.splice(BL_EDIT.selected, 1); blPersist(); blEditorClose(); BL_EDIT.selected = -1; return; }
-      if (target.closest('[data-bl-save]')) { await blSave(); return; }
-      if (target.closest('[data-bl-exit]')) { blClose(); return; }
-      const blockEl = target.closest('#frontBuilder .bl-block');
-      if (blockEl && !target.closest('.bl-ctl')) {
-        BL_EDIT.selected = Number(blockEl.dataset.blIndex);
-        blOpenEditor(BL_EDIT.selected);
-      }
-    });
-    document.addEventListener('change', async (event) => {
-      const fileInput = event.target.closest?.('#blEditorBody [data-bl-file]');
-      if (!fileInput || !fileInput.files || !fileInput.files.length) return;
-      const block = BL_EDIT.blocks[BL_EDIT.selected];
-      if (!block) return;
-      try {
-        const field = document.querySelector('#blEditorBody [data-bl-img]')?.dataset.blImg || 'src';
-        const files = Array.from(fileInput.files).slice(0, field === 'gallery' ? 6 : 1);
-        const results = [];
-        for (const chosen of files) results.push(await compressImage(chosen, { maxChars: 480000 }));
-        if (field === 'gallery') { block.props.images = block.props.images || []; block.props.images.push(...results); }
-        else block.props[field] = results[0] || '';
-        blPersist(); blOpenEditor(BL_EDIT.selected);
-        toast('Imagen lista', 'Se optimizó para cargar rápido.');
-      } catch (error) { toast('No se pudo procesar', error.message, 'error'); }
-    });
-    document.addEventListener('dragstart', (event) => {
-      const handle = event.target.closest?.('[data-bl-drag]');
-      if (!handle) return;
-      BL_EDIT.dragFrom = Number(handle.dataset.blDrag);
-      event.dataTransfer.effectAllowed = 'move';
-      try { event.dataTransfer.setData('text/plain', String(BL_EDIT.dragFrom)); } catch (_) {}
-    });
-    document.addEventListener('dragover', (event) => {
-      if (BL_EDIT.dragFrom < 0) return;
-      const blockEl = event.target.closest?.('#frontBuilder .bl-block');
-      if (!blockEl) return;
-      event.preventDefault();
-      document.querySelectorAll('.bl-drop-mark').forEach((m) => m.remove());
-      const rect = blockEl.getBoundingClientRect();
-      const mark = document.createElement('div');
-      mark.className = 'bl-drop-mark';
-      blockEl.parentElement.insertBefore(mark, event.clientY < rect.top + rect.height / 2 ? blockEl : blockEl.nextSibling);
-    });
-    document.addEventListener('drop', (event) => {
-      if (BL_EDIT.dragFrom < 0) return;
-      const blockEl = event.target.closest?.('#frontBuilder .bl-block');
-      const mark = document.querySelector('.bl-drop-mark');
-      event.preventDefault();
-      document.querySelectorAll('.bl-drop-mark').forEach((m) => m.remove());
-      if (!blockEl || !mark) { BL_EDIT.dragFrom = -1; return; }
-      const from = BL_EDIT.dragFrom; BL_EDIT.dragFrom = -1;
-      const rect = blockEl.getBoundingClientRect();
-      let to = Number(blockEl.dataset.blIndex);
-      if (event.clientY >= rect.top + rect.height / 2 && to < BL_EDIT.blocks.length - 1) to += 1;
-      const [moved] = BL_EDIT.blocks.splice(from, 1);
-      BL_EDIT.blocks.splice(from < to ? to - 1 : to, 0, moved);
-      blPersist();
-    });
-    document.addEventListener('dragend', () => { BL_EDIT.dragFrom = -1; document.querySelectorAll('.bl-drop-mark').forEach((m) => m.remove()); });
-  }
-  blBindEditorEvents();
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const add = event.target.closest('#frontBuilder [data-add-product]');
+    if (add) { event.preventDefault(); addToCart(add.dataset.addProduct); return; }
+    const open = event.target.closest('#frontBuilder [data-open-product]');
+    if (open) { event.preventDefault(); openProduct(open.dataset.openProduct); }
+  });
 
   /* ---- v0.9.2/0.10 · Presupuesto de payload para la nube ---- */
   const MT_CFG_BUDGET = 900000;
@@ -5736,89 +5481,21 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
   try { window.mtShrinkContentForCloud = mtShrinkContentForCloud; } catch (_) {}
 
-  function renderAdminAppearance(settings){
-    const colorFields=[['accentColor','Color principal','Botones, llamados y detalles'],['darkColor','Color oscuro','Texto, pie y bloques destacados'],['backgroundColor','Fondo general','Superficie principal de la tienda'],['surfaceColor','Fondo cálido','Portada, tarjetas y secciones suaves'],['secondaryColor','Complementario','Detalles secundarios y recursos gráficos']];
-    $('adminContent').innerHTML=`${adminPageHead('Configuración','Apariencia y paleta','Personalizá los colores sin tocar código')}${settingsSubnav('appearance')}<form id="appearanceForm">${frontPickerHtml(settings)}<section class="settings-card"><h2>Paletas recomendadas</h2><p>Elegí un punto de partida y después ajustá cada tono.</p><div class="palette-presets">${Object.entries(palettePresets).map(([key,p])=>`<button type="button" data-palette-preset="${key}"><span>${[p.darkColor,p.surfaceColor,p.secondaryColor,p.accentColor].map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${p.name}</b>${key==='botanica'?'<em>Clásica</em>':''}</button>`).join('')}</div></section><div class="appearance-layout"><section class="settings-card"><h2>Colores personalizados</h2><p>Los códigos HEX se actualizan con el selector.</p><div class="palette-controls">${colorFields.map(([name,label,help])=>`<label><input name="${name}" type="color" value="${esc(settings[name])}"><span><b>${label}</b><small>${help}</small><code data-color-code="${name}">${esc(settings[name].toUpperCase())}</code></span></label>`).join('')}</div></section><section class="appearance-preview" id="appearancePreview"><div class="preview-browser"><header><span class="preview-logo">G</span><b>${esc(state.settings.brandName)}</b><i></i><i></i></header><main><span>NUEVA COLECCIÓN</span><h2>Elegí cuidarte,<br><em>a tu manera.</em></h2><p>Productos naturales para acompañar hábitos más conscientes.</p><button>Explorar productos</button><div class="preview-product"><i></i><span><b>Selección natural</b><small>Disponible</small></span><strong>$ 12.500</strong></div></main><footer>Bienestar que se disfruta.</footer></div><div class="contrast-check"><span>Contraste texto / fondo</span><b id="paletteContrast">—</b><small id="paletteContrastStatus">Calculando…</small></div></section></div><div class="settings-actions"><button class="button button-light random-palette-button" type="button" id="randomPaletteButton"><svg><use href="#i-refresh"></use></svg> Random · Nueva paleta</button><button class="button button-dark" type="submit">Guardar apariencia <svg><use href="#i-check"></use></svg></button></div></form>`;updatePalettePreview();
-  }
-  function updatePalettePreview(){const form=$('appearanceForm');if(!form)return;const values=Object.fromEntries(new FormData(form));document.querySelectorAll('[data-color-code]').forEach(code=>{code.textContent=String(values[code.dataset.colorCode]||'').toUpperCase();});const preview=$('appearancePreview');preview.style.setProperty('--p-accent',values.accentColor);preview.style.setProperty('--p-dark',values.darkColor);preview.style.setProperty('--p-bg',values.backgroundColor);preview.style.setProperty('--p-surface',values.surfaceColor);preview.style.setProperty('--p-secondary',values.secondaryColor);const ratio=colorContrast(values.darkColor,values.backgroundColor);$('paletteContrast').textContent=`${ratio.toFixed(1)} : 1`;$('paletteContrastStatus').textContent=ratio>=7?'Excelente · Nivel AAA':ratio>=4.5?'Correcto · Nivel AA':'Contraste bajo · ajustá los tonos';$('paletteContrastStatus').className=ratio>=4.5?'pass':'fail';}
-  function applyPalettePreset(key){const form=$('appearanceForm'),preset=palettePresets[key];if(!form||!preset)return;for(const [name,value] of Object.entries(preset))if(form.elements[name])form.elements[name].value=value;updatePalettePreview();}
-  async function saveAppearance(event){event.preventDefault();const form=event.target,button=form.querySelector('button[type=submit]');button.disabled=true;try{await api('/api/admin/settings',{admin:true,method:'PUT',body:JSON.stringify(Object.fromEntries(new FormData(form)))});toast('Apariencia actualizada','La nueva paleta ya está aplicada en toda la tienda.');await Promise.all([loadStore({silent:true}),loadAdminTab(false)]);}catch(error){toast('No se pudo guardar',error.message,'error');}finally{button.disabled=false;}}
-
-  function renderAdminContent(data) {
-    const c = data.content;
-    $('adminContent').innerHTML = `
-      ${adminPageHead('Configuración', 'Contenido de página', 'Editá los textos principales sin tocar el HTML', '<button class="button button-light button-small" id="previewContentButton"><svg><use href="#i-eye"></use></svg> Ver tienda</button>')}
-      ${settingsSubnav('content')}
-      <form id="contentForm" class="content-admin-form">
-        <div class="settings-layout content-settings-layout">
-          <div>
-            <section class="settings-card content-card">
-              <div class="content-card-head"><span>01</span><div><h2>Portada principal</h2><p>Es lo primero que ven tus clientes al entrar.</p></div></div>
-              <div class="field-grid">
-                <label class="field field-wide"><span>Texto superior</span><input name="heroEyebrow" maxlength="80" value="${esc(c.heroEyebrow)}" placeholder="Ej. Nueva colección"></label>
-                <label class="field"><span>Título principal</span><input name="heroTitle" maxlength="80" value="${esc(c.heroTitle)}"></label>
-                <label class="field"><span>Título destacado</span><input name="heroAccent" maxlength="80" value="${esc(c.heroAccent)}"></label>
-                <label class="field field-wide"><span>Descripción</span><textarea name="heroDescription" maxlength="260" rows="3">${esc(c.heroDescription)}</textarea></label>
-                <label class="field"><span>Botón principal</span><input name="heroPrimaryCta" maxlength="50" value="${esc(c.heroPrimaryCta)}"></label>
-                <label class="field"><span>Enlace secundario</span><input name="heroSecondaryCta" maxlength="60" value="${esc(c.heroSecondaryCta)}"></label>
-              </div>
-            </section>
-            <section class="settings-card content-card">
-              <div class="content-card-head"><span>02</span><div><h2>Sección de productos</h2><p>Presentación del catálogo y sus categorías.</p></div></div>
-              <div class="field-grid">
-                <label class="field field-wide"><span>Texto superior</span><input name="catalogKicker" maxlength="80" value="${esc(c.catalogKicker)}"></label>
-                <label class="field field-wide"><span>Título</span><input name="catalogTitle" maxlength="120" value="${esc(c.catalogTitle)}"></label>
-                <label class="field field-wide"><span>Descripción</span><textarea name="catalogDescription" maxlength="260" rows="3">${esc(c.catalogDescription)}</textarea></label>
-              </div>
-            </section>
-          </div>
-          <aside>
-            <section class="settings-card content-card">
-              <div class="content-card-head"><span>03</span><div><h2>Bloque editorial</h2><p>Contá qué hace diferente a tu marca.</p></div></div>
-              <div class="field-grid">
-                <label class="field field-wide"><span>Texto superior</span><input name="editorialKicker" maxlength="80" value="${esc(c.editorialKicker)}"></label>
-                <label class="field field-wide"><span>Título</span><input name="editorialTitle" maxlength="140" value="${esc(c.editorialTitle)}"></label>
-                <label class="field field-wide"><span>Descripción</span><textarea name="editorialDescription" maxlength="500" rows="4">${esc(c.editorialDescription)}</textarea></label>
-                <label class="field field-wide"><span>Texto del botón</span><input name="editorialCta" maxlength="60" value="${esc(c.editorialCta)}"></label>
-              </div>
-            </section>
-            <section class="settings-card content-card">
-              <div class="content-card-head"><span>04</span><div><h2>Manifiesto</h2><p>La frase que resume el espíritu de la tienda.</p></div></div>
-              <div class="field-grid">
-                <label class="field field-wide"><span>Frase principal</span><textarea name="manifestoQuote" maxlength="600" rows="5">${esc(c.manifestoQuote)}</textarea></label>
-                <label class="field field-wide"><span>Firma</span><input name="manifestoSignature" maxlength="80" value="${esc(c.manifestoSignature)}"></label>
-              </div>
-            </section>
-            <section class="settings-card content-card">
-              <div class="content-card-head"><span>05</span><div><h2>Newsletter</h2><p>Invitación para que tus clientes se suscriban.</p></div></div>
-              <div class="field-grid">
-                <label class="field field-wide"><span>Texto superior</span><input name="newsletterKicker" maxlength="100" value="${esc(c.newsletterKicker)}"></label>
-                <label class="field field-wide"><span>Título</span><input name="newsletterTitle" maxlength="120" value="${esc(c.newsletterTitle)}"></label>
-                <label class="field"><span>Ejemplo del email</span><input name="newsletterPlaceholder" maxlength="100" value="${esc(c.newsletterPlaceholder)}"></label>
-                <label class="field"><span>Texto del botón</span><input name="newsletterButton" maxlength="60" value="${esc(c.newsletterButton)}"></label>
-              </div>
-            </section>
-          </aside>
-        </div>
-        <div class="settings-actions content-save-bar"><span><i></i> Los cambios se aplican en toda la tienda</span><button class="button button-dark" type="submit">Guardar contenido <svg><use href="#i-check"></use></svg></button></div>
-      </form>`;
-  }
-
-  async function saveContent(event) {
-    event.preventDefault();
-    const form = event.target;
-    const button = form.querySelector('button[type="submit"]');
-    const values = Object.fromEntries(new FormData(form));
-    button.disabled = true;
+  async function applyPaletteLive(values) {
+    state.settings = { ...state.settings, ...values };
+    applySettings();
+    const ratio = colorContrast(values.darkColor, values.backgroundColor);
+    const pc = $('paletteContrast'), ps = $('paletteContrastStatus');
+    if (pc) pc.textContent = `${ratio.toFixed(1)} : 1`;
+    if (ps) { ps.textContent = ratio >= 7 ? 'Excelente · Nivel AAA' : ratio >= 4.5 ? 'Correcto · Nivel AA' : 'Contraste bajo · ajustá los tonos'; ps.className = ratio >= 4.5 ? 'pass' : 'fail'; }
     try {
-      const result = await api('/api/admin/content', { admin: true, method: 'PUT', body: JSON.stringify(values) });
-      state.content = { ...state.content, ...result.content };
-      applyContent();
-      toast('Contenido actualizado', 'Los nuevos textos ya están visibles en la tienda.');
-      await loadAdminTab(false);
+      await api('/api/admin/settings', { admin: true, method: 'PUT', body: JSON.stringify(values) });
+      toast('Paleta aplicada', 'La nueva paleta ya está aplicada en toda la tienda.');
     } catch (error) { toast('No se pudo guardar', error.message, 'error'); }
-    finally { button.disabled = false; }
+    const btn = $('randomPaletteButton');
+    if (btn) btn.animate([{ transform: 'rotate(0deg) scale(1)' }, { transform: 'rotate(5deg) scale(1.04)' }, { transform: 'rotate(0deg) scale(1)' }], { duration: 280 });
   }
+  async function applyPalettePreset(key) { const preset = palettePresets[key]; if (preset) await applyPaletteLive(preset); }
 
   async function uploadBrandLogo(file) {
     if (!file) return;
@@ -5899,7 +5576,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('adminContent').innerHTML = `
       ${adminPageHead('Configuración', 'Preferencias de la tienda', 'Personalizá la información operativa y comercial')}
       ${settingsSubnav('general')}
-      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div><div class="uber-settings"><h3>Envio con Uber Direct</h3><p>Muestra la entrega con courier en el checkout. En este modo el costo es de referencia (demo): cuando la tienda conecte su cuenta de Uber Direct la cotizacion sera en tiempo real y el precio final lo define Uber. El costo de la entrega se suma al total del pedido.</p><div class="field-grid"><label class="integration-toggle" style="width:100%"><input name="uberEnabled" type="checkbox" ${s.uber && s.uber.enabled!==false ? 'checked' : ''}><i></i><em>${s.uber && s.uber.enabled!==false ? 'Visible en el checkout' : 'Oculto'}</em></label><label class="field"><span>Costo de referencia (demo)</span><div class="money-input"><b>$</b><input name="uberDemoCost" type="number" min="0" value="${s.uber ? s.uber.demoCost || 0 : 4850}"></div></label><label class="field"><span>Entrega estimada: desde</span><input name="uberEtaMin" type="number" min="1" value="${s.uber ? s.uber.etaMin || 45 : 45}"></label><label class="field"><span>Entrega estimada: hasta</span><input name="uberEtaMax" type="number" min="1" value="${s.uber ? s.uber.etaMax || 60 : 60}"></label></div></div></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>${adminKeyCard(pinChangedAt)}`;
+      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div><div class="uber-settings"><h3>Envio con Uber Direct</h3><p>Muestra la entrega con courier en el checkout. En este modo el costo es de referencia (demo): cuando la tienda conecte su cuenta de Uber Direct la cotizacion sera en tiempo real y el precio final lo define Uber. El costo de la entrega se suma al total del pedido.</p><div class="field-grid"><label class="integration-toggle" style="width:100%"><input name="uberEnabled" type="checkbox" ${s.uber && s.uber.enabled!==false ? 'checked' : ''}><i></i><em>${s.uber && s.uber.enabled!==false ? 'Visible en el checkout' : 'Oculto'}</em></label><label class="field"><span>Costo de referencia (demo)</span><div class="money-input"><b>$</b><input name="uberDemoCost" type="number" min="0" value="${s.uber ? s.uber.demoCost || 0 : 4850}"></div></label><label class="field"><span>Entrega estimada: desde</span><input name="uberEtaMin" type="number" min="1" value="${s.uber ? s.uber.etaMin || 45 : 45}"></label><label class="field"><span>Entrega estimada: hasta</span><input name="uberEtaMax" type="number" min="1" value="${s.uber ? s.uber.etaMax || 60 : 60}"></label></div></div></section><section class="settings-card"><h2>Paleta de colores</h2><p>Elegí un punto de partida o generá una nueva: se aplica al instante en toda la tienda.</p><div class="palette-presets">${Object.entries(palettePresets).map(([key,p])=>`<button type="button" data-palette-preset="${key}"><span>${[p.darkColor,p.surfaceColor,p.secondaryColor,p.accentColor].map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${p.name}</b>${key==='botanica'?'<em>Clásica</em>':''}</button>`).join('')}</div><div class="settings-actions"><button class="button button-light random-palette-button" type="button" id="randomPaletteButton"><svg><use href="#i-refresh"></use></svg> Random · Nueva paleta</button></div><div class="contrast-check"><span>Contraste texto / fondo</span><b id="paletteContrast">—</b><small id="paletteContrastStatus">Se calcula al aplicar una paleta.</small></div><small style="display:block;margin-top:10px">Para afinar cada color por separado: <b>Ver tienda / Editar</b> → botón <i>Colores</i>.</small></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>${adminKeyCard(pinChangedAt)}`;
   }
 
   function renderAdminPayments(mpData, settings) {
@@ -6104,8 +5781,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
 
     $('loginForm').addEventListener('submit', adminLogin);
     $('loginBack').addEventListener('click', closeAdmin);
-    $('viewStore').addEventListener('click', closeAdmin);
-    $('adminMobileStore').addEventListener('click', closeAdmin);
+    $('viewStore').addEventListener('click', goStoreAndEdit);
+    $('adminMobileStore').addEventListener('click', goStoreAndEdit);
     $('guidePdfButton').addEventListener('click', () => { if (typeof mtGuiaPdf === 'function') mtGuiaPdf(); });
     $('logoutButton').addEventListener('click', () => { invalidateAdminSession(); toast('Sesión cerrada'); });
     $('adminNav').addEventListener('click', (event) => { const button = event.target.closest('[data-admin-tab]'); if (button) setAdminTab(button.dataset.adminTab); });
@@ -6116,9 +5793,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('adminContent').addEventListener('submit', (event) => {
       if (event.target.id === 'settingsForm') saveSettings(event);
       if (event.target.id === 'keyForm') saveAccessKey(event);
-      if (event.target.id === 'contentForm') saveContent(event);
       if (event.target.id === 'legalSettingsForm') saveLegalSettings(event);
-      if (event.target.id === 'appearanceForm') saveAppearance(event);
     });
     $('closeFinanceEditor').addEventListener('click', closeFinanceEditor);
     $('cancelFinanceEditor').addEventListener('click', closeFinanceEditor);
@@ -6267,7 +5942,6 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       state.admin.settingsView = settingsView.dataset.settingsView;
       return loadAdminTab();
     }
-    if (event.target.closest('#previewContentButton')) return closeAdmin();
     if (event.target.closest('#chooseLogoButton')) return $('settingsLogoFile')?.click();
     if (event.target.closest('#removeLogoButton')) return removeBrandLogo();
     if (event.target.closest('#sharePriceListButton')) return sharePriceList();
@@ -6293,7 +5967,6 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function adminContentInput(event) {
-    if (event.target.type === 'color' && event.target.closest('#appearanceForm')) { updatePalettePreview(); return; }
     if (event.target.id === 'adminProductSearch') { state.admin.productQuery = event.target.value; renderAdminProductRows(); }
     if (event.target.id === 'adminCustomerSearch') { state.admin.customerQuery = event.target.value; renderCustomerCards(); }
     if (event.target.id === 'subscriberSearch') { state.admin.subscriberQuery = event.target.value; renderAdminSubscribers(); document.querySelector('#subscriberSearch')?.focus(); }

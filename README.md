@@ -28,23 +28,23 @@ dispositivo. Al regularizar, vuelve sola.
 
 ## Qué incluye
 
-- **Tienda con 3 frentes elegibles (v0.9):** el dueño elige en Configuración → Apariencia cómo ve la tienda el público — **Boutique** (editorial, el clásico), **Ofertas** (descuentos y cuotas, estilo tienda tech de consumo) o **Gamer** (oscuro, categorías grandes, estilo casa de hardware). Mismo catálogo, carrito, checkout y panel en los tres; solo cambia la vidriera.
-- **Tienda:** hero editorial, catálogo con búsqueda/filtros/orden, detalle de producto, carrito con barra de envío gratis, checkout (domicilio o retiro en Córdoba Capital; Mercado Pago **demo**, Mercado Pago **live** por dueño con Checkout Pro, o pedido por WhatsApp), newsletter con consentimiento, legales editables.
-- **Modo edición visual (v0.8):** con la sesión del dueño activa aparece el botón flotante **"Editar página"**. Clic sobre cualquier texto, imagen o tarjeta de producto para editarla al instante; la barra superior permite cambiar **Colores** y la **marca/logo** se edita tocando el encabezado. Se guarda por los mismos endpoints del panel.
-- **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración (marca, contenidos, apariencia con paletas y contraste, legales, **cobros MP**, seguridad con cambio de clave propio).
+- **Frentes de tienda (v0.9):** la vidriera pública tiene 3 variantes (`settings.storefront`) — **Boutique** (editorial, el clásico; la usa toda tienda activa), **Ofertas** (descuentos y cuotas) y **Gamer** (oscuro). Mismo catálogo, carrito, checkout y panel; cambia solo la vidriera. Desde **v0.13.0** el frente se fija por tienda y ya no se cambia desde el panel.
+- **Tienda:** hero editorial, catálogo con búsqueda/filtros/orden, detalle de producto, carrito con barra de envío gratis, checkout (domicilio, retiro en Córdoba Capital o **Envío con Uber Direct** en modo demo/real; Mercado Pago **demo**, Mercado Pago **live** por dueño con Checkout Pro, o pedido por WhatsApp), newsletter con consentimiento, legales editables.
+- **Modo edición visual (v0.8):** con la sesión del dueño activa, el botón lateral **"Ver tienda / Editar"** sale del panel y entra **directo** al modo edición (o toca el botón flotante **"Editar página"** sin pasar por el panel). Clic sobre cualquier texto, imagen o tarjeta de producto para editarla al instante; la barra superior permite cambiar los **Colores** y la **paleta**; la marca/logo se edita tocando el encabezado. Los textos ya no tienen tab "Contenido" en el panel.
+- **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración en 3 secciones (**General** con identidad, envíos y **paleta de colores** con presets/contraste/Random, **Cobros** con Mercado Pago y **Legal y redes**) y seguridad con cambio de clave propio.
 - **Extras POPUPS:** barra de plan con aviso al 80% y vencimiento · Guía de bienvenida en PDF con los datos del dueño · numeración de pedidos · reserva de stock y reembolsos automáticos al cancelar.
 
-## Arquitectura del archivo (6.250 líneas · 1,71 MB)
+## Arquitectura del archivo (6.514 líneas · 1,66 MB)
 
 | Líneas | Bloque | Peso |
 |---|---|---|
-| 1–10 | `<head>` + metadatos + favicon silencioso | 0,5 KB |
-| 11–1458 | CSS (tienda + admin, responsive) + modo edición visual (v0.8) + **frentes de tienda (v0.9)** | ~135 KB |
-| 1459–1560 | Script puerta POPUPS (gate de suspensión) | 3 KB |
-| 1562–2300 | Markup: sprite SVG, tienda (3 frentes), modales, panel + imágenes base64 + jsPDF embebido | ~400 KB |
-| 2302–3270 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~280 KB |
-| 3271–5926 | App principal (tienda + admin + **motor de frentes v0.9**) + puente v0.7 (`window.mtCloudGlue`) | ~190 KB |
-| 5928–6250 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) | ~14 KB |
+| 1–14 | `<head>` + metadatos + favicon silencioso | 0,5 KB |
+| 15–1549 | CSS (tienda + admin, responsive) + modo edición visual (v0.8) + **frentes de tienda (v0.9)** | ~135 KB |
+| 1550–1601 | Script puerta POPUPS (gate de suspensión) | 3 KB |
+| 1602–2392 | Markup: sprite SVG, modales, panel + jsPDF embebido | ~400 KB |
+| 2393–3402 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~280 KB |
+| 3403–6232 | App principal (tienda + admin + **motor de frentes v0.9**) + puente v0.7 (`window.mtCloudGlue`) | ~190 KB |
+| 6233–6514 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) | ~14 KB |
 
 El backend (funciones SQL en Supabase) está documentado en [`supabase/`](supabase/README.md):
 contratos verificados en vivo, esquema reconstruido y procedimiento de exportación del SQL real.
@@ -55,8 +55,7 @@ contratos verificados en vivo, esquema reconstruido y procedimiento de exportaci
 2. Doble clic (abre en cualquier navegador moderno, sin internet).
 3. Tienda: explorá, agregá al carrito, probá el checkout (MP en modo demo o WhatsApp).
 4. Panel: botón "Panel" (o `#admin`) → PIN `1234` (cambialo en Configuración → Seguridad).
-5. **Frentes de tienda (v0.9):** Panel → Configuración → Apariencia → "Frente de tienda": elegí **Boutique**, **Ofertas** o **Gamer** y guardá; la vidriera pública cambia, el panel no.
-6. **Modo edición visual:** logueate en el panel, tocá **"Ver tienda"** y usá el botón flotante **"Editar página"**: clic sobre un texto, imagen o producto para editarlo.
+5. **Modo edición visual:** logueate en el panel y tocá **"Ver tienda / Editar"** (entra directo al modo edición); o volvé a la tienda y usé el botón flotante **"Editar página"**. Clic sobre un texto, imagen o producto para editarlo; los colores se cambian desde el botón **Colores** de la barra y la paleta completa desde Configuración → General.
 
 Para volver a la demo de fábrica: borrá los datos del sitio (`luma_offline_store_v1`, `luma_cart`).
 
@@ -72,7 +71,8 @@ npm test
 
 Los tests cubren: carga de vitrina, agregar al carrito, checkout demo, login al panel,
 navegación de secciones del admin, seguridad del cambio de clave y el **modo edición visual**
-(visibilidad del botón según sesión, edición con persistencia, editor de producto y paleta de colores,
+(visibilidad del botón según sesión y entrada directa con "Ver tienda / Editar", edición con
+persistencia, editor de producto y paleta de colores,
 además del guardado en la nube con las RPC stubeadas). Desde v0.8.1 también se verifica la
 **integridad del guardado cloud**: un fallo de `api_save_cfg` se muestra como error real (sin falso
 "Guardado"), una tienda inexistente avisa en vez de caer a la demo, y los cambios locales sin

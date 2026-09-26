@@ -41,20 +41,18 @@ async function loginAdmin(page) {
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
 
-/** Login → Ver tienda → botón flotante visible → modo edición activo. */
+/** Login → Ver tienda / Editar → el panel cierra y el modo edición queda activo. */
 async function enterEditMode(page) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
   await expect(page.locator('#shopApp')).toBeVisible();
-  await expect(page.locator('.mt-edit-float')).toBeVisible();
-  await page.locator('.mt-edit-float').click();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
 }
 
 test.describe('Modo edición visual (demo offline)', () => {
 
-  test('1 · El botón flotante sigue a la sesión y al modo edición', async ({ page }) => {
+  test('1 · El botón flotante sigue a la sesión y "Ver tienda / Editar" entra directo al modo edición', async ({ page }) => {
     await page.goto('/index.html');
     // sin sesión no aparece
     await expect(page.locator('.mt-edit-float')).toBeHidden({ timeout: 15_000 });
@@ -62,13 +60,10 @@ test.describe('Modo edición visual (demo offline)', () => {
     await loginAdmin(page);
     // dentro del panel queda oculto
     await expect(page.locator('.mt-edit-float')).toBeHidden();
-    // al volver a la tienda aparece
+    // "Ver tienda / Editar" sale del panel y entra directo al modo edición (la barra reemplaza al botón)
     await page.locator('#viewStore').click();
-    await expect(page.locator('.mt-edit-float')).toBeVisible();
-    // al entrar a modo edición se esconde (queda la barra)
-    await page.locator('.mt-edit-float').click();
-    await expect(page.locator('.mt-edit-float')).toBeHidden();
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
+    await expect(page.locator('.mt-edit-float')).toBeHidden();
     // al terminar vuelve a aparecer
     await page.locator('[data-mt-done]').click();
     await expect(page.locator('.mt-edit-float')).toBeVisible();
@@ -140,7 +135,7 @@ test.describe('Modo edición visual (demo offline)', () => {
   test('5 · Cerrar sesión oculta el botón flotante', async ({ page }) => {
     await loginAdmin(page);
     await page.locator('#viewStore').click();
-    await expect(page.locator('.mt-edit-float')).toBeVisible();
+    await expect(page.locator('.mt-edit-bar')).toBeVisible();
 
     // volver al panel (navegación por hash, sin recargar) y salir
     await page.goto('/index.html#admin');

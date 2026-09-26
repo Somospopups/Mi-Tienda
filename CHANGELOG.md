@@ -1,5 +1,13 @@
 # Changelog — Mi-Tienda
 
+## v0.13.0 · 2026-09-26 · Panel sin Apariencia/Contenido: todo se edita desde la tienda
+- **El panel de Configuración queda con 3 secciones: General, Cobros y Legal y redes.** Se retiraron los tabs **"Apariencia"** (selector de frente de tienda + constructor visual) y **"Contenido de página"** (textos): ahora todo eso se edita **desde la tienda en modo edición** (`Ver tienda / Editar` → clic en cada texto/imagen o el botón **Colores** de la barra).
+- **El botón lateral ahora es "Ver tienda / Editar"** y **entra directo al modo edición** (antes "Ver tienda" mostraba el botón flotante "Editar página" y había que tocar dos veces). Al volver al panel (`Listo`) el botón flotante reaparece para un acceso rápido sin panel.
+- **Selector de frentes eliminado.** El frente de la tienda ya no se cambia desde el panel: queda fijado por tienda (`settings.storefront`, hoy todas las tiendas activas están en "Boutique"). El Panel de apariencia no existía como concepto público.
+- **Constructor visual retirado del panel.** El frente "libre" se sigue **renderizando** para clientes que ya lo usaron: los bloques guardados (imagen, texto, video, galería, productos…) se muestran publicados y los botones de producto funcionan. Los ajustes de fondo ahora los hace POPUPS por pedido.
+- **Nueva tarjeta "Paleta de colores" dentro de General** (reemplaza a Apariencia): 4 presets (Botánica, Océano, Terracota, Lavanda) + botón **Random** que genera una paleta distinta en vivo, con **indicador de contraste** (AAA/AA/bajo). Todo se aplica y guarda al instante; el granulado por color sigue disponible en el modo edición (Colores).
+- Tests actualizados: se eliminaron los de constructor/frente desde el panel (6 de `builder.spec.js` y 5 de `fronts.spec.js`), los de modo edición ahora cubren la entrada directa, y 3 nuevos en [`tests/settings-clean.spec.js`](tests/settings-clean.spec.js) (3 secciones sin restos de Apariencia/Contenido, preset de paleta con contraste y persistencia, Random). Suite completa: **43/43**.
+
 ## v0.12.0 · 2026-09-26 · Envío con Uber Direct (cotización demo en el checkout)
 - **Nueva opción de entrega en el checkout: "Envío con Uber"** (tercera tarjeta junto a Envío a domicilio y Retiro). Mientras la tienda no conecte la cuenta, corre en **modo demo**: muestra costo de referencia (default $4.850) y ETA estimada (ej. 45–60 min), calculados **server-side** desde la configuración (`settings.uber`). El costo de la entrega se suma al total del pedido.
 - **Panel del dueño**: en Ajustes → Envíos y retiro hay un bloque "Envio con Uber Direct" con interruptor para mostrarlo/ocultarlo en el checkout, costo de referencia y ventana de entrega estimada. Al guardar, el checkout de la tienda se actualiza al instante.

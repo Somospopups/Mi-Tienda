@@ -95,9 +95,8 @@ async function enterEditModeCloud(page) {
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
   await page.locator('#viewStore').click();
   await expect(page.locator('#shopApp')).toBeVisible();
-  await expect(page.locator('.mt-edit-float')).toBeVisible();
-  await page.locator('.mt-edit-float').click();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
+  await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
 }
 
 test.describe('v0.9.2 · Imágenes y resiliencia de guardado cloud', () => {
