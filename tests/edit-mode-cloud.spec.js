@@ -301,4 +301,34 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
     await expectNoPageErrors(page);
   });
 
+  test('20 · Un bloque de la página se sincroniza con la nube y lo ve el visitante', async ({ page }) => {
+    const { state, handlers } = fakeCloudStore();
+    const calls = await stubCloud(page, handlers);
+    await enterEditModeCloud(page);
+
+    // Armar el home desde el panel de bloques.
+    await page.locator('[data-mt-blocks]').click();
+    await expect(page.locator('.bl-panel')).toBeVisible();
+    await page.locator('[data-bl-add="hero"]').click();
+    await expect(page.locator('.bl-editor')).toHaveClass(/open/);
+    await page.locator('.bl-editor input[name="title"]').fill('Bienvenido a la prueba');
+    await page.locator('[data-bl-editor-save]').click();
+    await expect(page.locator('.bl-block[data-bl-index="0"] .bl-hero h2')).toHaveText('Bienvenido a la prueba');
+
+    // El guardado va a api_save_cfg con la p_key correcta y los bloques en content.
+    await expect.poll(() => calls.filter((c) => c.name === 'api_save_cfg' && c.body.p_cfg && c.body.p_cfg.content && typeof c.body.p_cfg.content.builderBlocks === 'string' && c.body.p_cfg.content.builderBlocks.includes('Bienvenido a la prueba')).length, { timeout: 20_000 }).toBeGreaterThan(0);
+    const save = calls.find((c) => c.name === 'api_save_cfg' && c.body.p_cfg && c.body.p_cfg.content && typeof c.body.p_cfg.content.builderBlocks === 'string' && c.body.p_cfg.content.builderBlocks.includes('Bienvenido a la prueba'));
+    expect(save.body.p_store).toBe('prueba');
+    expect(save.body.p_key).toBe(state.key);
+    expect(JSON.parse(save.body.p_cfg.content.builderBlocks)[0].type).toBe('hero');
+
+    // Visitante sin sesión: el home armado reemplaza al clásico.
+    await page.locator('[data-mt-done]').click();
+    await expect(page.locator('body')).toHaveClass(/mt-page/);
+    await expect(page.locator('.bl-hero h2')).toHaveText('Bienvenido a la prueba');
+    await expect(page.locator('#frontOfertas')).toBeHidden();
+    await expect(page.locator('.luma-front').first()).toBeHidden();
+    expectNoPageErrors(page);
+  });
+
 });

@@ -1512,6 +1512,51 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .bl-editor-actions button { flex: 1; border: none; border-radius: 9px; padding: 10px; font-weight: 800; cursor: pointer; font-family: var(--sans); }
   .bl-btn-danger { background: #fee2e2; color: #b91c1c; }
   .bl-btn-primary { background: var(--accent, #6366f1); color: #fff; }
+
+  /* v0.14 · Home personalizado (reemplaza el hogar clásico cuando hay página armada) */
+  body.mt-page .luma-front,
+  body.mt-page #frontOfertas,
+  body.mt-page #frontGamer,
+  body.mt-page #coleccion { display: none !important; }
+  body.mt-page.show-catalog #coleccion { display: block !important; }
+  body.mt-page.show-catalog #coleccion { scroll-margin-top: 88px; }
+  body.bl-editing .luma-front,
+  body.bl-editing #frontOfertas,
+  body.bl-editing #frontGamer,
+  body.bl-editing #coleccion { display: none !important; }
+  body.bl-editing #frontBuilder { display: block; }
+  /* v0.14: los cajones arrancan debajo de la barra de edición (z-index 1080),
+     si no el header del editor queda tapado y su × no se puede tocar. */
+  body.bl-editing .bl-panel,
+  body.bl-editing .bl-editor { top: 46px; }
+  .bl-panel { color: var(--ink, #111); }
+  .bl-panel-close { border: 0; background: transparent; color: var(--ink-soft); font-size: 21px; cursor: pointer; line-height: 1; padding: 2px 7px; border-radius: 8px; }
+  .bl-panel-close:hover { color: var(--ink); background: rgba(0,0,0,.05); }
+  .bl-panel-title { display: flex; justify-content: space-between; align-items: center; }
+  .bl-card b { font-size: 11px; font-weight: 800; }
+  /* Complementos nuevos: Oferta destacada y Testimonios */
+  .bl-offer { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: clamp(30px, 5vw, 60px); border-radius: 20px; color: #fff; position: relative; overflow: hidden; }
+  .bl-offer-badge { background: #fff; color: #b91c1c; font-weight: 900; letter-spacing: .04em; border-radius: 99px; padding: 7px 16px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 8px 26px rgba(0,0,0,.2); }
+  .bl-offer-badge b { font-size: 15px; }
+  .bl-offer h3 { font-size: clamp(22px, 3.4vw, 40px); margin: 0; line-height: 1.1; font-family: var(--sans); font-weight: 900; }
+  .bl-offer p { margin: 0; opacity: .92; font-size: clamp(14px, 1.6vw, 17px); max-width: 560px; }
+  .bl-btn-light { background: #fff; color: #9b1c1c; }
+  .bl-testi h3 { font-family: var(--sans); font-weight: 900; font-size: clamp(20px, 2.6vw, 30px); margin: 0 0 18px; }
+  .bl-testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+  .bl-testi-card { background: var(--paper, #fff); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 8px; box-shadow: var(--shadow-sm); }
+  .bl-testi-card blockquote { margin: 0; font-size: 14px; line-height: 1.6; font-style: italic; color: var(--ink); }
+  .bl-testi-card b { font-size: 12.5px; }
+  .bl-testi-card small { color: var(--ink-soft); font-size: 11px; }
+  .bl-testi-ava { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #fff; font-weight: 900; }
+  @media (max-width: 780px) { .bl-testi-grid { grid-template-columns: 1fr; } }
+  /* Editor de bloques (drawer derecho, estilo Google Sites) */
+  .bl-upthumbs { display: flex; flex-wrap: wrap; gap: 9px; }
+  .bl-thumb { position: relative; width: 68px; height: 68px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .bl-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .bl-thumb-x { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%; border: 0; background: #111827ee; color: #fff; cursor: pointer; font-size: 12px; line-height: 1; }
+  .bl-upload { border: 1.5px dashed var(--line); border-radius: 10px; padding: 11px; text-align: center; font-size: 12px; color: var(--ink-soft); background: #faf9f6; cursor: pointer; display: block; }
+  .bl-upload:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .bl-upimg { width: 100%; max-height: 130px; object-fit: cover; border-radius: 10px; margin-top: 7px; }
   .front-picker-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
   .front-picker-actions small { color: var(--ink-soft); }
 
@@ -3618,8 +3663,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     document.body.dataset.front = currentFront();
     $('frontOfertas')?.toggleAttribute('hidden', currentFront() !== 'ofertas');
     $('frontGamer')?.toggleAttribute('hidden', currentFront() !== 'gamer');
-    const builderFront = document.getElementById('frontBuilder');
-    if (builderFront) builderFront.hidden = currentFront() !== 'libre';
+    blApplyHome();
     renderFrontExtras();
   }
   function frontCategoryIcon(category) {
@@ -5338,9 +5382,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function createRandomPalette(){const base=Math.floor(Math.random()*360),schemes=[[28,55],[45,180],[120,240],[150,300],[180,40],[210,330]],scheme=schemes[Math.floor(Math.random()*schemes.length)],jitter=()=>Math.floor(Math.random()*17)-8;let palette={accentColor:hslToHex((base+jitter()+360)%360,58+Math.floor(Math.random()*24),43+Math.floor(Math.random()*13)),darkColor:hslToHex((base+scheme[0]+jitter()+360)%360,34+Math.floor(Math.random()*30),11+Math.floor(Math.random()*8)),backgroundColor:hslToHex((base+scheme[1]+jitter()+360)%360,22+Math.floor(Math.random()*30),96+Math.floor(Math.random()*3)),surfaceColor:hslToHex((base+scheme[0]+jitter()+360)%360,30+Math.floor(Math.random()*35),88+Math.floor(Math.random()*7)),secondaryColor:hslToHex((base+scheme[1]+jitter()+360)%360,30+Math.floor(Math.random()*35),43+Math.floor(Math.random()*19))};if(colorContrast(palette.darkColor,palette.backgroundColor)<7)palette.darkColor=hslToHex(base,45,10);return palette;}
   async function applyRandomPalette(){let palette,signature;do{palette=createRandomPalette();signature=Object.values(palette).join('');}while(signature===lastRandomPalette);lastRandomPalette=signature;await applyPaletteLive(palette);}
 
-/* ================= v0.10 · CONSTRUCTOR DE PÁGINA (front libre) ================= */
-  /* v0.13.0: el editor del constructor se retiró del panel; el frente "libre" solo se renderiza.
-     Los bloques guardados siguen mostrándose y los productos que contienen funcionan para el público. */
+/* ================= v0.14 · CONSTRUCTOR DE PÁGINA (estilo Google Sites) ================= */
+  /* v0.14.0: el armado de la página vuelve como modo Google Sites dentro del modo edición.
+     El dueño arma el home completo (reemplaza el hogar clásico y el catálogo automático)
+     a partir de bloques + complementos. Todo vive en state.content.builderBlocks. */
   function blBlocks() {
     try { const parsed = JSON.parse(state.content.builderBlocks || '[]'); return Array.isArray(parsed) ? parsed : []; }
     catch (_) { return []; }
@@ -5350,6 +5395,22 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     return m ? m[1] : '';
   }
   function blHex(v, fallback) { return /^#[0-9a-fA-F]{6}$/.test(v || '') ? v : fallback; }
+  function blNew(type) {
+    const D = {
+      hero: { title: 'Un título que convence', subtitle: 'Este texto acompaña tu portada. Cámbialo desde Bloque → Editar.', tone: 'dark', height: '', bg: '#141a2e', overlay: 45, btnText: 'Ver catálogo' },
+      text: { title: 'Título del bloque', body: 'Escribí acá el contenido de esta sección…\nPodés sumar más de una línea.', align: 'left', color: '', bg: '' },
+      image: { src: '', link: '' },
+      video: { url: '' },
+      instagram: { url: '', format: 'reel' },
+      gallery: { images: [], cols: '3' },
+      products: { title: 'Productos destacados', count: '8' },
+      cta: { title: 'Un buen llamado a la acción', body: 'Contale a tus clientes por qué elegirte.', btnText: 'Pedir por WhatsApp', btnLink: '', color: '', bg: '' },
+      offer: { title: 'OFERTA DE LA SEMANA', off: '20', note: 'Descuentos reales en una selección del catálogo.', btnText: 'Ver ofertas', bg: '' },
+      testimonial: { title: 'Lo que dicen tus clientes', items: 'Lu | Cliente hace 1 año | Me encantó el seguimiento y el empaque impecable.\nMar | Cliente hace 6 meses | Compré dos veces y siempre llega todo perfecto.\nTomás | Cliente hace 2 meses | Atención de diez y productos de gran calidad.' },
+      divider: { style: 'line', color: '' }
+    };
+    return { id: 'bl-' + Math.random().toString(36).slice(2, 9), type, props: D[type] || {} };
+  }
   function blBlockHtml(block, index) {
     const pr = block.props || {};
     const wStyle = block.type !== 'hero' && pr.w && pr.w !== 'auto' && Number(pr.w) > 0 ? ` style="max-width:${Math.min(100, Math.max(20, Number(pr.w)))}%"` : '';
@@ -5382,31 +5443,280 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const colsClass = pr.cols === '2' ? 'g2' : pr.cols === '4' ? 'g4' : pr.cols === '3' ? 'g3' : (imgs.length <= 2 ? 'g2' : imgs.length >= 4 ? 'g4' : 'g3');
       inner = imgs.length ? `<div class="bl-gallery ${colsClass}">${imgs.map((src) => `<img src="${esc(src)}" alt="">`).join('')}</div>` : '';
     } else if (block.type === 'products') {
-      const featured = state.products.filter((product) => product.active !== false).slice(0, 8);
+      const featured = state.products.filter((product) => product.active !== false).slice(0, Math.max(1, Math.min(Number(pr.count) || 8, 12)));
       inner = `<div class="bl-products">${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<div class="bl-products-grid">${featured.map(productCard).join('')}</div></div>`;
     } else if (block.type === 'cta') {
       inner = `<div class="bl-cta" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : 'background:var(--cream);'}${blHex(pr.color, '') ? `color:${pr.color};` : ''}">
         <h3>${esc(pr.title || '')}</h3>${pr.body ? `<p>${esc(pr.body)}</p>` : ''}
         ${pr.btnText ? (pr.btnLink ? `<a class="bl-btn" style="background:var(--accent);color:#fff" href="${esc(pr.btnLink)}" target="_blank" rel="noopener">${esc(pr.btnText)}</a>` : `<span class="bl-btn" style="background:var(--accent);color:#fff">${esc(pr.btnText)}</span>`) : ''}</div>`;
+    } else if (block.type === 'offer') {
+      const offN = Math.max(1, Math.min(99, Number(pr.off) || 0));
+      inner = `<div class="bl-offer" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : 'background:linear-gradient(120deg, var(--accent-dark), var(--accent));'}color:#fff">
+        <div class="bl-offer-badge">Hasta <b>-${offN}% OFF</b></div>
+        <h3>${esc(pr.title || '')}</h3>
+        ${pr.note ? `<p>${esc(pr.note)}</p>` : ''}
+        ${pr.btnText ? `<a class="bl-btn bl-btn-light" href="#coleccion">${esc(pr.btnText)} ↗</a>` : ''}
+      </div>`;
+    } else if (block.type === 'testimonial') {
+      const items = String(pr.items || '').split(/\n/).map((l) => l.split('|').map((s) => s.trim())).filter((a) => a.length >= 3).slice(0, 6);
+      inner = `<div class="bl-testi"><h3>${esc(pr.title || '')}</h3><div class="bl-testi-grid">${items.map(([name, role, text]) => {
+        const initial = String(name || '?').trim().charAt(0) || '?';
+        return `<article class="bl-testi-card"><span class="bl-testi-ava">${esc(initial.toUpperCase())}</span><blockquote>${esc(text)}</blockquote><b>${esc(name)}</b><small>${esc(role)}</small></article>`;
+      }).join('')}</div></div>`;
     } else if (block.type === 'divider') {
-      inner = pr.style === 'space' ? '<div class="bl-space"></div>' : `<hr class="bl-divider" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : 'background:var(--line);'}">`;
+      inner = pr.style === 'space' ? '<div class="bl-space"></div>' : `<hr class="bl-divider" style="${blHex(pr.color, '') ? `background:${pr.color};` : 'background:var(--line);'}">`;
     }
-    return open + inner + '</div></div>';
+    const ctl = `<div class="bl-ctl"><button type="button" data-bl-edit="${index}" title="Editar bloque">✎</button><button type="button" data-bl-up="${index}" title="Subir bloque">▲</button><button type="button" data-bl-down="${index}" title="Bajar bloque">▼</button><button type="button" data-bl-dup="${index}" title="Duplicar bloque">⧉</button><button type="button" data-bl-del="${index}" title="Eliminar bloque">✕</button></div>`;
+    return open + inner + ctl + '</div></div>';
   }
   function renderBuilder() {
     const root = $('frontBuilder');
     if (!root) return;
     const blocks = blBlocks();
-    root.innerHTML = blocks.length ? blocks.map(blBlockHtml).join('') : '<div class="bl-text" style="text-align:center;padding:40px 10px;color:var(--ink-soft)"><h3>Tu página, a tu manera</h3><p>Este frente usa el constructor visual. Escribinos a <b>POPUPS</b> y lo ajustamos por vos.</p></div>';
+    const editing = Boolean(document.body.classList.contains('bl-editing'));
+    root.innerHTML = blocks.length ? blocks.map(blBlockHtml).join('') : editing
+      ? '<div class="bl-text" style="text-align:center;padding:60px 10px;color:var(--ink-soft)"><h3>Tu página está vacía</h3><p>Agregá una <b>Portada</b>, un <b>Banner</b> o <b>Productos</b> desde el botón <b>Bloques</b> de la barra superior.</p></div>'
+      : '<div class="bl-text" style="text-align:center;padding:40px 10px;color:var(--ink-soft)"><h3>Tu página, a tu manera</h3><p>Este frente usa el constructor visual. Escribinos a <b>POPUPS</b> y lo ajustamos por vos.</p></div>';
   }
+  function blApplyHome() {
+    const personalized = blBlocks().length > 0;
+    document.body.classList.toggle('mt-page', personalized);
+    document.body.classList.remove('show-catalog');
+    const showBuilder = personalized || currentFront() === 'libre' || BL_EDIT.editing;
+    const builderFront = document.getElementById('frontBuilder');
+    if (builderFront) builderFront.hidden = !showBuilder;
+    if (showBuilder) renderBuilder();
+  }
+  const BL_EDIT = { editing: false, panel: null, editor: null, index: -1, draft: null };
+  const BL_FIELDS = {
+    hero: [
+      ['text', 'title', 'Título'], ['text', 'subtitle', 'Subtítulo'], ['text', 'btnText', 'Texto del botón'],
+      ['select', 'tone', 'Tono', [['dark', 'Oscuro'], ['light', 'Claro']]],
+      ['select', 'height', 'Alto', [['', 'Medio'], ['short', 'Bajo'], ['tall', 'Alto']]],
+      ['number', 'overlay', 'Oscurecer fondo (0-100)'], ['color', 'bg', 'Color de fondo'],
+      ['image', 'image', 'Imagen de fondo']
+    ],
+    text: [['text', 'title', 'Título'], ['textarea', 'body', 'Contenido'], ['select', 'align', 'Alineación', [['left', 'Izquierda'], ['center', 'Centro'], ['right', 'Derecha']]], ['color', 'color', 'Color del texto'], ['color', 'bg', 'Fondo']],
+    image: [['image', 'src', 'Imagen'], ['url', 'link', 'Link al hacer clic (opcional)']],
+    video: [['url', 'url', 'Link de YouTube']],
+    instagram: [['url', 'url', 'Link del reel o post de Instagram'], ['select', 'format', 'Formato', [['reel', 'Reel · vertical'], ['post', 'Post · cuadrado']]]],
+    gallery: [['images', 'images', 'Fotos'], ['select', 'cols', 'Columnas', [['2', '2 columnas'], ['3', '3 columnas'], ['4', '4 columnas']]]],
+    products: [['text', 'title', 'Título'], ['select', 'count', 'Cantidad de productos', [['4', '4'], ['8', '8'], ['12', '12']]]],
+    cta: [['text', 'title', 'Título'], ['textarea', 'body', 'Contenido'], ['text', 'btnText', 'Texto del botón'], ['url', 'btnLink', 'Link del botón'], ['color', 'color', 'Color del texto'], ['color', 'bg', 'Fondo']],
+    offer: [['text', 'title', 'Título'], ['number', 'off', '% de descuento (1-99)'], ['text', 'note', 'Nota'], ['text', 'btnText', 'Texto del botón'], ['color', 'bg', 'Color de fondo']],
+    testimonial: [['text', 'title', 'Título'], ['textarea', 'items', 'Testimonios: Nombre | Rol | Texto (uno por línea)']],
+    divider: [['select', 'style', 'Estilo', [['line', 'Línea'], ['space', 'Espacio']]], ['color', 'color', 'Color de la línea']]
+  };
+  const BL_TYPE_NAMES = { hero: 'Portada', text: 'Texto', image: 'Imagen', video: 'Video', instagram: 'Reel de Instagram', gallery: 'Galería', products: 'Productos', cta: 'Banner', offer: 'Oferta', testimonial: 'Testimonios', divider: 'Separador' };
+  function blTypeName(type) { return BL_TYPE_NAMES[type] || 'Bloque'; }
+  function blCards(items) {
+    return items.map(([type, ico, name]) => `<button type="button" class="bl-card" data-bl-add="${type}"><span class="bl-ico">${ico}</span><b>${name}</b></button>`).join('');
+  }
+  function blFieldHtml(field, draft) {
+    const [kind, key, label, options] = field;
+    const value = draft[key] == null ? '' : String(draft[key]);
+    if (kind === 'text' || kind === 'url' || kind === 'number') {
+      return `<label>${label}<input type="${kind === 'number' ? 'number' : kind === 'url' ? 'url' : 'text'}" name="${key}" value="${esc(value)}"></label>`;
+    }
+    if (kind === 'textarea') {
+      return `<label>${label}<textarea name="${key}" rows="5">${esc(value)}</textarea></label>`;
+    }
+    if (kind === 'select') {
+      return `<label>${label}<select name="${key}">${options.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === value ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+    }
+    if (kind === 'color') {
+      return `<label><span>${label}</span><input type="color" name="${key}" value="${value || '#000000'}"></label>`;
+    }
+    if (kind === 'image') {
+      return `<label><span>${label}</span><div class="bl-upload" data-bl-upload="${key}"><span>${value ? 'Reemplazar imagen' : 'Elegir imagen (PNG, JPG o WEBP)'}</span></div>${value ? `<img class="bl-upimg" src="${safeImage(value)}" alt="">` : ''}<input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file="${key}"></label>`;
+    }
+    if (kind === 'images') {
+      return `<label><span>${label}</span><div class="bl-upload" data-bl-upload="images"><span>Subir fotos (PNG, JPG o WEBP)</span></div><input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden data-bl-file="images"></label>`;
+    }
+    return '';
+  }
+  function blEnsureDom() {
+    if (BL_EDIT.panel) return;
+    const panel = document.createElement('aside');
+    panel.className = 'bl-panel';
+    panel.setAttribute('aria-label', 'Editor de página');
+    panel.innerHTML = `
+      <div class="bl-panel-head"><div class="bl-panel-title"><b>Página · bloques</b><button type="button" class="bl-panel-close" data-bl-panel-close aria-label="Cerrar panel">×</button></div>
+        <p>Armá el home de tu tienda. Cada bloque se edita tocándolo.</p>
+      </div>
+      <div class="bl-panel-body"><div class="bl-panel-sec">Complementos</div><div class="bl-grid">${blCards([['hero', '🌟', 'Portada'], ['offer', '🏷️', 'Oferta'], ['testimonial', '💬', 'Testimonios'], ['video', '▶️', 'Video'], ['products', '🛍️', 'Productos'], ['cta', '📣', 'Banner']])}</div>
+        <div class="bl-panel-sec">Bloques</div><div class="bl-grid">${blCards([['text', '✍️', 'Texto'], ['image', '🖼️', 'Imagen'], ['gallery', '🛖', 'Galería'], ['instagram', '📸', 'Reel IG'], ['divider', '➖', 'Separador']])}</div>
+        <span class="bl-panel-tip">Tip: agregá una sección de <b>Productos</b> para que se pueda comprar desde la página.</span>
+      </div>`;
+    panel.addEventListener('click', (event) => {
+      const add = event.target.closest('[data-bl-add]');
+      if (add) { blAdd(add.dataset.blAdd); return; }
+      if (event.target.closest('[data-bl-panel-close]')) blEditToggle(false);
+    });
+    document.body.appendChild(panel);
+    BL_EDIT.panel = panel;
+    const editor = document.createElement('aside');
+    editor.className = 'bl-editor';
+    editor.innerHTML = `<header><b id="blEditorTitle">Editar bloque</b><button type="button" class="bl-panel-close" data-bl-editor-close aria-label="Cerrar editor">×</button></header><div class="bl-editor-body" id="blEditorBody"></div><div class="bl-editor-actions"><button type="button" class="bl-btn-danger" data-bl-editor-del>Eliminar</button><button type="button" class="bl-btn-primary" data-bl-editor-save>Listo</button></div>`;
+    document.body.appendChild(editor);
+    BL_EDIT.editor = editor;
+    editor.querySelector('[data-bl-editor-close]').addEventListener('click', blEditorClose);
+    editor.querySelector('[data-bl-editor-save]').addEventListener('click', blEditorSave);
+editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorDelete);
+    editor.addEventListener('click', (event) => {
+      const file = event.target.closest('[data-bl-file]');
+      if (file) return; // actor label: se dispara la selección de archivo sola
+      const up = event.target.closest('[data-bl-upload]');
+      if (up) { const input = editor.querySelector(`[data-bl-file="${up.dataset.blUpload}"]`); if (input) input.click(); return; }
+      const rem = event.target.closest('[data-bl-rem]');
+      if (rem && rem.dataset.blRem != null) blDraftDelImage(Number(rem.dataset.blRem));
+    });
+    editor.querySelector('#blEditorBody').addEventListener('change', async (event) => {
+      const input = event.target.closest('[data-bl-file]');
+      if (!input || !BL_EDIT.draft) return;
+      const key = input.dataset.blFile;
+      const files = [...input.files];
+      if (!files.length) return;
+      if (key === 'images') {
+        for (const f of files) {
+          try { const d = await compressImage(f, { maxChars: 600000 }); if (d) BL_EDIT.draft.images = [...(BL_EDIT.draft.images || []), d]; } catch (_) {}
+        }
+      } else {
+        try { const d = await compressImage(files[0], { maxChars: 600000 }); if (d) BL_EDIT.draft[key] = d; } catch (_) {}
+      }
+      input.value = '';
+      blRenderEditorFields();
+    });
+  }
+  function blEditToggle(force) {
+    if (!mtEditHasSession()) return;
+    blEnsureDom();
+    const next = force == null ? !BL_EDIT.editing : force;
+    BL_EDIT.editing = next;
+    document.body.classList.toggle('bl-editing', next);
+    if (!next) blEditorClose();
+    blApplyHome();
+  }
+  function blEditStop() { if (BL_EDIT.editing) blEditToggle(false); }
+  function blEditorClose() {
+    BL_EDIT.index = -1; BL_EDIT.draft = null;
+    if (BL_EDIT.editor) BL_EDIT.editor.classList.remove('open');
+  }
+  function blRenderEditorFields() {
+    const blocks = blBlocks();
+    const block = blocks[BL_EDIT.index];
+    if (!block || !BL_EDIT.editor || !BL_EDIT.draft) return;
+    const fields = BL_FIELDS[block.type] || [];
+    const html = fields.map((f) => blFieldHtml(f, BL_EDIT.draft)).join('');
+    const thumbs = (BL_EDIT.draft.images || []).map((src, i) => `<span class="bl-thumb"><img src="${safeImage(src)}" alt=""><button type="button" class="bl-thumb-x" data-bl-rem="${i}" aria-label="Quitar foto">×</button></span>`).join('');
+    BL_EDIT.editor.querySelector('#blEditorTitle').textContent = 'Editar · ' + blTypeName(block.type);
+    BL_EDIT.editor.querySelector('#blEditorBody').innerHTML = html + (thumbs ? `<div class="bl-upthumbs">${thumbs}</div>` : '');
+  }
+  function blDraftDelImage(index) {
+    if (!BL_EDIT.draft || !Array.isArray(BL_EDIT.draft.images)) return;
+    BL_EDIT.draft.images.splice(index, 1);
+    blRenderEditorFields();
+  }
+  function blEditorOpen(index) {
+    blEnsureDom();
+    const blocks = blBlocks();
+    const block = blocks[index];
+    if (!block) return;
+    BL_EDIT.index = index;
+    BL_EDIT.draft = JSON.parse(JSON.stringify(block.props || {}));
+    BL_EDIT.editor.classList.add('open');
+    blRenderEditorFields();
+  }
+  async function blPersist(blocks) {
+    const list = blocks == null ? blBlocks() : blocks;
+    await mtSaveContent('builderBlocks', JSON.stringify(list));
+    blApplyHome();
+  }
+  async function blAdd(type) {
+    const blocks = blBlocks();
+    blocks.push(blNew(type));
+    await blPersist(blocks);
+    blEditorOpen(blocks.length - 1);
+  }
+  async function blMove(index, dir) {
+    const blocks = blBlocks();
+    const to = index + dir;
+    if (to < 0 || to >= blocks.length) return;
+    const tmp = blocks[index]; blocks[index] = blocks[to]; blocks[to] = tmp;
+    blEditorClose();
+    await blPersist(blocks);
+  }
+  async function blDup(index) {
+    const blocks = blBlocks();
+    const src = blocks[index]; if (!src) return;
+    blocks.splice(index + 1, 0, { ...JSON.parse(JSON.stringify(src)), id: 'bl-' + Math.random().toString(36).slice(2, 9) });
+    blEditorClose();
+    await blPersist(blocks);
+  }
+  async function blDel(index) {
+    const blocks = blBlocks();
+    blocks.splice(index, 1);
+    blEditorClose();
+    await blPersist(blocks);
+  }
+  async function blEditorSave() {
+    const blocks = blBlocks();
+    const block = blocks[BL_EDIT.index];
+    if (!block || !BL_EDIT.draft) return blEditorClose();
+    const draft = { ...BL_EDIT.draft };
+    BL_EDIT.editor.querySelector('#blEditorBody').querySelectorAll('input[name], textarea[name], select[name]').forEach((el) => { draft[el.name] = el.value; });
+    block.props = draft;
+    blEditorClose();
+    await blPersist(blocks);
+    toast('Página guardada', 'El bloque se actualizó y quedó guardado en tu tienda.');
+  }
+  async function blEditorDelete() {
+    const blocks = blBlocks();
+    if (BL_EDIT.index < 0 || BL_EDIT.index >= blocks.length) return blEditorClose();
+    blocks.splice(BL_EDIT.index, 1);
+    blEditorClose();
+    await blPersist(blocks);
+    toast('Bloque eliminado', 'La página se guardó sin ese bloque.');
+  }
+  /* Interacción pública y de edición sobre la página armada */
   document.addEventListener('click', (event) => {
     if (!(event.target instanceof Element)) return;
-    const add = event.target.closest('#frontBuilder [data-add-product]');
-    if (add) { event.preventDefault(); addToCart(add.dataset.addProduct); return; }
+    if (document.body.classList.contains('bl-editing')) {
+      const blockEl = event.target.closest('#frontBuilder .bl-block');
+      if (blockEl) {
+        const up = event.target.closest('[data-bl-up]');
+        if (up) { event.preventDefault(); blMove(Number(up.dataset.blUp), -1); return; }
+        const down = event.target.closest('[data-bl-down]');
+        if (down) { event.preventDefault(); blMove(Number(down.dataset.blDown), 1); return; }
+        const dup = event.target.closest('[data-bl-dup]');
+        if (dup) { event.preventDefault(); blDup(Number(dup.dataset.blDup)); return; }
+        const del = event.target.closest('[data-bl-del]');
+        if (del) { event.preventDefault(); blDel(Number(del.dataset.blDel)); return; }
+        const edit = event.target.closest('[data-bl-edit]');
+        if (edit) { event.preventDefault(); blEditorOpen(Number(edit.dataset.blEdit)); return; }
+        if (!event.target.closest('#frontBuilder .bl-ctl')) {
+          event.preventDefault();
+          const idx = Number(blockEl.dataset.blIndex);
+          if (Number.isInteger(idx)) blEditorOpen(idx);
+        }
+      }
+      return;
+    }
+    /* El alta al carrito la resuelve globalClick (ya cubre #productGrid y la página
+       armada); acá sólo el detalle, que catalogClick no escucha fuera de #productGrid. */
     const open = event.target.closest('#frontBuilder [data-open-product]');
     if (open) { event.preventDefault(); openProduct(open.dataset.openProduct); }
   });
-
+  /* Catálogo a demanda: la página armada reemplaza el home, pero el catálogo sigue
+     disponible desde el menú "Tienda" y desde los botones que apuntan a #coleccion. */
+  document.addEventListener('click', (event) => {
+    if (!document.body.classList.contains('mt-page')) return;
+    const link = event.target.closest('a[href="#coleccion"]');
+    if (!link || document.body.classList.contains('show-catalog')) return;
+    event.preventDefault();
+    document.body.classList.add('show-catalog');
+    requestAnimationFrame(() => { const c = document.getElementById('coleccion'); if (c) c.scrollIntoView({ behavior: 'smooth' }); });
+  });
   /* ---- v0.9.2/0.10 · Presupuesto de payload para la nube ---- */
   const MT_CFG_BUDGET = 900000;
   async function mtShrinkDataUrl(dataUrl, maxChars) {
@@ -5849,6 +6159,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function catalogClick(event) {
+    // v0.14: en modo edición de página los clics sobre tarjetas editan el bloque, no compran.
+    if (document.body.classList.contains('bl-editing')) return;
     const add = event.target.closest('[data-add-product]');
     if (add) { event.stopPropagation(); return addToCart(add.dataset.addProduct); }
     const open = event.target.closest('[data-open-product]');
@@ -5860,7 +6172,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (legal) { event.preventDefault(); return openLegalPage(legal.dataset.legalPage); }
     const disabledLink = event.target.closest('.disabled-link'); if (disabledLink) event.preventDefault();
     const add = event.target.closest('[data-add-product]');
-    if (add && !$('productGrid').contains(add)) addToCart(add.dataset.addProduct);
+    if (add && !$('productGrid').contains(add) && !document.body.classList.contains('bl-editing')) addToCart(add.dataset.addProduct);
     const jump = event.target.closest('[data-category-jump]');
     if (jump) {
       state.category = jump.dataset.categoryJump; state.query = ''; $('searchInput').value = '';
@@ -6252,10 +6564,11 @@ async function mtGuiaPdf() {
     MT_EDIT.root = root;
     const bar = document.createElement('div');
     bar.className = 'mt-edit-bar'; bar.hidden = true;
-    bar.innerHTML = '<b>Modo edición</b><span>Hacé clic sobre un texto, imagen o producto para editarlo.</span><button type="button" data-mt-colors>Colores</button><button type="button" data-mt-done>Terminar</button>';
+    bar.innerHTML = '<b>Modo edición</b><span>Hacé clic sobre un texto, imagen, producto o bloque para editarlo.</span><button type="button" data-mt-blocks>Bloques</button><button type="button" data-mt-colors>Colores</button><button type="button" data-mt-done>Terminar</button>';
     bar.addEventListener('click', (event) => {
       if (event.target.closest('[data-mt-done]')) mtEditToggle(false);
       else if (event.target.closest('[data-mt-colors]')) mtEditPalette();
+      else if (event.target.closest('[data-mt-blocks]')) blEditToggle();
     });
     document.body.appendChild(bar);
     MT_EDIT.bar = bar;
@@ -6275,6 +6588,7 @@ async function mtGuiaPdf() {
   }
   function mtEditCapture(event) {
     if (!MT_EDIT.on) return;
+    if (BL_EDIT.editing && event.target instanceof Element && event.target.closest('#frontBuilder')) return;
     if (event.target.closest('.mt-edit-popover') || event.target.closest('.mt-edit-bar') || event.target.closest('.mt-edit-float')) return;
     const hit = mtEditResolve(event.target);
     if (!hit) return;
@@ -6288,7 +6602,7 @@ async function mtGuiaPdf() {
     MT_EDIT.on = on;
     document.body.classList.toggle('mt-edit-mode', on);
     if (MT_EDIT.bar) MT_EDIT.bar.hidden = !on;
-    if (!on) { mtEditClose(); mtEditRefreshFloating(); }
+    if (!on) { mtEditClose(); mtEditRefreshFloating(); blEditStop(); }
     else if (MT_EDIT.root) MT_EDIT.root.hidden = true;
   }
   function mtEditClose() {
