@@ -13,7 +13,8 @@ vive en estas funciones SQL.
 | `esquema-reconstruido.sql` | Reconstrucción ejecutable del schema + funciones a partir de los contratos | ⚠️ Aproximación — sirve para staging/DR, **no correr en producción** |
 | `export.sql` | Consultas para extraer el SQL **real** desde el dashboard | ✅ Listo para usar |
 | `schema-real.sql` | El SQL real desplegado | ✅ Volcado del 15-sep-2026 (19 funciones) |
-| `api_key_change.sql` | DDL de la RPC nueva (v0.7.3) para que el dueño cambie su clave | ⏳ **Listo, falta ejecutarlo** — ver abajo |
+| `api_key_change.sql` | DDL de la RPC nueva (v0.7.3) para que el dueño cambie su clave | ✅ Ejecutado y verificado en vivo |
+| `uber-direct.sql` | RPC nueva `api_uber_quote` (cotización demo) + `api_order_create` con entrega `uber` | ⏳ **Listo, falta ejecutarlo** — ver abajo |
 | `alta-cliente.sql` | Plantilla reutilizable para **vender/crear una tienda** (api_admin + catálogo opcional + rotación de clave) | ✅ Listo para usar — copiar y ajustar por cliente |
 
 ## Evitar la pausa automática (plan Free)
@@ -58,6 +59,37 @@ Notas:
 - El respaldo diario incluye cada `cfg` (con sus órdenes); el token se respalda como
   texto en `mp_token` — si se filtra, rotarlo desde el panel.
 
+## Envío con Uber Direct (operación · modo demo)
+
+MVP v0.12.0: **solo cotización en vivo en el checkout**. El dueño activa la opción
+en **Ajustes → Envíos y retiro → "Envío con Uber Direct"** y el costo de entrega se
+suma al total del pedido. El costo lo factura Uber al comercio; el comercio lo
+cobra al cliente como línea del pedido.
+
+- Hoy corre en **modo demo**: `api_uber_quote` devuelve `settings.uber.demoCost` y
+  un ETA de referencia (`etaMin`/`etaMax`). No llama a Uber todavía.
+- Cuando la tienda tenga la cuenta de Uber Direct aprobada y sus credenciales
+  (client_id + client_secret), se reemplaza el cuerpo de `api_uber_quote` por la
+  llamada real (OAuth2 + quote) y se agregan las columnas `uber_client_id` /
+  `uber_client_secret` en `stores` (tipo `mp_token`), además de las RPC para
+  conectar/desconectar — misma mecánica que Mercado Pago.
+- El costo del pedido con entrega Uber se calcula **server-side**
+  (`settings.uber.demoCost`), el cliente nunca manda montos.
+- El pedido se guarda con `delivery.type: 'uber'`, dirección obligatoria y ETA;
+  el panel muestra "Envío con Uber" + ETA estimada.
+
+### Despliegue de `uber-direct.sql` (v0.12.0)
+
+Ejecutar **una vez** en el [SQL Editor](https://supabase.com/dashboard/project/zfnlcfnutnuatrhgbbci/sql/new)
+reemplazando (CREATE OR REPLACE) dos funciones:
+
+1. `api_uber_quote` — la RPC de cotización (demo).
+2. `api_order_create` — permite `deliveryType: 'uber'` y deja de rechazar pedidos
+   que usen la nueva entrega.
+
+Es idempotente para la base: solo reemplaza funciones, no toca datos. Verificado
+por la suite de tests (51/51) y contra el contrato en vivo.
+
 ## Por qué falta `schema-real.sql` (y cómo resolverlo en 5 minutos)
 
 El changelog v0.6.1 menciona `mp_async.sql`, pero ningún SQL se commiteó jamás.
@@ -79,6 +111,7 @@ correr las consultas de `export.sql` y guardar los resultados acá como `schema-
 index.html (script 1 · puerta)  ──► api_public ──► ¿activa? : cartel de suspensión
 mtPublicDoc() (caché 20 s)      ──► api_public ──► vitrina (settings/content/legal/productos)
 checkout                        ──► api_order_create ──► reserva stock + numera P-100x
+  └ envío Uber (demo)           ──► api_uber_quote ──► costo + ETA de reference (settings.uber)
   └ MP live                     ──► api_mp_launch('pref') + api_mp_poll ──► init_point
 retorno de MP (?collection_status) ─► api_mp_launch('confirm') + poll ──► pedido confirmado
 login dueño (#admin)            ──► api_panel(p_key) ──► snapshot completo + plan

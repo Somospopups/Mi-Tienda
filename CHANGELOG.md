@@ -1,5 +1,12 @@
 # Changelog — Mi-Tienda
 
+## v0.12.0 · 2026-09-26 · Envío con Uber Direct (cotización demo en el checkout)
+- **Nueva opción de entrega en el checkout: "Envío con Uber"** (tercera tarjeta junto a Envío a domicilio y Retiro). Mientras la tienda no conecte la cuenta, corre en **modo demo**: muestra costo de referencia (default $4.850) y ETA estimada (ej. 45–60 min), calculados **server-side** desde la configuración (`settings.uber`). El costo de la entrega se suma al total del pedido.
+- **Panel del dueño**: en Ajustes → Envíos y retiro hay un bloque "Envio con Uber Direct" con interruptor para mostrarlo/ocultarlo en el checkout, costo de referencia y ventana de entrega estimada. Al guardar, el checkout de la tienda se actualiza al instante.
+- **Pedidos con Uber**: se guardan con `delivery.type: 'uber'`, la dirección es obligatoria (igual que envío a domicilio), se registran el ETA y la dirección del cliente; el panel los muestra como "Envio con Uber" con el detalle y la ETA estimada.
+- **Backend**: nueva RPC `api_uber_quote` (demostración) y `api_order_create` ahora acepta `deliveryType: 'uber'` — en [`supabase/uber-direct.sql`](supabase/uber-direct.sql) (ejecutar una vez en el SQL Editor, ver README de supabase). Cuando el dueño tenga la cuenta de Uber Direct aprobada, esa misma función pasa a llamar la API real (misma mecánica que Mercado Pago).
+- 3 tests nuevos en [`tests/uber.spec.js`](tests/uber.spec.js) (opción en checkout, pedido con tipo uber, contrato de la API demo + toggle del panel). Suite completa: **51/51**.
+
 ## v0.11.4 · 2026-09-24 · Mover fotos y secciones arrastrándolas (constructor)
 - **Ahora se arrastra el bloque entero — la foto incluida — sin manija**: en el constructor, cualquier sección (imagen, texto, galería, video…) se mueve a donde quieras agarrándola directamente y arrastrándola arriba/abajo (antes solo podía agarrarse la manija chica ⠿ de la esquina, difícil de descubrir). El cursor muestra "agarrar" al pasar el mouse.
 - **Los controles ▲▼⧉✕ ahora se ven SIEMPRE en modo edición** (antes solo aparecían al pasar el mouse — en pantallas táctiles nunca se veían y parecía que no se podía mover nada).
