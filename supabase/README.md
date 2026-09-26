@@ -36,6 +36,28 @@ corre **1 vez por día** y además del keep-alive:
   `BACKUP_PAT` + `BACKUP_REPO`, el respaldo se pushea además a un repo privado.
 - script local: `.github/scripts/monitoreo-supabase.py` (probado en vivo, 7 tiendas OK).
 
+## Cobrar online con Mercado Pago (operación)
+
+Cada tienda conecta **su** cuenta de MP. El token viaja por `mp_pending` y se guarda en
+`mp_token`; la API nunca lo devuelve completo (solo los últimos 4 dígitos para mostrar
+estado). Sin token, el checkout usa el modo **demo** (aprueba en línea sin cobrar).
+
+Paso a paso con el dueño:
+1. Tener la cuenta de Mercado Pago de la tienda (mercadopago.com.ar).
+2. En **developers.mercadopago.com.ar** con esa cuenta → *Credenciales* → sección
+   **Producción** → copiar el **Access Token** (empieza con `APP_USR-`). No compartirlo.
+3. En la tienda → panel (ingresás con tu Clave de acceso) → **Ajustes → Cobros** →
+   pegar el token → **Guardar**. Queda "conectado" y permite *Desconectar*.
+4. Verificar: en el checkout aparece el pago **live** con MP, el pedido queda
+   `pending_payment` y se confirma solo cuando MP avisa (`api_mp_launch('confirm')`).
+
+Notas:
+- Hoy todas las tiendas arrancan en demo (`mp_token=''`); el modo live pide tienda
+  activa y con MP conectado.
+- El pedido no puede cobrarse en línea si la tienda está suspendida o sin MP.
+- El respaldo diario incluye cada `cfg` (con sus órdenes); el token se respalda como
+  texto en `mp_token` — si se filtra, rotarlo desde el panel.
+
 ## Por qué falta `schema-real.sql` (y cómo resolverlo en 5 minutos)
 
 El changelog v0.6.1 menciona `mp_async.sql`, pero ningún SQL se commiteó jamás.

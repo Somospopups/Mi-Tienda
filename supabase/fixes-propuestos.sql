@@ -1,9 +1,11 @@
 -- ============================================================================
 -- Mi-Tienda · Fixes propuestos tras la auditoría (15-sep-2026)
 -- ============================================================================
--- ⚠️ NO EJECUTAR TODAVÍA en producción: este archivo es una PROPUESTA para
---    revisar con POPUPS. Cada bloque está aislado y es reversible.
---    Orden sugerido de aplicación: F1 → F2 → F6 → F5 (F3/F4 son opcionales).
+-- ✅ REVISADO contra schema-real.sql (funciones verificadas una a una).
+-- Aplicar completo en el SQL Editor en este orden: F1 → F2 → F6.
+-- F5 y F4 quedan como comentarios: son opcionales y dependen de decisiones
+-- de negocio. Cada bloque es idempotente y reversible (F6 usa DROP + CREATE
+-- porque CREATE OR REPLACE no cambia los DEFAULT de parámetros).
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -227,18 +229,98 @@ begin
   return jsonb_build_object('ok', false, 'error', 'Para guardar el token usá el flujo nuevo (api_mp_launch + api_mp_poll).');
 end $function$;
 
--- api_mp_launch: en la rama 'set', agregar el chequeo junto al de clave
--- (patch manual de 3 líneas dentro del bloque "if p_kind = 'set' then"):
---   if public.h_state(s) <> 'activa' then
---     return jsonb_build_object('ok', false, 'error', 'store_' || public.h_state(s)); end if;
--- Se deja como patch comentado porque reescribir toda la función acá duplicaría
--- 90 líneas; aplicar con el SQL Editor buscando el marcador "p_kind = 'set' then".
+-- api_mp_launch: en la rama 'set', agregar el chequeo de estado junto al de clave
+create or replace function public.api_mp_launch(p_store text, p_key text, p_kind text, p_json jsonb default '{}'::jsonb)
+returns jsonb language plpgsql security definer
+set search_path = public, extensions as $function$
+declare
+  s public.stores;
+  token text;
+  uri text;
+  method text;
+  body jsonb := null;
+  rid bigint;
+  ord jsonb;
+begin
+  select * into s from public.stores where id = p_store;
+  if not found then return jsonb_build_object('ok', false, 'error', 'store_not_found'); end if;
+
+  if p_kind = 'set' then
+    if s.key_hash = '' or crypt(coalesce(p_key, ''), s.key_hash) <> s.key_hash then
+      return jsonb_build_object('ok', false, 'error', 'bad_key'); end if;
+    -- ▼ CAMBIO F2
+    if public.h_state(s) <> 'activa' then
+      return jsonb_build_object('ok', false, 'error', 'store_' || public.h_state(s),
+        'msg', 'Tu tienda está suspendida. Regularizá el pago con POPUPS para conectar Mercado Pago.'); end if;
+    -- ▲ CAMBIO F2
+    token := trim(coalesce(p_json ->> 'token', ''));
+    if token = '' then
+      return jsonb_build_object('ok', false, 'error', 'Token vacío. Pegá tu Access Token de Mercado Pago.'); end if;
+    update public.stores set mp_pending = token where id = p_store;
+    method := 'GET'; uri := 'https://api.mercadopago.com/users/me';
+
+  elsif p_kind = 'pref' then
+    if public.h_state(s) <> 'activa' then
+      return jsonb_build_object('ok', false, 'error', 'Tienda no disponible.'); end if;
+    if s.mp_token = '' then
+      return jsonb_build_object('ok', false, 'error', 'Esta tienda todavía no conectó Mercado Pago.'); end if;
+    select x into ord from jsonb_array_elements(coalesce(s.cfg -> 'orders', '[]'::jsonb)) x
+      where x ->> 'id' = p_json ->> 'order_id' limit 1;
+    if ord is null then return jsonb_build_object('ok', false, 'error', 'Pedido no encontrado.'); end if;
+    if coalesce(ord #>> '{payment,mode}', '') <> 'live' or coalesce(ord #>> '{payment,status}', '') = 'approved' then
+      return jsonb_build_object('ok', false, 'error', 'Este pedido no espera un cobro nuevo.'); end if;
+    method := 'POST'; uri := 'https://api.mercadopago.com/checkout/preferences';
+    body := jsonb_build_object(
+      'items', (select coalesce(jsonb_agg(jsonb_build_object(
+        'id', it ->> 'productId',
+        'title', coalesce(nullif(it ->> 'name', ''), 'Producto'),
+        'quantity', coalesce(nullif(it ->> 'quantity', '')::int, 1),
+        'unit_price', coalesce(nullif(it ->> 'unitPrice', '')::int, 0),
+        'currency_id', 'ARS')), '[]'::jsonb)
+        from jsonb_array_elements(coalesce(ord -> 'items', '[]'::jsonb)) it),
+      'external_reference', p_json ->> 'order_id',
+      'auto_return', 'approved',
+      'back_urls', jsonb_build_object('success', coalesce(p_json ->> 'back', ''), 'pending', coalesce(p_json ->> 'back', ''), 'failure', coalesce(p_json ->> 'back', '')));
+    token := s.mp_token;
+
+  elsif p_kind = 'confirm' then
+    if public.h_state(s) <> 'activa' then
+      return jsonb_build_object('ok', false, 'error', 'Tienda no disponible.'); end if;
+    if s.mp_token = '' then
+      return jsonb_build_object('ok', false, 'error', 'mp_not_configured'); end if;
+    select x into ord from jsonb_array_elements(coalesce(s.cfg -> 'orders', '[]'::jsonb)) x
+      where x ->> 'id' = p_json ->> 'order_id' limit 1;
+    if ord is not null and coalesce(ord #>> '{payment,status}', '') = 'approved' then
+      return jsonb_build_object('ok', true, 'skip', true, 'status', 'approved'); end if;
+    method := 'GET'; uri := 'https://api.mercadopago.com/v1/payments/' || coalesce(nullif(p_json ->> 'payment_id', ''), '0');
+    token := s.mp_token;
+
+  else
+    return jsonb_build_object('ok', false, 'error', 'kind desconocido');
+  end if;
+
+  if method = 'POST' then
+    select net.http_post(url := uri,
+      headers := jsonb_build_object('Authorization', 'Bearer ' || token, 'Content-Type', 'application/json', 'Accept', 'application/json'),
+      body := coalesce(body, '{}'::jsonb)) into rid;
+  else
+    select net.http_get(url := uri,
+      headers := jsonb_build_object('Authorization', 'Bearer ' || token, 'Accept', 'application/json')) into rid;
+  end if;
+  if rid is null then
+    if p_kind = 'set' then update public.stores set mp_pending = '' where id = p_store; end if;
+    return jsonb_build_object('ok', false, 'error', 'mp_request_failed');
+  end if;
+  return jsonb_build_object('ok', true, 'rid', rid);
+end $function$;
 
 -- ----------------------------------------------------------------------------
 -- F6 · BAJO · Default seguro de consentimiento en api_subscribe
 -- ----------------------------------------------------------------------------
-alter function public.api_subscribe(text, text, boolean) reset all;
--- (aplicar cambiando el DEFAULT del parámetro:)
+-- En Postgres, CREATE OR REPLACE no puede cambiar el DEFAULT de un parámetro
+-- (hoy es true), así que para que el default seguro quede en FALSE hace falta
+-- DROP + CREATE. La ventana sin función es instantánea dentro de este mismo run.
+drop function if exists public.api_subscribe(text, text, boolean);
 create or replace function public.api_subscribe(p_store text, p_email text, p_consent boolean default false)
 returns jsonb language plpgsql security definer
 set search_path = public, extensions as $function$
