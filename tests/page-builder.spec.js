@@ -256,6 +256,8 @@ test('5 · Tocar un bloque en modo edición abre su editor, y el catálogo públ
 test('6 · El panel y el editor se abren sin taparse ni tapar la barra de edición', async ({ page }) => {
   const box = async (sel) => page.locator(sel).first().boundingBox();
   const vw = page.viewportSize().width;
+  // Las animaciones de entrada mueven las cajas: para medir geometría se acortan.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await seedBlocks(page, [
     { id: 'bl-l1', type: 'hero', props: { title: 'Título', subtitle: 'Subtítulo', tone: 'dark', height: '', bg: '#141a2e', overlay: 45, btnText: 'Ver catálogo' } },
     { id: 'bl-l2', type: 'offer', props: { title: 'OFERTA', off: '30', note: 'nota', btnText: 'Ver ofertas', bg: '' } },

@@ -1463,6 +1463,60 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .bl-space { height: 46px; }
   @media (max-width: 980px) { .bl-products-grid { grid-template-columns: repeat(2, 1fr); } .bl-gallery, .bl-gallery.g4 { grid-template-columns: repeat(2, 1fr); } }
 
+  /* ---- v0.15 · Fondo, velo y fotos de los complementos ---- */
+  /* El velo va como primer hijo del bloque: el bloque es el posicionado y todo lo que
+     viene después del velo queda por arriba (z-index 1). */
+  .bl-veil { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .bl-block > .bl-inner > *:not(.bl-veil) { position: relative; z-index: 1; }
+  /* Foto de cabecera de un complemento (Oferta, Testimonios, Productos) */
+  .bl-media { position: relative; border-radius: 14px; overflow: hidden; margin-bottom: 14px; background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 120px; }
+  .bl-media-wrap { position: relative; }
+  /* Oferta con foto: dos columnas (foto + texto) en vez de la pila centrada */
+  .bl-offer.has-img { flex-direction: row; align-items: stretch; text-align: left; padding: 0; }
+  .bl-offer.has-img .bl-media { width: min(44%, 440px); min-height: 280px; margin: 0; border-radius: 0; }
+  .bl-offer.has-img .bl-offer-body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 13px; padding: clamp(26px, 4vw, 52px); }
+  @media (max-width: 760px) {
+    .bl-offer.has-img { flex-direction: column; }
+    .bl-offer.has-img .bl-media { width: 100%; min-height: 210px; }
+  }
+
+  /* ---- v0.15 · Animaciones al entrar en pantalla ---- */
+  .bl-in { opacity: 0; transition: opacity .62s cubic-bezier(.22, .61, .36, 1), transform .62s cubic-bezier(.22, .61, .36, 1), filter .62s ease; }
+  .bl-in-on { opacity: 1; transform: none; filter: none; }
+  .bl-in-up { transform: translateY(30px); }
+  .bl-in-down { transform: translateY(-30px); }
+  .bl-in-left { transform: translateX(-40px); }
+  .bl-in-right { transform: translateX(40px); }
+  .bl-in-zoom { transform: scale(.93); }
+  .bl-in-blur { filter: blur(12px); transform: scale(1.015); }
+  .bl-in-flip { transform: perspective(1000px) rotateX(-9deg); transform-origin: 50% 0; }
+  /* Escalonado de los hijos (tarjetas, fotos): entra uno detrás de otro. El bloque
+     padre es el que lleva .bl-in-on cuando entra en pantalla. */
+  .bl-st > * { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+  .bl-in-on .bl-st > * { opacity: 1; transform: none; }
+  .bl-in-on .bl-st > :nth-child(1) { transition-delay: .05s; } .bl-in-on .bl-st > :nth-child(2) { transition-delay: .12s; }
+  .bl-in-on .bl-st > :nth-child(3) { transition-delay: .19s; } .bl-in-on .bl-st > :nth-child(4) { transition-delay: .26s; }
+  .bl-in-on .bl-st > :nth-child(5) { transition-delay: .33s; } .bl-in-on .bl-st > :nth-child(6) { transition-delay: .4s; }
+  .bl-in-on .bl-st > :nth-child(7) { transition-delay: .47s; } .bl-in-on .bl-st > :nth-child(8) { transition-delay: .54s; }
+  .bl-in-on .bl-st > :nth-child(n+9) { transition-delay: .6s; }
+  /* En edición se ve el estado final: nada de bloques escondidos mientras se arma */
+  body.bl-editing #frontBuilder .bl-in, body.bl-editing #frontBuilder .bl-st > * { opacity: 1; transform: none; filter: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #frontBuilder .bl-in, #frontBuilder .bl-st > * { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  }
+  @media print { #frontBuilder .bl-in, #frontBuilder .bl-st > * { opacity: 1 !important; transform: none !important; } }
+
+  /* ---- v0.15 · Micro-movimiento al pasar el mouse (solo lo publicado) ---- */
+  body:not(.bl-editing) .bl-block .bl-btn { transition: transform .18s ease, box-shadow .25s ease; box-shadow: 0 6px 18px rgba(0, 0, 0, .16); }
+  body:not(.bl-editing) .bl-block .bl-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0, 0, 0, .24); }
+  body:not(.bl-editing) .bl-block .bl-btn:active { transform: translateY(0); box-shadow: 0 6px 18px rgba(0, 0, 0, .16); }
+  body:not(.bl-editing) .bl-block .bl-testi-card { transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+  body:not(.bl-editing) .bl-block .bl-testi-card:hover { transform: translateY(-5px); box-shadow: 0 18px 40px rgba(0, 0, 0, .13); border-color: var(--accent); }
+  body:not(.bl-editing) .bl-block .bl-gallery img { transition: transform .5s cubic-bezier(.22, .61, .36, 1); }
+  body:not(.bl-editing) .bl-block .bl-gallery img:hover { transform: scale(1.05); }
+  body:not(.bl-editing) .bl-block .card { transition: transform .22s ease, box-shadow .22s ease; }
+  body:not(.bl-editing) .bl-block .card:hover { transform: translateY(-5px); box-shadow: 0 20px 42px rgba(0, 0, 0, .16); }
+
   /* Controles del constructor (solo en modo edición) */
   body.bl-editing #frontBuilder .bl-block { outline: 2px dashed transparent; transition: outline-color .15s ease; }
   body.bl-editing #frontBuilder .bl-block:hover { outline-color: #6366f1; }
@@ -1558,6 +1612,11 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .bl-upload { border: 1.5px dashed var(--line); border-radius: 10px; padding: 11px; text-align: center; font-size: 12px; color: var(--ink-soft); background: #faf9f6; cursor: pointer; display: block; }
   .bl-upload:hover { border-color: var(--accent); color: var(--accent-dark); }
   .bl-upimg { width: 100%; max-height: 130px; object-fit: cover; border-radius: 10px; margin-top: 7px; }
+  /* v0.15 · Separador de secciones dentro de la ficha y botón para quitar color/foto */
+  .bl-field-sec { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 10.5px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-soft); font-family: var(--sans); }
+  .bl-field-sec:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .bl-clear { align-self: flex-start; border: 1px solid var(--line); background: #fff; color: var(--ink-soft); border-radius: 8px; padding: 4px 9px; font-size: 11px; font-weight: 750; cursor: pointer; font-family: var(--sans); }
+  .bl-clear:hover { border-color: #dc2626; color: #dc2626; background: #fef2f2; }
   .front-picker-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
   .front-picker-actions small { color: var(--ink-soft); }
 
@@ -5396,84 +5455,130 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     return m ? m[1] : '';
   }
   function blHex(v, fallback) { return /^#[0-9a-fA-F]{6}$/.test(v || '') ? v : fallback; }
+  /* v0.15 · Superficie común de un bloque: color + imagen de fondo, velo para que se
+     lea el texto y esquinas redondeadas. Todo bloque la usa, así que cualquier
+     complemento acepta foto de fondo y color sin código. */
+  function blSurface(pr, opt) {
+    const o = opt || {};
+    const img = pr.bgImage || o.image || '';
+    const bg = blHex(pr.bg, o.bg || '');
+    const given = !(pr.overlay === '' || pr.overlay == null);
+    // 0 es válido (sin velo). Si hay foto y el dueño no dijo nada, se oscurece algo
+    // para que el texto se lea: 30 es un punto medio que no arruina la foto.
+    const ov = given ? Math.max(0, Math.min(100, Number(pr.overlay) || 0)) : (o.ov == null ? (img ? 30 : 0) : o.ov);
+    const radius = (pr.radius === '' || pr.radius == null) ? (o.radius == null ? 16 : o.radius) : Math.max(0, Math.min(40, Number(pr.radius) || 0));
+    const st = ['background-size:cover', 'background-position:center', 'background-repeat:no-repeat'];
+    if (img) st.unshift(`background-image:url('${esc(img)}')`);
+    if (bg) st.push(`background-color:${bg}`);
+    // Siempre, incluso con 0: si no, el radio del CSS gana y no se pueden sacar las
+    // esquinas redondeadas.
+    st.push(`border-radius:${radius}px`);
+    // El relleno extra (para que el contenido no quede pegado al borde) sólo se suma si
+    // el bloque tiene fondo: sin fondo, el bloque se ve igual que antes.
+    if (o.extra && (img || bg)) st.push(o.extra);
+    // El velo se dibuja siempre en la Portada (allí el velo es parte del diseño) y en
+    // el resto sólo cuando hay foto o cuando el dueño pidió oscurecer.
+    const want = o.veil === 'always' || !!img || ov > 0;
+    const veil = want ? `<div class="bl-overlay bl-veil" style="${o.veilLight ? 'background:rgba(255,255,255,.35)' : `background:linear-gradient(180deg, rgba(8,10,20,${ov === 0 ? 0 : 0.45}), rgba(8,10,20,${ov / 100}))`}"></div>` : '';
+    return { style: st.join(';'), veil, ov, radius };
+  }
+  /* v0.15 · Animación de entrada. 'up' por defecto; 'none' la apaga. En modo edición
+     no se animate: el dueño tiene que ver el bloque tal como queda. */
+  function blAnimClass(pr, editing) {
+    if (editing || !('IntersectionObserver' in window)) return '';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return '';
+    const a = pr.anim === 'none' ? '' : (pr.anim || 'up');
+    return a ? ` bl-in bl-in-${a}` : '';
+  }
+  function blStagger() { return ' bl-st'; }
   function blNew(type) {
     const D = {
-      hero: { title: 'Un título que convence', subtitle: 'Este texto acompaña tu portada. Cámbialo desde Bloque → Editar.', tone: 'dark', height: '', bg: '#141a2e', overlay: 45, btnText: 'Ver catálogo' },
-      text: { title: 'Título del bloque', body: 'Escribí acá el contenido de esta sección…\nPodés sumar más de una línea.', align: 'left', color: '', bg: '' },
-      image: { src: '', link: '' },
-      video: { url: '' },
-      instagram: { url: '', format: 'reel' },
-      gallery: { images: [], cols: '3' },
-      products: { title: 'Productos destacados', count: '8' },
-      cta: { title: 'Un buen llamado a la acción', body: 'Contale a tus clientes por qué elegirte.', btnText: 'Pedir por WhatsApp', btnLink: '', color: '', bg: '' },
-      offer: { title: 'OFERTA DE LA SEMANA', off: '20', note: 'Descuentos reales en una selección del catálogo.', btnText: 'Ver ofertas', bg: '' },
-      testimonial: { title: 'Lo que dicen tus clientes', items: 'Lu | Cliente hace 1 año | Me encantó el seguimiento y el empaque impecable.\nMar | Cliente hace 6 meses | Compré dos veces y siempre llega todo perfecto.\nTomás | Cliente hace 2 meses | Atención de diez y productos de gran calidad.' },
-      divider: { style: 'line', color: '' }
+      hero: { title: 'Un título que convence', subtitle: 'Este texto acompaña tu portada. Cámbialo desde Bloque → Editar.', tone: 'dark', height: '', bg: '#141a2e', overlay: 45, btnText: 'Ver catálogo', radius: 16, anim: 'up' },
+      text: { title: 'Título del bloque', body: 'Escribí acá el contenido de esta sección…\nPodés sumar más de una línea.', align: 'left', color: '', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' },
+      image: { src: '', link: '', radius: 16, anim: 'up' },
+      video: { url: '', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' },
+      instagram: { url: '', format: 'reel', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' },
+      gallery: { images: [], cols: '3', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' },
+      products: { title: 'Productos destacados', count: '8', image: '', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' },
+      cta: { title: 'Un buen llamado a la acción', body: 'Contale a tus clientes por qué elegirte.', btnText: 'Pedir por WhatsApp', btnLink: '', color: '', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' },
+      offer: { title: 'OFERTA DE LA SEMANA', off: '20', note: 'Descuentos reales en una selección del catálogo.', btnText: 'Ver ofertas', image: '', bg: '', bgImage: '', overlay: '', radius: 20, anim: 'up' },
+      testimonial: { title: 'Lo que dicen tus clientes', image: '', items: 'Lu | Cliente hace 1 año | Me encantó el seguimiento y el empaque impecable.\nMar | Cliente hace 6 meses | Compré dos veces y siempre llega todo perfecto.\nTomás | Cliente hace 2 meses | Atención de diez y productos de gran calidad.', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' },
+      divider: { style: 'line', color: '', bg: '', bgImage: '', overlay: '', radius: 16, anim: 'up' }
     };
     return { id: 'bl-' + Math.random().toString(36).slice(2, 9), type, props: D[type] || {} };
   }
   function blBlockHtml(block, index, editing) {
     const pr = block.props || {};
     const wStyle = block.type !== 'hero' && pr.w && pr.w !== 'auto' && Number(pr.w) > 0 ? ` style="max-width:${Math.min(100, Math.max(20, Number(pr.w)))}%"` : '';
-    const open = `<div class="bl-block" data-bl-index="${index}" data-bl-id="${esc(block.id)}"${editing ? ' draggable="true"' : ''}><div class="bl-inner"${wStyle}>`;
+    const open = `<div class="bl-block${blAnimClass(pr, editing)}" data-bl-index="${index}" data-bl-id="${esc(block.id)}"${editing ? ' draggable="true"' : ''}><div class="bl-inner"${wStyle}>`;
     let inner = '';
     if (block.type === 'hero') {
-      const bgStyle = pr.image ? `background-image:url('${pr.image}')` : '';
       const dark = (pr.tone || 'dark') === 'dark';
-      const bgc = blHex(pr.bg, dark ? '#141a2e' : '#f3f4f6');
-      // 0 es un valor válido (sin velo), así que no se puede caer al default con "|| 45".
-      const ov = (pr.overlay === '' || pr.overlay == null) ? 45 : Math.max(0, Math.min(100, Number(pr.overlay) || 0));
-      // El stop superior es el extra detrás del título: con velo 0 tampoco puede quedar.
-      const ovTop = ov === 0 ? 0 : 0.45;
-      inner = `<div class="bl-hero ${pr.height === 'tall' ? 'tall' : pr.height === 'short' ? 'short' : ''}" style="${bgStyle};background-color:${bgc}">
-        <div class="bl-overlay" style="background:${dark ? `linear-gradient(180deg, rgba(8,10,20,${ovTop}), rgba(8,10,20,${ov / 100}))` : 'rgba(255,255,255,.35)'}"></div>
+      const s = blSurface(pr, { image: pr.image, bg: dark ? '#141a2e' : '#f3f4f6', ov: 45, veil: 'always', veilLight: !dark });
+      inner = `<div class="bl-hero ${pr.height === 'tall' ? 'tall' : pr.height === 'short' ? 'short' : ''}" style="${s.style}">
+        ${s.veil}
         <div class="bl-hero-copy" style="color:${dark ? '#fff' : '#1f2430'};text-align:center;margin:0 auto">
           <h2>${esc(pr.title || '')}</h2>${pr.subtitle ? `<p>${esc(pr.subtitle)}</p>` : ''}
           ${pr.btnText ? `<a class="bl-btn" href="#coleccion" style="background:${dark ? '#fff' : '#1f2430'};color:${dark ? '#141a2e' : '#fff'}">${esc(pr.btnText)}</a>` : ''}
         </div></div>`;
     } else if (block.type === 'text') {
-      inner = `<div class="bl-text" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : ''}${blHex(pr.color, '') ? `color:${pr.color};` : ''}text-align:${pr.align || 'left'}">
-        ${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<p>${esc(pr.body || '').replace(/\n/g, '<br>')}</p></div>`;
+      const s = blSurface(pr);
+      inner = `<div class="bl-text" style="${s.style}${blHex(pr.color, '') ? `;color:${pr.color}` : ''};text-align:${pr.align || 'left'}">
+        ${s.veil}${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<p>${esc(pr.body || '').replace(/\n/g, '<br>')}</p></div>`;
     } else if (block.type === 'image') {
-      inner = pr.src ? `<div class="bl-imgblock">${pr.link ? `<a href="${esc(pr.link)}" target="_blank" rel="noopener"><img src="${esc(pr.src)}" alt=""></a>` : `<img src="${esc(pr.src)}" alt="">`}</div>` : '';
+      const s = blSurface(pr);
+      inner = pr.src ? `<div class="bl-imgblock" style="${s.style}">${s.veil}${pr.link ? `<a href="${esc(pr.link)}" target="_blank" rel="noopener"><img src="${esc(pr.src)}" alt=""></a>` : `<img src="${esc(pr.src)}" alt="">`}</div>` : '';
     } else if (block.type === 'video') {
       const id = blYoutubeId(pr.url);
-      inner = id ? `<iframe class="bl-video" src="https://www.youtube.com/embed/${esc(id)}" title="Video" allowfullscreen loading="lazy"></iframe>` : '';
+      const s = blSurface(pr);
+      inner = id ? `<div class="bl-media-wrap" style="${s.style}">${s.veil}<iframe class="bl-video" src="https://www.youtube.com/embed/${esc(id)}" title="Video" allowfullscreen loading="lazy"></iframe></div>` : '';
     } else if (block.type === 'instagram') {
-      const m = String(pr.url || '').match(/instagram\.com\/(reel|reels|p|tv)\/([\w-]+)/);
+      const m = String(pr.url || '').match(/instagram.com\/(reel|reels|p|tv)\/([\w-]+)/);
       const igType = m && (m[1] === 'p' || m[1] === 'tv') ? 'p' : 'reel';
-      inner = m ? `<iframe class="bl-ig ${pr.format === 'post' ? 'post' : ''}" src="https://www.instagram.com/${igType}/${m[2]}/embed" title="Instagram" loading="lazy" allowfullscreen></iframe>` : '';
+      const s = blSurface(pr);
+      inner = m ? `<div class="bl-media-wrap" style="${s.style};text-align:center">${s.veil}<iframe class="bl-ig ${pr.format === 'post' ? 'post' : ''}" src="https://www.instagram.com/${igType}/${m[2]}/embed" title="Instagram" loading="lazy" allowfullscreen></iframe></div>` : '';
     } else if (block.type === 'gallery') {
       const imgs = Array.isArray(pr.images) ? pr.images : [];
       const colsClass = pr.cols === '2' ? 'g2' : pr.cols === '4' ? 'g4' : pr.cols === '3' ? 'g3' : (imgs.length <= 2 ? 'g2' : imgs.length >= 4 ? 'g4' : 'g3');
-      inner = imgs.length ? `<div class="bl-gallery ${colsClass}">${imgs.map((src) => `<img src="${esc(src)}" alt="">`).join('')}</div>` : '';
+      const s = blSurface(pr, { extra: 'padding:14px' });
+      inner = imgs.length ? `<div class="bl-gallerybox" style="${s.style}">${s.veil}<div class="bl-gallery ${colsClass}${blStagger()}">${imgs.map((src) => `<img src="${esc(src)}" alt="">`).join('')}</div></div>` : '';
     } else if (block.type === 'products') {
       const featured = state.products.filter((product) => product.active !== false).slice(0, Math.max(1, Math.min(Number(pr.count) || 8, 12)));
-      inner = `<div class="bl-products">${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<div class="bl-products-grid">${featured.map(productCard).join('')}</div></div>`;
+      const s = blSurface(pr, { extra: 'padding:clamp(16px,3vw,30px)' });
+      const head = pr.image ? `<div class="bl-media" style="background-image:url('${esc(pr.image)}')"></div>` : '';
+      inner = `<div class="bl-products" style="${s.style}">${s.veil}${head}${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<div class="bl-products-grid${blStagger()}">${featured.map(productCard).join('')}</div></div>`;
     } else if (block.type === 'cta') {
-      inner = `<div class="bl-cta" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : 'background:var(--cream);'}${blHex(pr.color, '') ? `color:${pr.color};` : ''}">
-        <h3>${esc(pr.title || '')}</h3>${pr.body ? `<p>${esc(pr.body)}</p>` : ''}
+      const s = blSurface(pr, { bg: 'var(--cream)' });
+      inner = `<div class="bl-cta" style="${s.style}${blHex(pr.color, '') ? `;color:${pr.color}` : ''}">
+        ${s.veil}<h3>${esc(pr.title || '')}</h3>${pr.body ? `<p>${esc(pr.body)}</p>` : ''}
         ${pr.btnText ? (pr.btnLink ? `<a class="bl-btn" style="background:var(--accent);color:#fff" href="${esc(pr.btnLink)}" target="_blank" rel="noopener">${esc(pr.btnText)}</a>` : `<span class="bl-btn" style="background:var(--accent);color:#fff">${esc(pr.btnText)}</span>`) : ''}</div>`;
     } else if (block.type === 'offer') {
       const offN = Math.max(1, Math.min(99, Number(pr.off) || 0));
-      inner = `<div class="bl-offer" style="${blHex(pr.bg, '') ? `background:${pr.bg};` : 'background:linear-gradient(120deg, var(--accent-dark), var(--accent));'}color:#fff">
+      const hasImg = !!pr.image;
+      const s = blSurface(pr, { bg: 'linear-gradient(120deg, var(--accent-dark), var(--accent))', radius: 20 });
+      const body = `<div class="bl-offer-body">
         <div class="bl-offer-badge">Hasta <b>-${offN}% OFF</b></div>
         <h3>${esc(pr.title || '')}</h3>
         ${pr.note ? `<p>${esc(pr.note)}</p>` : ''}
         ${pr.btnText ? `<a class="bl-btn bl-btn-light" href="#coleccion">${esc(pr.btnText)} ↗</a>` : ''}
       </div>`;
+      inner = `<div class="bl-offer ${hasImg ? 'has-img' : ''}" style="${s.style}">${s.veil}${hasImg ? `<div class="bl-media" style="background-image:url('${esc(pr.image)}')"></div>` : ''}${body}</div>`;
     } else if (block.type === 'testimonial') {
-      const items = String(pr.items || '').split(/\n/).map((l) => l.split('|').map((s) => s.trim())).filter((a) => a.length >= 3).slice(0, 6);
-      inner = `<div class="bl-testi"><h3>${esc(pr.title || '')}</h3><div class="bl-testi-grid">${items.map(([name, role, text]) => {
+      const items = String(pr.items || '').split(/\n/).map((l) => l.split('|').map((s2) => s2.trim())).filter((a) => a.length >= 3).slice(0, 6);
+      const s = blSurface(pr, { extra: 'padding:clamp(18px,3vw,34px)' });
+      const head = pr.image ? `<div class="bl-media" style="background-image:url('${esc(pr.image)}')"></div>` : '';
+      inner = `<div class="bl-testi" style="${s.style}">${s.veil}${head}${pr.title ? `<h3>${esc(pr.title)}</h3>` : ''}<div class="bl-testi-grid${blStagger()}">${items.map(([name, role, text]) => {
         const initial = String(name || '?').trim().charAt(0) || '?';
         return `<article class="bl-testi-card"><span class="bl-testi-ava">${esc(initial.toUpperCase())}</span><blockquote>${esc(text)}</blockquote><b>${esc(name)}</b><small>${esc(role)}</small></article>`;
       }).join('')}</div></div>`;
     } else if (block.type === 'divider') {
-      inner = pr.style === 'space' ? '<div class="bl-space"></div>' : `<hr class="bl-divider" style="${blHex(pr.color, '') ? `background:${pr.color};` : 'background:var(--line);'}">`;
+      const s = pr.style === 'space' ? blSurface(pr) : blSurface(pr, { bg: '', radius: 0 });
+      inner = pr.style === 'space' ? `<div class="bl-space" style="${s.style}"></div>` : `<div style="${s.style}">${s.veil}<hr class="bl-divider" style="${blHex(pr.color, '') ? `background:${pr.color};` : 'background:var(--line);'}"></div>`;
     }
     const ctl = `<div class="bl-ctl"><button type="button" data-bl-edit="${index}" title="Editar bloque">✎</button><button type="button" data-bl-up="${index}" title="Subir bloque">▲</button><button type="button" data-bl-down="${index}" title="Bajar bloque">▼</button><button type="button" data-bl-dup="${index}" title="Duplicar bloque">⧉</button><button type="button" data-bl-del="${index}" title="Eliminar bloque">✕</button></div>`;
     return open + inner + ctl + '</div></div>';
   }
+  let blAnimIO = null;
   function renderBuilder() {
     const root = $('frontBuilder');
     if (!root) return;
@@ -5485,7 +5590,27 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (editing) {
       // Las fotos no deben "arrastrarse" solas: el arrastre es del bloque entero.
       root.querySelectorAll('.bl-block img').forEach((img) => { img.draggable = false; });
+    } else {
+      blInitAnims();
     }
+  }
+  /* v0.15 · Revela los bloques a medida que entran en pantalla. Sin IntersectionObserver
+     o con "reducir movimiento" del sistema no se anima nada (y nada queda invisible). */
+  function blInitAnims() {
+    if (BL_EDIT.editing) return;
+    if (!('IntersectionObserver' in window)) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const els = document.querySelectorAll('#frontBuilder .bl-in');
+    if (!els.length) return;
+    if (blAnimIO) { blAnimIO.disconnect(); blAnimIO = null; }
+    blAnimIO = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('bl-in-on');
+        blAnimIO.unobserve(en.target);
+      });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
+    els.forEach((el) => blAnimIO.observe(el));
   }
   function blApplyHome() {
     const personalized = blBlocks().length > 0;
@@ -5497,25 +5622,40 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (showBuilder) renderBuilder();
   }
   const BL_EDIT = { editing: false, panel: null, editor: null, index: -1, draft: null };
+  const BL_APPEAR = [
+    ['section', 'apariencia', 'Fondo y animación'],
+    ['color', 'bg', 'Color de fondo'],
+    ['image', 'bgImage', 'Imagen de fondo'],
+    ['number', 'overlay', 'Oscurecer la imagen (0-100)'],
+    ['number', 'radius', 'Esquinas redondeadas (0-40 px)'],
+    ['select', 'anim', 'Animación al entrar en pantalla', [
+      ['up', 'Sube desde abajo'], ['fade', 'Aparece'], ['left', 'Desde la izquierda'], ['right', 'Desde la derecha'],
+      ['zoom', 'Acercamiento'], ['blur', 'Entra con foco'], ['flip', 'Giro en 3D'], ['none', 'Sin animación'],
+    ]],
+  ];
   const BL_FIELDS = {
     hero: [
       ['text', 'title', 'Título'], ['text', 'subtitle', 'Subtítulo'], ['text', 'btnText', 'Texto del botón'],
       ['select', 'tone', 'Tono', [['dark', 'Oscuro'], ['light', 'Claro']]],
       ['select', 'height', 'Alto', [['', 'Medio'], ['short', 'Bajo'], ['tall', 'Alto']]],
-      ['number', 'overlay', 'Oscurecer fondo (0-100)'], ['color', 'bg', 'Color de fondo'],
       ['image', 'image', 'Imagen de fondo']
     ],
-    text: [['text', 'title', 'Título'], ['textarea', 'body', 'Contenido'], ['select', 'align', 'Alineación', [['left', 'Izquierda'], ['center', 'Centro'], ['right', 'Derecha']]], ['color', 'color', 'Color del texto'], ['color', 'bg', 'Fondo']],
+    text: [['text', 'title', 'Título'], ['textarea', 'body', 'Contenido'], ['select', 'align', 'Alineación', [['left', 'Izquierda'], ['center', 'Centro'], ['right', 'Derecha']]], ['color', 'color', 'Color del texto']],
     image: [['image', 'src', 'Imagen'], ['url', 'link', 'Link al hacer clic (opcional)']],
     video: [['url', 'url', 'Link de YouTube']],
     instagram: [['url', 'url', 'Link del reel o post de Instagram'], ['select', 'format', 'Formato', [['reel', 'Reel · vertical'], ['post', 'Post · cuadrado']]]],
     gallery: [['images', 'images', 'Fotos'], ['select', 'cols', 'Columnas', [['2', '2 columnas'], ['3', '3 columnas'], ['4', '4 columnas']]]],
-    products: [['text', 'title', 'Título'], ['select', 'count', 'Cantidad de productos', [['4', '4'], ['8', '8'], ['12', '12']]]],
-    cta: [['text', 'title', 'Título'], ['textarea', 'body', 'Contenido'], ['text', 'btnText', 'Texto del botón'], ['url', 'btnLink', 'Link del botón'], ['color', 'color', 'Color del texto'], ['color', 'bg', 'Fondo']],
-    offer: [['text', 'title', 'Título'], ['number', 'off', '% de descuento (1-99)'], ['text', 'note', 'Nota'], ['text', 'btnText', 'Texto del botón'], ['color', 'bg', 'Color de fondo']],
-    testimonial: [['text', 'title', 'Título'], ['textarea', 'items', 'Testimonios: Nombre | Rol | Texto (uno por línea)']],
+    products: [['text', 'title', 'Título'], ['image', 'image', 'Foto de cabecera (opcional)'], ['select', 'count', 'Cantidad de productos', [['4', '4'], ['8', '8'], ['12', '12']]]],
+    cta: [['text', 'title', 'Título'], ['textarea', 'body', 'Contenido'], ['text', 'btnText', 'Texto del botón'], ['url', 'btnLink', 'Link del botón'], ['color', 'color', 'Color del texto']],
+    offer: [['text', 'title', 'Título'], ['number', 'off', '% de descuento (1-99)'], ['text', 'note', 'Nota'], ['text', 'btnText', 'Texto del botón'], ['image', 'image', 'Foto del producto (opcional)']],
+    testimonial: [['text', 'title', 'Título'], ['image', 'image', 'Foto de cabecera (opcional)'], ['textarea', 'items', 'Testimonios: Nombre | Rol | Texto (uno por línea)']],
     divider: [['select', 'style', 'Estilo', [['line', 'Línea'], ['space', 'Espacio']]], ['color', 'color', 'Color de la línea']]
   };
+  // v0.15: fondo, velo, esquinas y animación son los mismos para todos los bloques, así
+  // que se agregan una sola vez al final y se sacan los duplicados por tipo.
+  Object.keys(BL_FIELDS).forEach((type) => {
+    BL_FIELDS[type] = BL_FIELDS[type].filter((f) => f[1] !== 'bg' && f[1] !== 'overlay').concat(BL_APPEAR);
+  });
   const BL_TYPE_NAMES = { hero: 'Portada', text: 'Texto', image: 'Imagen', video: 'Video', instagram: 'Reel de Instagram', gallery: 'Galería', products: 'Productos', cta: 'Banner', offer: 'Oferta', testimonial: 'Testimonios', divider: 'Separador' };
   function blTypeName(type) { return BL_TYPE_NAMES[type] || 'Bloque'; }
   function blCards(items) {
@@ -5527,6 +5667,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     // v0.14: data-init deja registro del valor con el que se pintó el campo. Un color
     // sin definir se muestra como #000000 pero no debe guardarse si nadie lo tocó.
     const init = (v) => ` data-init="${esc(v)}" data-kind="${kind}"`;
+    if (kind === 'section') return `<div class="bl-field-sec">${esc(label)}</div>`;
     if (kind === 'text' || kind === 'url' || kind === 'number') {
       return `<label>${label}<input type="${kind === 'number' ? 'number' : kind === 'url' ? 'url' : 'text'}" name="${key}" value="${esc(value)}"${init(value)}></label>`;
     }
@@ -5538,10 +5679,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     }
     if (kind === 'color') {
       const shown = value || '#000000';
-      return `<label><span>${label}</span><input type="color" name="${key}" value="${shown}"${init(shown)}></label>`;
+      return `<label><span>${label}</span><input type="color" name="${key}" value="${shown}"${init(shown)}>${value ? `<button type="button" class="bl-clear" data-bl-clear="${key}">Quitar color</button>` : ''}</label>`;
     }
     if (kind === 'image') {
-      return `<label><span>${label}</span><div class="bl-upload" data-bl-upload="${key}"><span>${value ? 'Reemplazar imagen' : 'Elegir imagen (PNG, JPG o WEBP)'}</span></div>${value ? `<img class="bl-upimg" src="${safeImage(value)}" alt="">` : ''}<input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file="${key}"></label>`;
+      return `<label><span>${label}</span><div class="bl-upload" data-bl-upload="${key}"><span>${value ? 'Reemplazar imagen' : 'Elegir imagen (PNG, JPG o WEBP)'}</span></div>${value ? `<img class="bl-upimg" src="${safeImage(value)}" alt=""><button type="button" class="bl-clear" data-bl-clear="${key}">Quitar imagen</button>` : ''}<input type="file" accept="image/png,image/jpeg,image/webp" hidden data-bl-file="${key}"></label>`;
     }
     if (kind === 'images') {
       return `<label><span>${label}</span><div class="bl-upload" data-bl-upload="images"><span>Subir fotos (PNG, JPG o WEBP)</span></div><input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden data-bl-file="images"></label>`;
@@ -5581,6 +5722,9 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
       if (file) return; // actor label: se dispara la selección de archivo sola
       const up = event.target.closest('[data-bl-upload]');
       if (up) { const input = editor.querySelector(`[data-bl-file="${up.dataset.blUpload}"]`); if (input) input.click(); return; }
+      const clr = event.target.closest('[data-bl-clear]');
+      // v0.15: sacar el color o la foto de un campo deja el bloque como estaba antes.
+      if (clr && BL_EDIT.draft) { BL_EDIT.draft[clr.dataset.blClear] = ''; blRenderEditorFields(); return; }
       const rem = event.target.closest('[data-bl-rem]');
       if (rem && rem.dataset.blRem != null) blDraftDelImage(Number(rem.dataset.blRem));
     });
@@ -5595,7 +5739,10 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
           try { const d = await compressImage(f, { maxChars: 600000 }); if (d) BL_EDIT.draft.images = [...(BL_EDIT.draft.images || []), d]; } catch (_) {}
         }
       } else {
-        try { const d = await compressImage(files[0], { maxChars: 600000 }); if (d) BL_EDIT.draft[key] = d; } catch (_) {}
+        // v0.15: los fondos y las fotos de cabecera son decorativos (el CSS los escala),
+        // así que van más livianos que la imagen principal o las fotos de la galería.
+        const maxChars = key === 'src' ? 600000 : 300000;
+        try { const d = await compressImage(files[0], { maxChars }); if (d) BL_EDIT.draft[key] = d; } catch (_) {}
       }
       input.value = '';
       blRenderEditorFields();
@@ -5653,10 +5800,53 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     BL_EDIT.editor.classList.add('open');
     blRenderEditorFields();
   }
+  /* v0.15 · El contenido tiene un tope de 3 MB por clave y el guardado recorta el texto:
+     si `builderBlocks` pasara, el JSON quedaría cortado, no se parsearía y la página
+     aparecería vacía al siguiente guardado. Antes de guardar se achican las fotos más
+     grandes; si con eso no alcanza se avisa y no se pisa lo que ya estaba. */
+  const BL_MAX_CHARS = 2600000;
+  function blImageValues(node, out) {
+    if (typeof node === 'string') { if (node.indexOf('data:image/') === 0) out.push(node); return out; }
+    if (Array.isArray(node)) { node.forEach((n) => blImageValues(n, out)); return out; }
+    if (node && typeof node === 'object') { Object.values(node).forEach((n) => blImageValues(n, out)); return out; }
+    return out;
+  }
+  function blSwapImage(node, from, to) {
+    if (typeof node === 'string') return node === from ? to : node;
+    if (Array.isArray(node)) return node.map((n) => blSwapImage(n, from, to));
+    if (node && typeof node === 'object') { Object.keys(node).forEach((k) => { node[k] = blSwapImage(node[k], from, to); }); return node; }
+    return node;
+  }
+  async function blFitBudget(blocks) {
+    let json = JSON.stringify(blocks);
+    if (json.length <= BL_MAX_CHARS) return { json, dropped: 0 };
+    const list = JSON.parse(json);
+    let dropped = 0;
+    for (const target of [300000, 160000, 90000]) {
+      const images = blImageValues(list, []).sort((a, b) => b.length - a.length);
+      for (const img of images) {
+        if (JSON.stringify(list).length <= BL_MAX_CHARS) break;
+        if (img.length <= target) continue;
+        const small = await mtShrinkDataUrl(img, target);
+        if (!small) dropped++;
+        blSwapImage(list, img, (typeof small === 'string' && small) ? small : '');
+      }
+      if (JSON.stringify(list).length <= BL_MAX_CHARS) break;
+    }
+    json = JSON.stringify(list);
+    return json.length <= BL_MAX_CHARS ? { json, dropped } : null;
+  }
   async function blPersist(blocks) {
     const list = blocks == null ? blBlocks() : blocks;
-    await mtSaveContent('builderBlocks', JSON.stringify(list));
+    const fit = await blFitBudget(list);
+    if (!fit) {
+      toast('La página quedó muy pesada', 'Sacá alguna foto o usá menos imágenes: el tope es de 2,6 MB por página.', 'error');
+      return false;
+    }
+    if (fit.dropped) toast('Se ajustaron tus fotos', 'Algunas imágenes de fondo no se pudieron guardar y se quitaron para no perder la página.', 'success');
+    await mtSaveContent('builderBlocks', fit.json);
     blApplyHome();
+    return true;
   }
   async function blAdd(type) {
     const blocks = blBlocks();
