@@ -1365,8 +1365,8 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .tf-act:hover { background: #fff; border-color: #fff; }
   .tf-act svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; }
   .tf-act b { background: var(--tf-ink); color: #fff; border-radius: 999px; min-width: 20px; height: 20px; display: grid; place-items: center; font-size: .72rem; }
-  .tf-cats { display: grid; grid-template-columns: repeat(5, 1fr); margin: clamp(14px, 2.4vw, 26px) 0 clamp(22px, 3.4vw, 44px); }
-  .tf-cat { position: relative; display: block; text-align: center; padding: 14px 8px 16px; border-radius: 14px; border: 0; background: transparent; font: inherit; cursor: pointer; isolation: isolate; transition: background .25s ease, transform .25s ease, box-shadow .25s ease; }
+  .tf-cats { display: grid; grid-template-columns: repeat(7, 1fr); margin: clamp(14px, 2.4vw, 26px) 0 clamp(22px, 3.4vw, 44px); }
+  @media (max-width: 860px) { .tf-cats { display: flex; overflow-x: auto; scrollbar-width: none; } .tf-cat { flex: 0 0 110px; } } .tf-cat { position: relative; display: block; text-align: center; padding: 14px 8px 16px; border-radius: 14px; border: 0; background: transparent; font: inherit; cursor: pointer; isolation: isolate; transition: background .25s ease, transform .25s ease, box-shadow .25s ease; }
   .tf-cat + .tf-cat::before { content: ""; position: absolute; left: 0; top: 14%; height: 72%; width: 1px; background: rgba(74, 74, 74, .3); }
   .tf-cat > .tf-in { position: relative; z-index: 1; display: block; overflow: hidden; border-radius: inherit; }
   .tf-cat > .tf-in::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,.78) 50%, transparent 68%); transform: translateX(-130%); transition: transform .75s cubic-bezier(.22,.8,.3,1); mix-blend-mode: overlay; }
@@ -2129,6 +2129,12 @@ body.mt-edit-mode #shopApp .mt-edit-active {
               </div>
             </div>
             <nav class="tf-cats" id="tfCats" aria-label="Categorías destacadas">
+          <button class="tf-cat" type="button" data-tf-home>
+            <span class="tf-in"><svg viewBox="0 0 24 24"><path d="m3 9.5 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 21.5V12h6v9.5"/></svg><span>Inicio</span></span>
+          </button>
+          <button class="tf-cat is-on" type="button" data-tf-cat="todo">
+            <span class="tf-in"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg><span>Todos</span></span>
+          </button>
           <button class="tf-cat" type="button" data-tf-cat="fundas">
             <span class="tf-in"><svg viewBox="0 0 24 24"><rect x="7" y="2.2" width="10" height="19.6" rx="2.6"/><line x1="10.7" y1="18.6" x2="13.3" y2="18.6"/></svg><span data-content="tchCat1" data-content-multiline="true"></span></span>
           </button>
@@ -2385,7 +2391,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v8</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v9</span></div></div>
     </footer>
   </div>
 
@@ -4540,6 +4546,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!TF.ready) {
       TF.ready = true;
       root.addEventListener('click', (event) => {
+        const home = event.target.closest('[data-tf-home]');
+        if (home) {
+          event.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          tfShow('todo');
+          return;
+        }
         const cat = event.target.closest('[data-tf-cat]');
         if (cat) { event.preventDefault(); tfShow(cat.dataset.tfCat); }
       });
@@ -5623,7 +5636,14 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       form.elements.featured.checked = Boolean(product.featured);
       renderUploadPreview(product.image);
     } else renderUploadPreview('');
-    const categories = [...new Set(state.admin.products.map((item) => item.category).filter(Boolean))];
+    const techCats = [
+      state.content.tchCat1 || 'Fundas y protectores',
+      state.content.tchCat2 || 'Auriculares y audio',
+      state.content.tchCat3 || 'Cargadores y cables',
+      state.content.tchCat4 || 'Accesorios PC y Mac',
+      state.content.tchCat5 || 'Servicio técnico'
+    ].map((s) => s.replace(/\n/g, ' ').trim()).filter(Boolean);
+    const categories = [...new Set([...techCats, ...state.admin.products.map((item) => item.category).filter(Boolean))]];
     $('categoryList').innerHTML = categories.map((category) => `<option value="${esc(category)}"></option>`).join('');
     showBackdrop($('productEditorBackdrop'));
   }
