@@ -68,9 +68,10 @@ test.describe('Modo edición visual (demo offline)', () => {
     await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
     await expect(page.locator('.mt-edit-float')).toBeHidden();
-    // al terminar vuelve a aparecer
+    // al terminar vuelve al panel de administración
     await page.locator('[data-mt-done]').click();
-    await expect(page.locator('.mt-edit-float')).toBeVisible();
+    await expect(page.locator('#adminShell')).toBeVisible();
+    await expect(page.locator('.mt-edit-float')).toBeHidden();
     await expect(page.locator('body')).not.toHaveClass(/mt-edit-mode/);
     await expectNoPageErrors(page);
   });
@@ -110,7 +111,7 @@ test.describe('Modo edición visual (demo offline)', () => {
     await expect(page.locator('#productEditorBackdrop')).toBeHidden();
     await page.locator('[data-mt-done]').click();
     await expect(page.locator('body')).not.toHaveClass(/mt-edit-mode/);
-    await expect(page.locator('.mt-edit-float')).toBeVisible();
+    await expect(page.locator('#adminShell')).toBeVisible();
     await expectNoPageErrors(page);
   });
 

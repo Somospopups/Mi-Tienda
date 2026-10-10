@@ -66,7 +66,7 @@ async function stubCloud(page, handlers) {
 
 /** Estado mutable de una tienda cloud falsa. */
 function fakeCloudStore(seed = { slug: 'prueba', key: 'clave-dueño-2026', biz: 'Panadería Test' }) {
-  const state = { slug: seed.slug, key: seed.key, biz: seed.biz, saveCfgWith: [] };
+  const state = { slug: seed.slug, key: seed.key, biz: seed.biz, saveCfgWith: [], content: null };
   const panel = () => ({
     ok: true,
     biz: state.biz,
@@ -90,11 +90,13 @@ function fakeCloudStore(seed = { slug: 'prueba', key: 'clave-dueño-2026', biz: 
     products: []
   });
   const handlers = {
-    api_public: () => ({ ok: true, biz: state.biz, status: 'activa', contact: '', mp_ok: false, cfg: { settings: panel().cfg.settings, content: null, legal: null }, products: [] }),
+    // El visitante ve lo que el dueño guardó (state.content se llena en api_save_cfg).
+    api_public: () => ({ ok: true, biz: state.biz, status: 'activa', contact: '', mp_ok: false, cfg: { settings: panel().cfg.settings, content: state.content, legal: null }, products: [] }),
     api_panel: () => panel(),
     api_save_cfg: (body) => {
       state.saveCfgWith.push(body.p_key);
       if (body.p_key !== state.key) return { ok: false, error: 'bad_key' };
+      if (body.p_cfg && body.p_cfg.content != null) state.content = body.p_cfg.content;
       return { ok: true };
     }
   };
@@ -326,8 +328,10 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
     expect(save.body.p_key).toBe(state.key);
     expect(JSON.parse(save.body.p_cfg.content.builderBlocks)[0].type).toBe('hero');
 
-    // Visitante sin sesión: el home armado reemplaza al clásico.
+    // Terminar vuelve al panel; el visitante sin sesión ve el home armado.
     await page.locator('[data-mt-done]').click();
+    await expect(page.locator('#adminShell')).toBeVisible();
+    await page.goto('/index.html?tienda=prueba');
     await expect(page.locator('body')).toHaveClass(/mt-page/);
     await expect(page.locator('.bl-hero h2')).toHaveText('Bienvenido a la prueba');
     await expect(page.locator('#frontOfertas')).toBeHidden();

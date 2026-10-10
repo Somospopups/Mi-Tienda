@@ -139,12 +139,14 @@ test('1 · El botón "Bloques" abre el panel lateral y los complementos se agreg
   expect(stored.map((b) => b.type)).toEqual(['hero', 'products']);
   expect(stored[0].id).toMatch(/^bl-/);
 
-  // "Terminar" sale del modo edición y el panel se oculta…
+  // "Terminar" sale del modo edición y vuelve al panel…
   await page.locator('[data-mt-done]').click();
+  await expect(page.locator('#adminShell')).toBeVisible();
   await expect(page.locator('body')).not.toHaveClass(/bl-editing/);
   await expect(page.locator('.bl-panel')).toBeHidden();
   await expect(page.locator('.mt-edit-bar')).toBeHidden();
-  // …pero el home armado queda publicado.
+  // …y el home armado queda publicado para el visitante.
+  await page.goto('/index.html');
   await expect(page.locator('body')).toHaveClass(/mt-page/);
   await expect(page.locator('#frontBuilder')).toBeVisible();
   await expect(page.locator('.luma-front').first()).toBeHidden();
@@ -246,8 +248,10 @@ test('5 · Tocar un bloque en modo edición abre su editor, y el catálogo públ
   await expect(page.locator('.bl-editor select[name="count"]')).toBeVisible();
   await page.locator('[data-bl-editor-save]').click();
 
-  // Fuera del modo edición, el botón de agregar al carrito del bloque funciona para el público.
+  // Terminar vuelve al panel; publicada, la página sigue comprando para el público.
   await page.locator('[data-mt-done]').click();
+  await expect(page.locator('#adminShell')).toBeVisible();
+  await page.goto('/index.html');
   const addBtn = page.locator('#frontBuilder [data-add-product]').first();
   await expect(addBtn).toBeVisible();
   await addBtn.click();
