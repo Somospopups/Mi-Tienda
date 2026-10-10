@@ -18,41 +18,36 @@ que además funciona como demo offline de un solo dispositivo.
 
 | Modo | Datos | Auth | Uso |
 |---|---|---|---|
-| Demo offline | `localStorage` (`luma_offline_store_v1`) vía mock API embebido que intercepta `fetch('/api/*')` | PIN (defecto `1234`) o Clave maestra POPUPS (v0.19) | Mostrar el producto, doble clic y funciona sin internet |
+| Demo offline | `localStorage` (`luma_offline_store_v1`) vía mock API embebido que intercepta `fetch('/api/*')` | PIN (defecto `1234`) | Mostrar el producto, doble clic y funciona sin internet |
 | Vitrina cloud | Supabase RPC `api_public` (caché cliente 20 s) | pública | Tiendas vendidas |
-| Panel dueño cloud | Supabase RPC `api_panel` + espejo local con sync por sección | Clave de acceso (`ck:` en sessionStorage) o Clave maestra POPUPS | Gestión desde cualquier dispositivo |
+| Panel dueño cloud | Supabase RPC `api_panel` + espejo local con sync por sección | Clave de acceso (`ck:` en sessionStorage) | Gestión desde cualquier dispositivo |
 
 **Puerta POPUPS:** si la tienda está `suspendida` o `baja` (impago gestionado desde la
 Consola POPUPS), un script previo al render bloquea la página completa en cualquier
 dispositivo. Al regularizar, vuelve sola.
 
-**Clave maestra POPUPS (v0.19):** una llave única de POPUPS (guardada como secreto, no
-se reparte) abre el panel de cualquier tienda sin conocer su PIN ni su Clave de acceso.
-En el frontend vive solo su SHA-256; en la nube la valida [`supabase/master-key.sql`](supabase/master-key.sql)
-(hash bcrypt + `mt_key_ok` en las 8 RPC con chequeo de clave). **Aplicación**: SQL Editor
-de Supabase → pegar ese archivo → Run. Ojo: quien la tiene entra a todas las tiendas.
-
 ## Qué incluye
 
-- **Selector de modos Tienda/Tech (v0.17):** al tocar **"Ver tienda / Editar"** se abre un modal para elegir la vidriera: **Tienda** (Boutique, el flujo de siempre) o **Tech** (la landing de Eze.pece embebida literal). La elección se guarda por tienda (`settings.storefront: 'luma' | 'tech'`). **Modo Tech**: el HTML de `final.html` se muestra en un iframe full-screen con el carrito, checkout y panel de Mi-Tienda integrados — se inyecta una sección de catálogo dentro del iframe (compra desde ahí por `window.MT_BRIDGE`), hay un FAB con el contador del carrito —al lado del botón de WhatsApp (v0.18)— y tocar un producto abre el detalle en el padre. Mismo catálogo, carrito, checkout y panel; cambia solo la vidriera. (Los frentes clásicos **Ofertas** y **Gamer** siguen renderizando si una tienda los tiene configurados.)
+- **Frentes de tienda (v0.9 · v0.16):** la vidriera pública tiene 5 variantes (`settings.storefront`) — **Boutique** (`luma`, editorial, el clásico; la usa toda tienda activa), **Ofertas** (`ofertas`, descuentos y cuotas), **Gamer** (`gamer`, oscuro), **Libre** (`libre`, constructor) y **Tech** (`tech`, accesorios tecnológicos y servicio técnico). Mismo catálogo, carrito, checkout y panel; cambia solo la vidriera. Desde **v0.13.0** el frente se fija por tienda y ya no se cambia desde el panel; en la demo offline se puede previsualizar cualquiera con `?front=<clave>`.
 - **Tienda:** hero editorial, catálogo con búsqueda/filtros/orden, detalle de producto, carrito con barra de envío gratis, checkout (domicilio, retiro en Córdoba Capital o **Envío con Uber Direct** en modo demo/real; Mercado Pago **demo**, Mercado Pago **live** por dueño con Checkout Pro, o pedido por WhatsApp), newsletter con consentimiento, legales editables.
-- **Modo edición visual (v0.8):** con la sesión del dueño activa, el botón lateral **"Ver tienda / Editar"** abre el **selector de modos (v0.17)** y al elegir **Tienda** entra directo al modo edición (o toca el botón flotante **"Editar página"** sin pasar por el panel). Clic sobre cualquier texto, imagen o tarjeta de producto para editarla al instante; en el **Modo Tech** el clic funciona dentro del iframe y edita los textos y fotos de la landing de Eze.pece (se guardan por tienda y persisten en la nube); la barra superior permite cambiar los **Colores** y la **paleta** (en Tech no aparecen: no aplican); la marca/logo se edita tocando el encabezado. **Terminar** vuelve siempre al panel de administración. Los textos ya no tienen tab "Contenido" en el panel.
+- **Modo edición visual (v0.8):** con la sesión del dueño activa, el botón lateral **"Ver tienda / Editar"** sale del panel y entra **directo** al modo edición (o toca el botón flotante **"Editar página"** sin pasar por el panel). Clic sobre cualquier texto, imagen o tarjeta de producto para editarla al instante; la barra superior permite cambiar los **Colores** y la **paleta**; la marca/logo se edita tocando el encabezado. Los textos ya no tienen tab "Contenido" en el panel.
 - **Constructor de página (v0.14):** en el modo edición, el botón **"Bloques"** de la barra abre un panel lateral (estilo Google Sites) para armar el home por secciones: complementos **Portada, Oferta destacada, Testimonios, Video/Reel, Productos destacados y Banner con botón**, más **Texto, Imagen, Galería, Reel de Instagram y Separador**. Cada bloque se edita tocándolo y, con el panel abierto, **se mueve arrastrándolo** arriba o abajo del bloque destino (además de subir, duplicar y eliminar con los botones). **La página armada reemplaza todo el home** —hogar clásico y catálogo automático— y el catálogo sigue disponible desde el menú y desde los botones que llevan a `#coleccion`.
 - **Fondo, fotos y animaciones (v0.15):** todos los complementos aceptan **color de fondo, imagen de fondo, oscurecido y esquinas redondeadas**, más una **animación de entrada** (sube, aparece, desde los lados, acercamiento, foco o giro 3D) que se dispara al entrar en pantalla, con las tarjetas y fotos entrando escalonadas y elevación suave al pasar el mouse. La **Oferta** acepta foto del producto (el bloque pasa a dos columnas) y **Testimonios** y **Productos** aceptan foto de cabecera. En el modo edición no se anima nada y si la persona activó "reducir movimiento" en su sistema, la página se ve sin animaciones.
+- **Frente Tech (v0.16):** vidriera para accesorios tecnológicos con taller. La **cabecera es el logo + 5 botones de categoría** (con Buscar, Panel y Carrito a la derecha) y una **foto grande arriba** que cambia al tocar cada botón, filtrando además el catálogo sin mover la pantalla. Las seis fotos van **embebidas** (la demo anda sin internet) y se reemplazan desde el modo edición. Debajo: números, bloque editorial, tarjetas de categoría, **servicio técnico con tabla de precios editable** (no toca stock ni carrito), beneficios, testimonios y cierre con WhatsApp. El fondo sale de la paleta de la tienda; el movimiento al hacer scroll respeta el modo edición y "reducir movimiento".
 - **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración en 3 secciones (**General** con identidad, envíos y **paleta de colores** con presets/contraste/Random, **Cobros** con Mercado Pago y **Legal y redes**) y seguridad con cambio de clave propio.
 - **Extras POPUPS:** barra de plan con aviso al 80% y vencimiento · Guía de bienvenida en PDF con los datos del dueño · numeración de pedidos · reserva de stock y reembolsos automáticos al cancelar.
 
-## Arquitectura del archivo (7.419 líneas · 1,72 MB)
+## Arquitectura del archivo (7.794 líneas · 2,0 MB)
 
 | Líneas | Bloque | Peso |
 |---|---|---|
-| 1–49 | `<head>` + metadatos + favicon silencioso | 0,5 KB |
-| 50–1801 | CSS (tienda + admin, responsive) + modo edición visual (v0.8) + **selector de modos / frentes (v0.9 + v0.17)** + **constructor de página (v0.14)** | ~150 KB |
-| 1802–1870 | Script puerta POPUPS (gate de suspensión) | 3 KB |
-| 1871–2774 | Markup: sprite SVG, modales, panel, frentes + `<template id="techDoc">` (HTML de Eze.pece, ~272 KB) + jsPDF embebido | ~680 KB |
-| 2775–3775 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~280 KB |
-| 3776–6075 | App principal (tienda + admin + **motor de frentes v0.9/v0.17, puente del Modo Tech `MT_BRIDGE`**) + puente v0.7 (`window.mtCloudGlue`) | ~210 KB |
-| 6076–7419 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) + **v0.14 · constructor de página** (panel de bloques, editor por bloque, complementos) | ~30 KB |
+| 1–14 | `<head>` + metadatos + favicon silencioso | 0,5 KB |
+| 15–1846 | CSS (tienda + admin, responsive) + modo edición visual (v0.8) + **frentes de tienda (v0.9)** + **constructor de página (v0.14)** + **frente tech (v0.16)** | ~170 KB |
+| 1847–1900 | Script puerta POPUPS (gate de suspensión) | 3 KB |
+| 1901–2900 | Markup: sprite SVG, modales, panel + jsPDF embebido + **markup del frente tech** (`#frontTech`, `#frontTechTail`) | ~410 KB |
+| 2901–3920 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~280 KB |
+| 3921–7438 | App principal (tienda + admin + **motor de frentes v0.9/v0.16**, con las 6 fotos del frente tech en base64) + puente v0.7 (`window.mtCloudGlue`) | ~470 KB |
+| 7439–7794 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) + **v0.14 · constructor de página** (panel de bloques, editor por bloque, complementos) | ~32 KB |
 
 El backend (funciones SQL en Supabase) está documentado en [`supabase/`](supabase/README.md):
 contratos verificados en vivo, esquema reconstruido y procedimiento de exportación del SQL real.
@@ -62,9 +57,9 @@ contratos verificados en vivo, esquema reconstruido y procedimiento de exportaci
 1. Descargá `index.html` (o cloná el repo).
 2. Doble clic (abre en cualquier navegador moderno, sin internet).
 3. Tienda: explorá, agregá al carrito, probá el checkout (MP en modo demo o WhatsApp).
-4. Panel: botón "Panel" (o `#admin`) → PIN `1234` (cambialo en Configuración → Seguridad); también entra con la Clave maestra POPUPS.
+4. Panel: botón "Panel" (o `#admin`) → PIN `1234` (cambialo en Configuración → Seguridad).
 5. **Modo edición visual:** logueate en el panel y tocá **"Ver tienda / Editar"** (entra directo al modo edición); o volvé a la tienda y usé el botón flotante **"Editar página"**. Clic sobre un texto, imagen o producto para editarlo; los colores se cambian desde el botón **Colores** de la barra y la paleta completa desde Configuración → General.
-6. **Armar el home (v0.14):** en el modo edición, tocá **Bloques** en la barra y agregá complementos (Portada, Oferta, Testimonios, Video, Productos, Banner). Tocá un bloque para editarlo, **Listo** para guardar y **Terminar** para volver al panel. Con bloques guardados tu página es el home de la tienda; el catálogo se abre desde el menú o desde cualquier botón de la página.
+6. **Armar el home (v0.14):** en el modo edición, tocá **Bloques** en la barra y agregá complementos (Portada, Oferta, Testimonios, Video, Productos, Banner). Tocá un bloque para editarlo, **Listo** para guardar y **Terminar** para salir. Con bloques guardados tu página es el home de la tienda; el catálogo se abre desde el menú o desde cualquier botón de la página.
 
 Para volver a la demo de fábrica: borrá los datos del sitio (`luma_offline_store_v1`, `luma_cart`).
 
@@ -89,12 +84,8 @@ sincronizar se preservan y reintentan al recargar. Desde v0.14.0 se cubre el **c
 página** ([`tests/page-builder.spec.js`](tests/page-builder.spec.js)): panel de bloques y
 complementos, home armado que reemplaza al clásico, catálogo a demanda, edición de propiedades,
 reordenar/duplicar/eliminar, compra desde la página y geometría de los cajones, más la
-sincronización del bloque con `api_save_cfg`. Los **frentes de tienda** se cubren en
-[`tests/fronts.spec.js`](tests/fronts.spec.js) (Boutique por defecto + visibilidad de los otros)
-y [`tests/tech-front.spec.js`](tests/tech-front.spec.js) (v0.17: selector de modos, elección de
-Tienda, Modo Tech en iframe con catálogo inyectado y compra desde ahí, detalle en el padre y
-regresión en luma; v0.18: FAB al lado de WhatsApp, edición de textos y fotos de la landing y
-"Terminar" al panel). CI en `.github/workflows/ci.yml`.
+sincronización del bloque con `api_save_cfg`.
+CI en `.github/workflows/ci.yml`.
 
 ## Estado / límites conocidos
 
@@ -106,7 +97,6 @@ regresión en luma; v0.18: FAB al lado de WhatsApp, edición de textos y fotos d
 - `EventSource` está anulado a propósito (el "live pill" del panel es decorativo hasta conectar SSE/Realtime real).
 - **v0.14 · Página personalizada**: cuando el dueño arma bloques, su home reemplaza al clásico y al catálogo; el menú "Novedades" y "Manifiesto" siguen apuntando a secciones del hogar clásico, que quedan ocultas (el catálogo se abre bien desde el menú y desde los botones `#coleccion`). Borrar todos los bloques devuelve el home clásico. Pendiente para una versión siguiente: ofrecer esas dos secciones como complementos.
 - **v0.15 · Fotos de fondo y peso**: los fondos y las fotos de cabecera se comprimen a ~300 KB (son decorativos) y antes de guardar se revisa el peso: si la página pasa el tope de 3 MB del contenido se achican las fotos más grandes en lugar de guardar el JSON recortado. El límite real por página es de **2,6 MB**; con muchas fotos de fondo conviene usar imágenes de 1400 px o menos.
-- **v0.19 · Clave maestra**: en la demo (`/#admin`) la maestra ya funciona; en la nube falta **aplicar [`supabase/master-key.sql`](supabase/master-key.sql)** en el SQL Editor de Supabase (1 minuto). Hasta entonces, en una tienda cloud la maestra sigue respondiendo "Clave incorrecta".
 
 ## Licencia / contacto
 
