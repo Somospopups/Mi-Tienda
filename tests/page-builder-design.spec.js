@@ -63,6 +63,8 @@ async function loginAdmin(page) {
 async function openBlockEditor(page, index) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
+  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
+  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await page.locator('[data-mt-blocks]').click();
   await page.locator(`.bl-block[data-bl-index="${index}"] .bl-ctl [data-bl-edit="${index}"]`).click();
@@ -172,6 +174,8 @@ test('una página con fotos gigantes se guarda sin cortar el JSON', async ({ pag
   ]);
   await loginAdmin(page);
   await page.locator('#viewStore').click();
+  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
+  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await page.locator('[data-mt-blocks]').click();
   // Duplicar dispara el guardado con la foto gigante.

@@ -41,10 +41,12 @@ async function loginAdmin(page) {
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
 
-/** Login → Ver tienda / Editar → el panel cierra y el modo edición queda activo. */
+/** Login → Ver tienda / Editar → elegir modo → el panel cierra y el modo edición queda activo. */
 async function enterEditMode(page) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
+  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
+  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('#shopApp')).toBeVisible();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
@@ -60,8 +62,10 @@ test.describe('Modo edición visual (demo offline)', () => {
     await loginAdmin(page);
     // dentro del panel queda oculto
     await expect(page.locator('.mt-edit-float')).toBeHidden();
-    // "Ver tienda / Editar" sale del panel y entra directo al modo edición (la barra reemplaza al botón)
+    // "Ver tienda / Editar" abre el selector de modos y elegir Tienda entra al modo edición
     await page.locator('#viewStore').click();
+    await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
+    await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
     await expect(page.locator('.mt-edit-float')).toBeHidden();
     // al terminar vuelve a aparecer
@@ -135,6 +139,8 @@ test.describe('Modo edición visual (demo offline)', () => {
   test('5 · Cerrar sesión oculta el botón flotante', async ({ page }) => {
     await loginAdmin(page);
     await page.locator('#viewStore').click();
+    await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
+    await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
 
     // volver al panel (navegación por hash, sin recargar) y salir

@@ -102,6 +102,8 @@ async function openBlockEditor(page, index) {
 async function enterEditMode(page) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
+  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
+  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('#shopApp')).toBeVisible();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);

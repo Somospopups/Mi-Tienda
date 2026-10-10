@@ -23,6 +23,9 @@ jobs:
           python3 - <<'EOF'
           import re, subprocess, sys, pathlib
           src = pathlib.Path('index.html').read_text(encoding='utf-8')
+          # el <template id="techDoc"> trae el HTML de Eze.pece embebido (con sus propios
+          # <script>): se descarta antes de extraer los bloques JS de la app.
+          src = re.sub(r'<template id="techDoc">.*?</template>', '', src, flags=re.S)
           # extrae cada <script> sin src y lo valida con node --check
           blocks = re.findall(r'<script>(.*?)</script>', src, re.S)
           ok = True

@@ -44,7 +44,7 @@ test.describe('Frentes de tienda (v0.9)', () => {
     await expect(page.locator('#lumaHeadBlock .hero')).toBeVisible();
     await expect(page.locator('#frontOfertas')).toBeHidden();
     await expect(page.locator('#frontGamer')).toBeHidden();
-    await expect(page.locator('#frontEze')).toBeHidden();
+    await expect(page.locator('#frontTech')).toBeHidden();
     await expectNoPageErrors(page);
   });
 

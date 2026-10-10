@@ -28,9 +28,9 @@ dispositivo. Al regularizar, vuelve sola.
 
 ## Qué incluye
 
-- **Frentes de tienda (v0.9):** la vidriera pública tiene 4 variantes (`settings.storefront`) — **Boutique** (editorial, el clásico; la usa toda tienda activa), **Ofertas** (descuentos y cuotas), **Gamer** (oscuro) y **Eze.pece** (v0.16, estilo landing celeste: hero de accesorios con chips de categorías, banda de números, tarjetas de categorías, servicio técnico con pasos y lista de precios, testimonios y CTA a WhatsApp). Mismo catálogo, carrito, checkout y panel; cambia solo la vidriera. Desde **v0.13.0** el frente se fija por tienda y ya no se cambia desde el panel.
+- **Selector de modos Tienda/Tech (v0.17):** al tocar **"Ver tienda / Editar"** se abre un modal para elegir la vidriera: **Tienda** (Boutique, el flujo de siempre) o **Tech** (la landing de Eze.pece embebida literal). La elección se guarda por tienda (`settings.storefront: 'luma' | 'tech'`). **Modo Tech**: el HTML de `final.html` se muestra en un iframe full-screen con el carrito, checkout y panel de Mi-Tienda integrados — se inyecta una sección de catálogo dentro del iframe (compra desde ahí por `window.MT_BRIDGE`), hay un FAB con el contador del carrito y tocar un producto abre el detalle en el padre. Mismo catálogo, carrito, checkout y panel; cambia solo la vidriera. (Los frentes clásicos **Ofertas** y **Gamer** siguen renderizando si una tienda los tiene configurados.)
 - **Tienda:** hero editorial, catálogo con búsqueda/filtros/orden, detalle de producto, carrito con barra de envío gratis, checkout (domicilio, retiro en Córdoba Capital o **Envío con Uber Direct** en modo demo/real; Mercado Pago **demo**, Mercado Pago **live** por dueño con Checkout Pro, o pedido por WhatsApp), newsletter con consentimiento, legales editables.
-- **Modo edición visual (v0.8):** con la sesión del dueño activa, el botón lateral **"Ver tienda / Editar"** sale del panel y entra **directo** al modo edición (o toca el botón flotante **"Editar página"** sin pasar por el panel). Clic sobre cualquier texto, imagen o tarjeta de producto para editarla al instante; la barra superior permite cambiar los **Colores** y la **paleta**; la marca/logo se edita tocando el encabezado. Los textos ya no tienen tab "Contenido" en el panel.
+- **Modo edición visual (v0.8):** con la sesión del dueño activa, el botón lateral **"Ver tienda / Editar"** abre el **selector de modos (v0.17)** y al elegir **Tienda** entra directo al modo edición (o toca el botón flotante **"Editar página"** sin pasar por el panel). Clic sobre cualquier texto, imagen o tarjeta de producto para editarla al instante; la barra superior permite cambiar los **Colores** y la **paleta**; la marca/logo se edita tocando el encabezado. Los textos ya no tienen tab "Contenido" en el panel.
 - **Constructor de página (v0.14):** en el modo edición, el botón **"Bloques"** de la barra abre un panel lateral (estilo Google Sites) para armar el home por secciones: complementos **Portada, Oferta destacada, Testimonios, Video/Reel, Productos destacados y Banner con botón**, más **Texto, Imagen, Galería, Reel de Instagram y Separador**. Cada bloque se edita tocándolo y, con el panel abierto, **se mueve arrastrándolo** arriba o abajo del bloque destino (además de subir, duplicar y eliminar con los botones). **La página armada reemplaza todo el home** —hogar clásico y catálogo automático— y el catálogo sigue disponible desde el menú y desde los botones que llevan a `#coleccion`.
 - **Fondo, fotos y animaciones (v0.15):** todos los complementos aceptan **color de fondo, imagen de fondo, oscurecido y esquinas redondeadas**, más una **animación de entrada** (sube, aparece, desde los lados, acercamiento, foco o giro 3D) que se dispara al entrar en pantalla, con las tarjetas y fotos entrando escalonadas y elevación suave al pasar el mouse. La **Oferta** acepta foto del producto (el bloque pasa a dos columnas) y **Testimonios** y **Productos** aceptan foto de cabecera. En el modo edición no se anima nada y si la persona activó "reducir movimiento" en su sistema, la página se ve sin animaciones.
 - **Admin (7 secciones):** dashboard con métricas · alertas de stock · productos (foto por cámara/archivo con optimización automática 1400px/WebP, códigos de barras, PDF de lista de precios, reposición escaneando) · clientes con historial · pedidos con timeline y avisos por WhatsApp · finanzas con export CSV/PDF · configuración en 3 secciones (**General** con identidad, envíos y **paleta de colores** con presets/contraste/Random, **Cobros** con Mercado Pago y **Legal y redes**) y seguridad con cambio de clave propio.
@@ -41,11 +41,11 @@ dispositivo. Al regularizar, vuelve sola.
 | Líneas | Bloque | Peso |
 |---|---|---|
 | 1–49 | `<head>` + metadatos + favicon silencioso | 0,5 KB |
-| 50–1801 | CSS (tienda + admin, responsive) + modo edición visual (v0.8) + **frentes de tienda (v0.9 + v0.16)** + **constructor de página (v0.14)** | ~150 KB |
+| 50–1801 | CSS (tienda + admin, responsive) + modo edición visual (v0.8) + **selector de modos / frentes (v0.9 + v0.17)** + **constructor de página (v0.14)** | ~150 KB |
 | 1802–1870 | Script puerta POPUPS (gate de suspensión) | 3 KB |
-| 1871–2774 | Markup: sprite SVG, modales, panel, frentes + jsPDF embebido | ~400 KB |
+| 1871–2774 | Markup: sprite SVG, modales, panel, frentes + `<template id="techDoc">` (HTML de Eze.pece, ~272 KB) + jsPDF embebido | ~680 KB |
 | 2775–3775 | "Servidor": mock API offline + datos semilla + **capa cloud Supabase** (11 RPC, sync del panel con guardado atómico v0.8.1, flujo MP async) | ~280 KB |
-| 3776–6075 | App principal (tienda + admin + **motor de frentes v0.9/v0.16**) + puente v0.7 (`window.mtCloudGlue`) | ~210 KB |
+| 3776–6075 | App principal (tienda + admin + **motor de frentes v0.9/v0.17, puente del Modo Tech `MT_BRIDGE`**) + puente v0.7 (`window.mtCloudGlue`) | ~210 KB |
 | 6076–7419 | **v0.8 · Motor del modo edición visual** (clic-para-editar: textos, imágenes, marcas, colores, productos) + **v0.14 · constructor de página** (panel de bloques, editor por bloque, complementos) | ~30 KB |
 
 El backend (funciones SQL en Supabase) está documentado en [`supabase/`](supabase/README.md):
@@ -85,9 +85,9 @@ complementos, home armado que reemplaza al clásico, catálogo a demanda, edici�
 reordenar/duplicar/eliminar, compra desde la página y geometría de los cajones, más la
 sincronización del bloque con `api_save_cfg`. Los **frentes de tienda** se cubren en
 [`tests/fronts.spec.js`](tests/fronts.spec.js) (Boutique por defecto + visibilidad de los otros)
-y [`tests/eze-front.spec.js`](tests/eze-front.spec.js) (v0.16: activación del frente Eze.pece,
-categorías desde el catálogo, saltos de scroll, WhatsApp del CTA y regresión en luma).
-CI en `.github/workflows/ci.yml`.
+y [`tests/tech-front.spec.js`](tests/tech-front.spec.js) (v0.17: selector de modos, elección de
+Tienda, Modo Tech en iframe con catálogo inyectado y compra desde ahí, detalle en el padre y
+regresión en luma). CI en `.github/workflows/ci.yml`.
 
 ## Estado / límites conocidos
 
