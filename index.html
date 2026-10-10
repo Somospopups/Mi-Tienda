@@ -2120,10 +2120,10 @@ body.mt-edit-mode #shopApp .mt-edit-active {
                 <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
                   <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
                 </button>
-                <button class="tf-act" type="button" id="tfAdmin" aria-label="Abrir panel administrador">
+                <button class="tf-act" type="button" id="tfAdmin" onclick="location.hash='#admin'; openAdmin();" aria-label="Abrir panel administrador">
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
                 </button>
-                <button class="tf-act" type="button" id="tfCart" aria-label="Abrir carrito">
+                <button class="tf-act" type="button" id="tfCart" onclick="openCart();" aria-label="Abrir carrito">
                   <svg viewBox="0 0 24 24"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
                 </button>
               </div>
@@ -2391,7 +2391,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v9</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v13</span></div></div>
     </footer>
   </div>
 
@@ -4573,6 +4573,32 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function frontClick(event) {
+    if (event.target.closest('#tfAdmin')) {
+      event.preventDefault();
+      openAdmin();
+      return;
+    }
+    if (event.target.closest('#tfCart')) {
+      event.preventDefault();
+      openCart();
+      return;
+    }
+    if (event.target.closest('#tfSearch')) {
+      event.preventDefault();
+      const sBox = $('inlineSearch');
+      if (sBox) sBox.classList.add('open');
+      const sIn = $('searchInput');
+      if (sIn) sIn.focus();
+      const col = $('coleccion');
+      if (col) col.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (event.target.closest('[data-tf-home]')) {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      tfShow('todo');
+      return;
+    }
     const add = event.target.closest('[data-front-add]');
     if (add) { event.preventDefault(); return addToCart(add.dataset.frontAdd); }
     const open = event.target.closest('[data-front-open]');
@@ -7677,8 +7703,23 @@ async function mtGuiaPdf() {
     const bar = document.createElement('div');
     bar.className = 'mt-edit-bar'; bar.hidden = true;
     bar.innerHTML = '<b>Modo edición</b><span>Hacé clic sobre un texto, imagen, producto o bloque para editarlo.</span><button type="button" data-mt-blocks>Bloques</button><button type="button" data-mt-colors>Colores</button><button type="button" data-mt-done>Terminar</button>';
-    bar.addEventListener('click', (event) => {
-      if (event.target.closest('[data-mt-done]')) { mtEditToggle(false); openAdmin(); }
+    bar.addEventListener('click', async (event) => {
+      if (event.target.closest('[data-mt-done]')) {
+        const ok = await confirmDialog({
+          title: '¿Guardar cambios y salir?',
+          text: 'Se confirmarán y guardarán todas las modificaciones realizadas en la página para que queden publicadas de forma permanente.',
+          accept: 'Guardar y salir'
+        });
+        if (ok) {
+          try {
+            // Guardar el estado completo de contenidos en backend / almacenamiento
+            await api('/api/admin/content', { admin: true, method: 'PUT', body: JSON.stringify(state.content) });
+            toast('Cambios guardados', 'La página quedó actualizada permanentemente.', 'success');
+          } catch (_) {}
+          mtEditToggle(false);
+          openAdmin();
+        }
+      }
       else if (event.target.closest('[data-mt-colors]')) mtEditPalette();
       else if (event.target.closest('[data-mt-blocks]')) blEditToggle();
     });
