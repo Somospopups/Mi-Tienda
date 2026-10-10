@@ -2120,10 +2120,10 @@ body.mt-edit-mode #shopApp .mt-edit-active {
                 <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
                   <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
                 </button>
-                <button class="tf-act" type="button" id="tfAdmin" onclick="location.hash='#admin'; openAdmin();" aria-label="Abrir panel administrador">
+                <button class="tf-act" type="button" id="tfAdmin" aria-label="Abrir panel administrador">
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
                 </button>
-                <button class="tf-act" type="button" id="tfCart" onclick="openCart();" aria-label="Abrir carrito">
+                <button class="tf-act" type="button" id="tfCart" aria-label="Abrir carrito">
                   <svg viewBox="0 0 24 24"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
                 </button>
               </div>
@@ -2391,7 +2391,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v13</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v14</span></div></div>
     </footer>
   </div>
 
@@ -7159,7 +7159,17 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     window.addEventListener('hashchange', route);
     $('mobileMenuButton').addEventListener('click', () => $('mobileNav').classList.toggle('open'));
     $('mobileNav').addEventListener('click', (event) => { if (event.target.closest('a')) $('mobileNav').classList.remove('open'); });
-    [$('adminButton'), $('mobileAdminButton'), $('footerAdminButton')].forEach((button) => button.addEventListener('click', openAdmin));
+    [$('adminButton'), $('mobileAdminButton'), $('footerAdminButton'), $('tfAdmin')].filter(Boolean).forEach((button) => button.addEventListener('click', (e) => { e.preventDefault(); openAdmin(); }));
+    [$('cartButton'), $('tfCart')].filter(Boolean).forEach((button) => button.addEventListener('click', (e) => { e.preventDefault(); openCart(); }));
+    if ($('tfSearch')) $('tfSearch').addEventListener('click', (e) => {
+      e.preventDefault();
+      const sBox = $('inlineSearch');
+      if (sBox) sBox.classList.add('open');
+      const sIn = $('searchInput');
+      if (sIn) sIn.focus();
+      const col = $('coleccion');
+      if (col) col.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     $('cartButton').addEventListener('click', openCart);
     $('closeCart').addEventListener('click', closeCart);
     $('cartOverlay').addEventListener('click', closeCart);
