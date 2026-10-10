@@ -181,6 +181,13 @@ test('una página con fotos gigantes se guarda sin cortar el JSON', async ({ pag
   // Duplicar dispara el guardado con la foto gigante.
   await page.locator('.bl-block[data-bl-index="0"] [data-bl-dup="0"]').click();
   await expect(page.locator('#toastRegion')).toContainText('Se ajustaron tus fotos', { timeout: 20_000 });
+  // El toast sale ANTES del write (blPersist: toast → mtSaveContent): esperar a que
+  // builderBlocks tenga los 3 bloques antes de leer, o en máquinas lentas se lee el estado viejo.
+  await expect.poll(async () => page.evaluate((key) => {
+    try {
+      return JSON.parse(JSON.parse(localStorage.getItem(key)).content.builderBlocks || '[]').map((b) => b.type).join(',');
+    } catch (e) { return ''; }
+  }, STORE_KEY), { timeout: 20_000 }).toBe('text,text,cta');
   // Lo que quedó guardado sigue siendo una página válida (no un JSON cortado) y pesa menos.
   const raw = await page.evaluate((key) => localStorage.getItem(key), STORE_KEY);
   const saved = JSON.parse(JSON.parse(raw).content.builderBlocks);
