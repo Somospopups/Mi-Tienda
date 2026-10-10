@@ -1214,7 +1214,7 @@ body:has(.share-price-fab) .toast-region { bottom: 101px; }
 }
 
 /* ---------- v0.8 · Modo edición visual (clic para editar) ---------- */
-.mt-edit-float {
+.mt-edit-float { display: none !important;
   position: fixed; right: 18px; bottom: 20px; z-index: 1080;
   display: inline-flex; align-items: center; gap: 9px;
   padding: 11px 18px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px;
@@ -1290,7 +1290,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
 .mt-edit-filezone { border: 1.5px dashed #c9c4b8; border-radius: 10px; padding: 14px 10px; text-align: center; color: #6d6a60; font-size: 12.5px; cursor: pointer; margin-bottom: 11px; }
 @media (max-width: 640px) {
   .mt-edit-popover { left: 12px !important; right: 12px; bottom: 12px !important; top: auto !important; width: auto; }
-  .mt-edit-float { right: 12px; bottom: 14px; }
+  .mt-edit-float { display: none !important; right: 12px; bottom: 14px; }
   .mt-edit-bar span { display: none; }
 }
 
@@ -2385,7 +2385,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v7</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v8</span></div></div>
     </footer>
   </div>
 
@@ -7629,7 +7629,7 @@ async function mtGuiaPdf() {
   }
   function mtEditRefreshFloating() {
     if (!MT_EDIT.root) return;
-    MT_EDIT.root.hidden = !(!$('shopApp').hidden && mtEditHasSession() && !MT_EDIT.on);
+    MT_EDIT.root.hidden = true; /* Solo accesible desde el panel de admin */
   }
   function mtEditEnterDom() {
     if (MT_EDIT.root) return;
@@ -7658,7 +7658,7 @@ async function mtGuiaPdf() {
     bar.className = 'mt-edit-bar'; bar.hidden = true;
     bar.innerHTML = '<b>Modo edición</b><span>Hacé clic sobre un texto, imagen, producto o bloque para editarlo.</span><button type="button" data-mt-blocks>Bloques</button><button type="button" data-mt-colors>Colores</button><button type="button" data-mt-done>Terminar</button>';
     bar.addEventListener('click', (event) => {
-      if (event.target.closest('[data-mt-done]')) mtEditToggle(false);
+      if (event.target.closest('[data-mt-done]')) { mtEditToggle(false); openAdmin(); }
       else if (event.target.closest('[data-mt-colors]')) mtEditPalette();
       else if (event.target.closest('[data-mt-blocks]')) blEditToggle();
     });
