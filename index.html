@@ -1457,7 +1457,9 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .tf-ben h4 { font-size: 1rem; margin: 0 0 5px; }
   .tf-ben p { font-size: .89rem; color: var(--tf-ink-soft); margin: 0; }
   .tf-quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; position: relative; z-index: 2; }
-  .tf-quote { background: #fff; border-radius: 22px; padding: 30px; }
+  .tf-quote { background: #fff; border-radius: 22px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,.04); border: 1px solid rgba(74,74,74,.1); }
+  .tf-white .tf-quote { background: var(--tf-sky); border-color: transparent; }
+
   .tf-quote i { font-style: normal; letter-spacing: 4px; font-size: .8rem; display: block; margin-bottom: 12px; }
   .tf-quote p { font-size: .95rem; margin: 0; }
   .tf-quote small { display: block; margin-top: 16px; font-size: .83rem; color: var(--tf-ink-soft); font-weight: 700; }
@@ -2145,14 +2147,14 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <section class="tf-sec" id="tfWhat">
           <svg class="tf-ring" viewBox="0 0 100 100" style="width:min(74vw,760px);aspect-ratio:1;left:4%;top:8%" aria-hidden="true"><circle cx="50" cy="50" r="49.5" pathLength="100" transform="rotate(-90 50 50)"/></svg>
           <div class="tf-wrap tf-what">
-            <h2 class="tf-display tf-rv" data-tf-split data-tf-drag="tchWhat1" data-content="tchWhat1"></h2>
-            <div class="tf-r2"><h2 class="tf-display tf-rv" data-tf-split data-tf-drag="tchWhat2" data-content="tchWhat2"></h2></div>
+            <h2 class="tf-display tf-rv" data-tf-drag="tchWhat1" data-content="tchWhat1"></h2>
+            <div class="tf-r2"><h2 class="tf-display tf-rv" data-tf-drag="tchWhat2" data-content="tchWhat2"></h2></div>
             <div class="tf-whatlist tf-rv">
               <p data-content="tchWhatSub"></p>
               <ul id="tfWhatList" data-content="tchWhatList" data-content-multiline="true" hidden></ul>
               <ul id="tfWhatListOut"></ul>
             </div>
-            <h2 class="tf-display tf-rv" data-tf-split data-tf-drag="tchWhat3" data-content="tchWhat3"></h2>
+            <h2 class="tf-display tf-rv" data-tf-drag="tchWhat3" data-content="tchWhat3"></h2>
           </div>
         </section>
 
@@ -2295,7 +2297,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           </div>
         </section>
 
-        <section class="tf-sec" style="padding-top:0">
+        <section class="tf-sec tf-white" style="padding-top:0">
           <div class="tf-wrap tf-quotes">
         <div class="tf-quote tf-rv"><i>★★★★★</i><p data-content="tchQ1"></p><small data-content="tchQ1A"></small></div>
         <div class="tf-quote tf-rv"><i>★★★★★</i><p data-content="tchQ2"></p><small data-content="tchQ2A"></small></div>
@@ -2357,7 +2359,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v5</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v6</span></div></div>
     </footer>
   </div>
 
@@ -4444,56 +4446,61 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     });
   }
 
-  // Drag & drop libre para los textos CONOCÉ, QUÉ, HACEMOS en modo edición
+  // Drag & drop universal para CONOCÉ, QUÉ, HACEMOS
   (function initTechDrag() {
     let activeDrag = null;
-    let startX = 0, startY = 0, initX = 0, initY = 0, hasMoved = false;
+    let startX = 0, startY = 0, initX = 0, initY = 0, moved = false;
 
-    document.addEventListener('mousedown', (e) => {
+    window.addEventListener('pointerdown', (e) => {
       if (!document.body.classList.contains('mt-edit-mode')) return;
       const target = e.target.closest('[data-tf-drag]');
       if (!target) return;
-      // Iniciar arrastre
       activeDrag = target;
-      hasMoved = false;
+      moved = false;
       startX = e.clientX;
       startY = e.clientY;
       initX = parseFloat(target.dataset.tfX || 0);
       initY = parseFloat(target.dataset.tfY || 0);
       target.classList.add('tf-is-dragging');
+      try { target.setPointerCapture(e.pointerId); } catch (_) {}
       e.preventDefault();
       e.stopPropagation();
     }, true);
 
-    document.addEventListener('mousemove', (e) => {
+    window.addEventListener('pointermove', (e) => {
       if (!activeDrag) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) moved = true;
       const curX = Math.round(initX + dx);
       const curY = Math.round(initY + dy);
       activeDrag.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
       activeDrag.dataset.tfX = curX;
       activeDrag.dataset.tfY = curY;
-    });
+    }, true);
 
-    document.addEventListener('mouseup', async (e) => {
+    window.addEventListener('pointerup', async (e) => {
       if (!activeDrag) return;
       const el = activeDrag;
       activeDrag = null;
       el.classList.remove('tf-is-dragging');
-      if (hasMoved) {
+      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (moved) {
         const key = el.dataset.tfDrag + 'Pos';
         const val = JSON.stringify({ x: parseFloat(el.dataset.tfX || 0), y: parseFloat(el.dataset.tfY || 0) });
         state.content[key] = val;
         try {
           await api('/api/admin/content', { admin: true, method: 'PUT', body: JSON.stringify({ [key]: val }) });
-          toast('Posición guardada', 'Se actualizó la ubicación del texto.');
+          toast('Posición guardada', 'Ubicación de ' + (el.textContent || '').trim() + ' guardada.');
         } catch (_) {}
+      } else {
+        // Clic simple abre editor de texto para cambiar la palabra
+        const hit = { def: { kind: 'content' }, el };
+        mtEditOpen(hit);
       }
-    });
+    }, true);
   })();
-
+  
   function renderTechFront() {
     const root = $('frontTech');
     if (!root) return;
@@ -4564,6 +4571,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function applyContent() {
+    try { tfApplyWhatPositions(); } catch (_) {}
     document.querySelectorAll('[data-content]').forEach((node) => {
       const value = state.content[node.dataset.content];
       if (value == null) return;
@@ -7648,6 +7656,7 @@ async function mtGuiaPdf() {
   }
   function mtEditCapture(event) {
     if (!MT_EDIT.on) return;
+    if (event.target.closest('[data-tf-drag]')) return;
     if (BL_EDIT.editing && event.target instanceof Element && event.target.closest('#frontBuilder')) return;
     if (event.target.closest('.mt-edit-popover') || event.target.closest('.mt-edit-bar') || event.target.closest('.mt-edit-float')) return;
     const hit = mtEditResolve(event.target);
