@@ -1298,13 +1298,15 @@ body.mt-edit-mode #shopApp .mt-edit-active {
      v0.9 · FRENTES DE TIENDA — Boutique (luma) · Ofertas · Gamer
      Mismo motor, mismo panel: solo cambia la vidriera pública.
      ============================================================ */
-  #frontOfertas, #frontGamer { display: none; }
+  #frontOfertas, #frontGamer, #frontEze { display: none; }
   body[data-front="ofertas"] #frontOfertas { display: block; }
   body[data-front="gamer"] #frontGamer { display: block; }
+  body[data-front="eze"] #frontEze { display: block; }
   body[data-front="libre"] #frontBuilder { display: block; }
   body[data-front="libre"] .luma-front { display: none; }
   body[data-front="ofertas"] .luma-front,
-  body[data-front="gamer"] .luma-front { display: none; }
+  body[data-front="gamer"] .luma-front,
+  body[data-front="eze"] .luma-front { display: none; }
 
   /* ---- Frente OFERTAS (estilo tienda tech de consumo) ---- */
   .ofr-front { display: block; padding: 0 clamp(16px, 4vw, 40px) 8px; max-width: 1280px; margin: 0 auto; }
@@ -1430,6 +1432,149 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .gmr-strip i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
   @media (max-width: 980px) { .gmr-cats { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 560px) { .gmr-cats { grid-template-columns: 1fr 1fr; gap: 10px; } .gmr-tile { padding: 14px 12px; } .gmr-strip { justify-content: center; } }
+
+  /* ---- Frente EZE (accesorios & servicio técnico, estilo landing celeste) ---- */
+  body[data-front="eze"] { background: #B2DBF1; color-scheme: light; }
+  body[data-front="eze"] #shopApp,
+  body[data-front="eze"] .cart-drawer,
+  body[data-front="eze"] .modal-backdrop,
+  body[data-front="eze"] .overlay {
+    --paper: #EDF7FC; --cream: #FFFFFF; --cream-deep: #D7EDF8; --white: #FFFFFF;
+    --ink: #4A4A4A; --brand-dark: #333333; --ink-soft: #6E7B84; --line: rgba(74, 74, 74, .22);
+  }
+  body[data-front="eze"] .announcement { background: #333333; color: #fff; }
+  body[data-front="eze"] .site-header { background: rgba(178, 219, 241, .88); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(74, 74, 74, .14); }
+  body[data-front="eze"] .site-header .brand, body[data-front="eze"] .main-nav a, body[data-front="eze"] .header-actions { color: #333333; }
+  body[data-front="eze"] .main-nav a:hover { color: #333333; opacity: .7; }
+  body[data-front="eze"] .cart-trigger { border: 1px solid rgba(74, 74, 74, .35); color: #333333; }
+  body[data-front="eze"] .cart-trigger b { background: #333333; color: #fff; }
+  body[data-front="eze"] .product-card { background: #fff; border: 1px solid rgba(74, 74, 74, .1); border-radius: 20px; }
+  body[data-front="eze"] .product-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(50, 80, 100, .16); border-color: rgba(74, 74, 74, .2); }
+  body[data-front="eze"] .product-badge { background: #333333; color: #fff; }
+  body[data-front="eze"] .product-add { background: #333333; color: #fff; border-radius: 999px; }
+  body[data-front="eze"] .product-add[disabled] { background: #cfd8de; color: #6E7B84; }
+  body[data-front="eze"] .category-pill { background: rgba(255, 255, 255, .75); border: 1px solid rgba(74, 74, 74, .2); color: #4A4A4A; }
+  body[data-front="eze"] .category-pill.active { background: #333333; border-color: #333333; color: #fff; }
+  body[data-front="eze"] .section-heading h2 { color: #333333; }
+  body[data-front="eze"] .site-footer { background: #fff; border-top: 1px solid rgba(74, 74, 74, .14); }
+  body[data-front="eze"] .button-dark { background: #333333; }
+  body[data-front="eze"] .button-dark:hover { background: #1F1F1F; }
+
+  .eze-front { display: block; }
+  .eze-front[hidden] { display: none; }
+  .eze-front .wrap { width: min(1200px, 90vw); margin-inline: auto; position: relative; z-index: 1; }
+  .eze-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .26em; text-transform: uppercase; color: #6E7B84; margin: 0 0 16px; }
+  .eze-display { font-weight: 700; letter-spacing: -.025em; line-height: .95; font-size: clamp(2.6rem, 8vw, 6.2rem); color: #fff; text-transform: uppercase; margin: 0; }
+  .eze-h2 { font-weight: 700; letter-spacing: -.02em; line-height: 1.08; font-size: clamp(1.8rem, 4vw, 2.9rem); color: #333; margin: 0; }
+  .eze-lead { font-size: 1.04rem; color: #6E7B84; max-width: 58ch; margin: 16px 0 0; }
+  .eze-btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 30px; border-radius: 999px; font-size: .92rem; font-weight: 700; letter-spacing: .02em; border: 1px solid transparent; cursor: pointer; font-family: var(--sans); transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease; white-space: nowrap; }
+  .eze-btn svg { width: 17px; height: 17px; }
+  .eze-btn-dark { background: #333; color: #fff; }
+  .eze-btn-dark:hover { transform: translateY(-2px); background: #1F1F1F; }
+  .eze-btn-white { background: #fff; color: #333; }
+  .eze-btn-white:hover { transform: translateY(-2px); }
+  .eze-btn-line { border-color: rgba(74, 74, 74, .4); color: #333; background: rgba(255, 255, 255, .5); }
+  .eze-btn-line:hover { border-color: #333; background: #fff; }
+  .eze-ring { position: absolute; border: 1px solid rgba(74, 74, 74, .3); border-radius: 50%; pointer-events: none; z-index: 0; }
+  .eze-ring.light { border-color: rgba(255, 255, 255, .28); }
+
+  /* hero */
+  .eze-hero { background: #B2DBF1; padding: clamp(40px, 6vw, 76px) 0 clamp(30px, 4vw, 54px); overflow: hidden; text-align: center; }
+  .eze-hero .eze-acts { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+  .eze-hero .eze-cats { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: clamp(28px, 4vw, 44px); }
+  .eze-chip { display: inline-flex; align-items: center; gap: 9px; background: rgba(255, 255, 255, .62); border: 1px solid rgba(74, 74, 74, .16); border-radius: 999px; padding: 11px 22px; font-size: .86rem; font-weight: 600; color: #333; cursor: pointer; font-family: var(--sans); transition: background .2s ease, transform .2s ease, box-shadow .2s ease; }
+  .eze-chip svg { width: 18px; height: 18px; fill: none; stroke: #333; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .eze-chip:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 10px 22px rgba(60, 95, 120, .16); }
+
+  /* banda de números */
+  .eze-band { background: #B2DBF1; padding: 0 0 clamp(36px, 5vw, 60px); }
+  .eze-band-in { display: grid; grid-template-columns: repeat(3, 1fr); width: min(1000px, 90vw); margin-inline: auto; text-align: center; }
+  .eze-band .it { position: relative; padding: 10px 12px; }
+  .eze-band .it + .it::before { content: ""; position: absolute; left: 0; top: 14%; height: 72%; width: 1px; background: rgba(74, 74, 74, .26); }
+  .eze-band strong { display: block; font-size: clamp(1.8rem, 4.4vw, 3rem); font-weight: 700; letter-spacing: -.03em; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
+  .eze-band span { display: block; margin-top: 9px; font-size: .82rem; color: #4A4A4A; }
+  @media (max-width: 620px) { .eze-band span { font-size: .68rem; } }
+
+  /* qué hacemos */
+  .eze-what { background: #B2DBF1; padding: clamp(50px, 7vw, 100px) 0; overflow: hidden; }
+  .eze-what-grid { display: grid; gap: clamp(22px, 3.4vw, 36px); }
+  .eze-what-grid .eze-display { text-align: left; }
+  .eze-what-list { max-width: 520px; }
+  .eze-what-list .sub { font-weight: 700; text-transform: uppercase; letter-spacing: .01em; font-size: clamp(1rem, 2vw, 1.3rem); color: #333; margin: 0 0 20px; }
+  .eze-what-list ul { list-style: none; display: grid; gap: 14px; margin: 0; padding: 0; }
+  .eze-what-list li { font-size: 1rem; color: #4A4A4A; padding-bottom: 14px; border-bottom: 1px solid rgba(74, 74, 74, .18); }
+  .eze-what-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+  /* categorías */
+  .eze-cats-sec { background: #fff; padding: clamp(50px, 7vw, 100px) 0; }
+  .eze-sec-head { margin-bottom: clamp(28px, 4vw, 46px); }
+  .eze-sec-head .eze-lead { margin-top: 14px; }
+  .eze-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .eze-card { display: block; background: #EDF7FC; border: 1px solid rgba(74, 74, 74, .1); border-radius: 20px; padding: 28px 26px; cursor: pointer; text-align: left; font-family: var(--sans); transition: transform .22s ease, box-shadow .22s ease; }
+  .eze-card:hover { transform: translateY(-5px); box-shadow: 0 20px 46px rgba(50, 80, 100, .14); }
+  .eze-card .ic { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(74, 74, 74, .35); margin-bottom: 18px; }
+  .eze-card .ic svg { width: 22px; height: 22px; fill: none; stroke: #333; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .eze-card h3 { font-size: 1.05rem; font-weight: 700; color: #333; margin: 0 0 8px; line-height: 1.25; }
+  .eze-card p { font-size: .9rem; color: #6E7B84; margin: 0; line-height: 1.55; }
+  .eze-card .more { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-size: .8rem; font-weight: 700; color: #333; transition: gap .2s ease; }
+  .eze-card .more svg { width: 14px; height: 14px; }
+  .eze-card:hover .more { gap: 13px; }
+  .eze-empty { grid-column: 1 / -1; border: 1px dashed rgba(74, 74, 74, .3); border-radius: 16px; padding: 24px; text-align: center; color: #6E7B84; font-size: 14px; }
+
+  /* servicio técnico */
+  .eze-svc { background: #B2DBF1; padding: clamp(50px, 7vw, 100px) 0; overflow: hidden; }
+  .eze-svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 5vw, 60px); align-items: start; }
+  .eze-steps { display: grid; gap: 20px; margin-top: 30px; }
+  .eze-step { display: flex; gap: 16px; align-items: flex-start; }
+  .eze-step .n { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(74, 74, 74, .4); font-size: .85rem; font-weight: 700; color: #333; background: rgba(255, 255, 255, .4); }
+  .eze-step h4 { font-size: .98rem; font-weight: 700; color: #333; margin: 2px 0 3px; }
+  .eze-step p { font-size: .9rem; color: #6E7B84; margin: 0; line-height: 1.5; }
+  .eze-panel { background: #EDF7FC; border: 1px solid rgba(74, 74, 74, .1); border-radius: 24px; padding: clamp(24px, 3.6vw, 36px); }
+  .eze-panel h3 { font-size: 1.15rem; font-weight: 700; color: #333; margin: 0 0 4px; }
+  .eze-panel .fine-top { font-size: .82rem; color: #6E7B84; margin: 0; }
+  .eze-plist { margin: 20px 0 24px; display: grid; }
+  .eze-plist .r { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgba(74, 74, 74, .14); font-size: .92rem; color: #4A4A4A; }
+  .eze-plist .r:last-child { border-bottom: 0; }
+  .eze-plist .r b { font-weight: 700; color: #333; white-space: nowrap; }
+  .eze-fine { font-size: .78rem; color: #6E7B84; margin: 14px 0 0; text-align: center; }
+  .eze-btn-full { width: 100%; justify-content: center; }
+  @media (max-width: 880px) { .eze-svc-grid { grid-template-columns: 1fr; } }
+
+  /* beneficios */
+  .eze-bens-sec { background: #fff; padding: clamp(50px, 7vw, 100px) 0; }
+  .eze-bens { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: clamp(20px, 3vw, 34px); }
+  .eze-ben .ic { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(74, 74, 74, .35); margin-bottom: 16px; }
+  .eze-ben .ic svg { width: 20px; height: 20px; fill: none; stroke: #333; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .eze-ben h4 { font-size: .98rem; font-weight: 700; color: #333; margin: 0 0 5px; }
+  .eze-ben p { font-size: .88rem; color: #6E7B84; margin: 0; line-height: 1.5; }
+
+  /* testimonios */
+  .eze-quotes-sec { background: #B2DBF1; padding: clamp(50px, 7vw, 100px) 0; }
+  .eze-quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .eze-quote { background: #fff; border-radius: 20px; padding: 26px; border: 1px solid rgba(74, 74, 74, .08); }
+  .eze-quote .st { letter-spacing: 4px; font-size: .8rem; color: #333; margin-bottom: 12px; }
+  .eze-quote p { font-size: .95rem; color: #4A4A4A; margin: 0; line-height: 1.6; font-style: italic; }
+  .eze-quote .who { margin-top: 16px; font-size: .82rem; color: #6E7B84; font-weight: 700; }
+
+  /* cta final */
+  .eze-cta { background: #333; color: #fff; text-align: center; padding: clamp(56px, 8vw, 110px) 0; overflow: hidden; }
+  .eze-cta .eze-h2 { color: #fff; max-width: 20ch; margin-inline: auto; }
+  .eze-cta .kicker { color: rgba(255, 255, 255, .6); }
+  .eze-cta .eze-lead { color: rgba(255, 255, 255, .72); margin: 16px auto 30px; }
+  .eze-cta .eze-acts { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+  /* revelados (igual criterio v0.15: sin animación en edición ni con reduced-motion) */
+  .eze-rv { opacity: 0; transform: translateY(26px); transition: opacity .8s cubic-bezier(.22, .9, .3, 1), transform .8s cubic-bezier(.22, .9, .3, 1); }
+  .eze-rv.on { opacity: 1; transform: none; }
+  .eze-stagger > * { opacity: 0; transform: translateY(16px); transition: opacity .55s ease, transform .55s ease; }
+  .eze-stagger.on > * { opacity: 1; transform: none; }
+  .eze-stagger.on > :nth-child(1) { transition-delay: .04s; } .eze-stagger.on > :nth-child(2) { transition-delay: .1s; }
+  .eze-stagger.on > :nth-child(3) { transition-delay: .16s; } .eze-stagger.on > :nth-child(4) { transition-delay: .22s; }
+  .eze-stagger.on > :nth-child(5) { transition-delay: .28s; } .eze-stagger.on > :nth-child(n+6) { transition-delay: .34s; }
+  body.mt-edit-mode .eze-rv, body.mt-edit-mode .eze-stagger > * { opacity: 1 !important; transform: none !important; transition: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    #frontEze .eze-rv, #frontEze .eze-stagger > * { opacity: 1 !important; transform: none !important; transition: none !important; }
+  }
 
   /* ---- Frente LIBRE (constructor estilo Google Sites) ---- */
   .bl-front { display: block; padding: 6px clamp(14px, 3.4vw, 36px); max-width: 1280px; margin: 0 auto; }
@@ -1571,12 +1716,14 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   body.mt-page .luma-front,
   body.mt-page #frontOfertas,
   body.mt-page #frontGamer,
+  body.mt-page #frontEze,
   body.mt-page #coleccion { display: none !important; }
   body.mt-page.show-catalog #coleccion { display: block !important; }
   body.mt-page.show-catalog #coleccion { scroll-margin-top: 88px; }
   body.bl-editing .luma-front,
   body.bl-editing #frontOfertas,
   body.bl-editing #frontGamer,
+  body.bl-editing #frontEze,
   body.bl-editing #coleccion { display: none !important; }
   body.bl-editing #frontBuilder { display: block; }
   /* v0.14: los cajones arrancan debajo de la barra de edición (z-index 1080),
@@ -1869,6 +2016,127 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="gmr-cats-head"><b>Explorá por categoría</b><span>// stock real actualizado</span></div>
         <div class="gmr-cats" id="gmrCategoryTiles" aria-live="polite"></div>
         <div class="gmr-strip"><span>ENVÍOS A TODO EL PAÍS</span><i></i><span>PAGÁ EN CUOTAS</span><i></i><span>SOPORTE ESPECIALIZADO</span><i></i><span>RETIRÁ EN EL LOCAL</span></div>
+      </section>
+
+      <section class="eze-front" id="frontEze" aria-label="Frente Eze.pece" hidden>
+        <div class="eze-hero">
+          <span class="eze-ring" style="width:min(60vw,540px);aspect-ratio:1;left:-10%;top:6%" aria-hidden="true"></span>
+          <span class="eze-ring" style="width:min(44vw,380px);aspect-ratio:1;right:-6%;top:30%" aria-hidden="true"></span>
+          <div class="wrap">
+            <p class="eze-kicker eze-rv" data-content="ezeKicker">Accesorios y servicio técnico</p>
+            <h2 class="eze-display eze-rv" data-content="ezeTitle" data-content-multiline="true">Todo para tu equipo,<br>en un solo lugar</h2>
+            <p class="eze-lead eze-rv" style="margin-inline:auto" data-content="ezeDesc">Elegimos cada producto a mano: compatibilidad garantizada y stock real para entrega inmediata. Y si algo se rompe, lo arreglamos.</p>
+            <div class="eze-acts eze-rv">
+              <button class="eze-btn eze-btn-dark" type="button" data-front-scroll="#coleccion"><span data-content="ezeCta">Ver productos</span> <svg><use href="#i-arrow"></use></svg></button>
+              <button class="eze-btn eze-btn-line" type="button" data-front-scroll="#ezeServicio"><span data-content="ezeCta2">Servicio técnico</span></button>
+            </div>
+            <div class="eze-cats eze-stagger" id="ezeCatChips" aria-label="Categorías"></div>
+          </div>
+        </div>
+
+        <div class="eze-band">
+          <div class="eze-band-in eze-stagger">
+            <div class="it"><strong data-content="ezeNum1">+1.200</strong><span data-content="ezeNum1L">Clientes satisfechos</span></div>
+            <div class="it"><strong data-content="ezeNum2">24-48 h</strong><span data-content="ezeNum2L">Reparaciones express</span></div>
+            <div class="it"><strong data-content="ezeNum3">6 meses</strong><span data-content="ezeNum3L">De garantía escrita</span></div>
+          </div>
+        </div>
+
+        <section class="eze-what">
+          <span class="eze-ring" style="width:min(66vw,640px);aspect-ratio:1;left:2%;top:10%" aria-hidden="true"></span>
+          <div class="wrap eze-what-grid">
+            <h2 class="eze-display eze-rv" data-content="ezeWhatTitle" data-content-multiline="true">Conocé<br>lo que hacemos</h2>
+            <div class="eze-what-list eze-rv">
+              <p class="sub" data-content="ezeWhatSub">Solucionamos los problemas de tu equipo</p>
+              <ul>
+                <li data-content="ezeWhat1">Reparación de computadoras y notebooks</li>
+                <li data-content="ezeWhat2">Servicio técnico para celulares</li>
+                <li data-content="ezeWhat3">Formateo e instalación de programas</li>
+                <li data-content="ezeWhat4">Eliminación de virus y mejoras de rendimiento</li>
+                <li data-content="ezeWhat5">Venta de accesorios</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="eze-cats-sec">
+          <div class="wrap">
+            <div class="eze-sec-head eze-rv">
+              <p class="eze-kicker" data-content="ezeCatsKicker">Nuestras categorías</p>
+              <h2 class="eze-h2" data-content="ezeCatsTitle" data-content-multiline="true">Todo lo que buscás,<br>en un solo lugar</h2>
+              <p class="eze-lead" data-content="ezeCatsDesc">Tocá una categoría y la vas a ver en el catálogo, con stock real y compatibilidad garantizada.</p>
+            </div>
+            <div class="eze-cards eze-stagger" id="ezeCatCards" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="eze-svc" id="ezeServicio">
+          <span class="eze-ring" style="width:min(52vw,480px);aspect-ratio:1;right:-8%;top:12%" aria-hidden="true"></span>
+          <div class="wrap eze-svc-grid">
+            <div class="eze-rv">
+              <p class="eze-kicker" data-content="ezeSvcKicker">Servicio técnico</p>
+              <h2 class="eze-h2" data-content="ezeSvcTitle" data-content-multiline="true">Tu equipo en<br>manos expertas</h2>
+              <p class="eze-lead" data-content="ezeSvcDesc">Diagnóstico sin cargo, presupuesto claro antes de tocar nada y repuestos de calidad. Reparamos notebooks, PC de escritorio y celulares de todas las marcas.</p>
+              <div class="eze-steps">
+                <div class="eze-step"><div class="n">1</div><div><h4 data-content="ezeStep1T">Escribinos por WhatsApp</h4><p data-content="ezeStep1D">Contanos qué le pasa a tu equipo y te damos una primera orientación.</p></div></div>
+                <div class="eze-step"><div class="n">2</div><div><h4 data-content="ezeStep2T">Diagnóstico sin cargo</h4><p data-content="ezeStep2D">Revisamos el equipo y te pasamos el presupuesto cerrado, sin sorpresas.</p></div></div>
+                <div class="eze-step"><div class="n">3</div><div><h4 data-content="ezeStep3T">Reparación y entrega</h4><p data-content="ezeStep3D">La mayoría de los trabajos salen en 24 a 48 horas, con garantía escrita.</p></div></div>
+              </div>
+            </div>
+            <div class="eze-panel eze-rv">
+              <h3 data-content="ezeSvcPanelTitle">Servicios más pedidos</h3>
+              <p class="fine-top" data-content="ezeSvcPanelNote">Valores de referencia — el final depende del modelo.</p>
+              <div class="eze-plist">
+                <div class="r"><span data-content="ezeSvc1">Cambio de módulo / pantalla</span><b data-content="ezeSvcP1">Desde $45.000</b></div>
+                <div class="r"><span data-content="ezeSvc2">Cambio de batería celular</span><b data-content="ezeSvcP2">Desde $28.000</b></div>
+                <div class="r"><span data-content="ezeSvc3">Formateo + optimización PC</span><b data-content="ezeSvcP3">Desde $20.000</b></div>
+                <div class="r"><span data-content="ezeSvc4">Limpieza y pasta térmica</span><b data-content="ezeSvcP4">Desde $25.000</b></div>
+                <div class="r"><span data-content="ezeSvc5">Upgrade SSD / memoria RAM</span><b data-content="ezeSvcP5">Desde $18.000</b></div>
+                <div class="r"><span data-content="ezeSvc6">Reparación de pin de carga</span><b data-content="ezeSvcP6">Desde $22.000</b></div>
+              </div>
+              <a class="eze-btn eze-btn-dark eze-btn-full" data-eze-wa href="#"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.6 4.8-1.3A10 10 0 1 0 12 2Zm5.6 14.2c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-1.6-.6-3-1.5-4.2-2.8a9.5 9.5 0 0 1-1.9-2.8c-.4-1-.3-2 .3-2.7.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 1.9c0 .2 0 .4-.1.5l-.4.5c-.1.2-.3.3-.1.6.4.7 1 1.3 1.6 1.8.6.4 1.1.7 1.5.9.3.1.4 0 .6-.2l.7-.8c.2-.2.3-.2.6-.1l1.8.9c.2.1.3.2.4.3.1.2 0 .7-.1.9Z"/></svg> <span data-content="ezeSvcCta">Pedir presupuesto</span></a>
+              <p class="eze-fine" data-content="ezeSvcFine">Diagnóstico sin cargo · Garantía de 6 meses sobre repuestos y mano de obra.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="eze-bens-sec">
+          <div class="wrap">
+            <div class="eze-sec-head eze-rv">
+              <p class="eze-kicker" data-content="ezeBensKicker">Por qué elegirnos</p>
+              <h2 class="eze-h2" data-content="ezeBensTitle" data-content-multiline="true">Comprás tranquilo,<br>arreglás seguro</h2>
+            </div>
+            <div class="eze-bens eze-stagger">
+              <div class="eze-ben"><div class="ic"><svg><use href="#i-shield"></use></svg></div><h4 data-content="ezeBen1T">Garantía escrita</h4><p data-content="ezeBen1D">6 meses en reparaciones y productos.</p></div>
+              <div class="eze-ben"><div class="ic"><svg><use href="#i-truck"></use></svg></div><h4 data-content="ezeBen2T">Entrega inmediata</h4><p data-content="ezeBen2D">Stock real y envíos en el día en Córdoba.</p></div>
+              <div class="eze-ben"><div class="ic"><svg><use href="#i-finance"></use></svg></div><h4 data-content="ezeBen3T">Todos los medios de pago</h4><p data-content="ezeBen3D">Efectivo, transferencia y cuotas con tarjeta.</p></div>
+              <div class="eze-ben"><div class="ic"><svg><use href="#i-phone"></use></svg></div><h4 data-content="ezeBen4T">Asesoramiento real</h4><p data-content="ezeBen4D">Te decimos qué te sirve, no lo más caro.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="eze-quotes-sec">
+          <div class="wrap">
+            <div class="eze-quotes eze-stagger">
+              <div class="eze-quote"><div class="st">★★★★★</div><p data-content="ezeQuote1">“Le cambiaron la pantalla al iPhone en el día y quedó impecable. Precio justo y súper claros con el presupuesto.”</p><div class="who" data-content="ezeWho1">Martina G. — Nueva Córdoba</div></div>
+              <div class="eze-quote"><div class="st">★★★★★</div><p data-content="ezeQuote2">“Compré auriculares y un cargador de 20 W. Me dejaron probar todo en el local, excelente atención.”</p><div class="who" data-content="ezeWho2">Nicolás R. — Alta Córdoba</div></div>
+              <div class="eze-quote"><div class="st">★★★★★</div><p data-content="ezeQuote3">“Me armaron el upgrade de la notebook con SSD y RAM. Vuela. Ya es mi lugar de confianza.”</p><div class="who" data-content="ezeWho3">Lucía F. — Villa Allende</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="eze-cta" id="ezeContacto">
+          <span class="eze-ring light" style="width:min(64vw,600px);aspect-ratio:1;left:50%;top:-16%;transform:translateX(-50%)" aria-hidden="true"></span>
+          <div class="wrap">
+            <p class="eze-kicker eze-rv" style="color:rgba(255,255,255,.6)" data-content="ezeCtaKicker">Hablemos</p>
+            <h2 class="eze-h2 eze-rv" data-content="ezeCtaTitle">¿Buscás un accesorio o necesitás reparar tu equipo?</h2>
+            <p class="eze-lead eze-rv" data-content="ezeCtaDesc">Escribinos por WhatsApp y te respondemos al toque. También podés pasar por el local o seguirnos en Instagram para ver las novedades.</p>
+            <div class="eze-acts eze-rv">
+              <a class="eze-btn eze-btn-white" data-eze-wa href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.6 4.8-1.3A10 10 0 1 0 12 2Zm5.6 14.2c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-1.6-.6-3-1.5-4.2-2.8a9.5 9.5 0 0 1-1.9-2.8c-.4-1-.3-2 .3-2.7.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 1.9c0 .2 0 .4-.1.5l-.4.5c-.1.2-.3.3-.1.6.4.7 1 1.3 1.6 1.8.6.4 1.1.7 1.5.9.3.1.4 0 .6-.2l.7-.8c.2-.2.3-.2.6-.1l1.8.9c.2.1.3.2.4.3.1.2 0 .7-.1.9Z"/></svg> <span data-content="ezeCtaWa">Escribir por WhatsApp</span></a>
+              <a class="eze-btn" style="border:1px solid rgba(255,255,255,.4);color:#fff" data-social-link="instagram" href="#"><span data-content="ezeCtaIg">Ver Instagram</span></a>
+            </div>
+          </div>
+        </section>
       </section>
 
       <section class="bl-front" id="frontBuilder" aria-label="Página armada con el constructor" hidden></section>
@@ -2592,8 +2860,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       uber: settings.uber || null,
       accentColor: settings.accentColor, darkColor: settings.darkColor, backgroundColor: settings.backgroundColor, surfaceColor: settings.surfaceColor, secondaryColor: settings.secondaryColor,
       instagramUrl: settings.instagramUrl || '', facebookUrl: settings.facebookUrl || '', pinterestUrl: settings.pinterestUrl || '', tiktokUrl: settings.tiktokUrl || '',
-      storefront: ['luma', 'ofertas', 'gamer', 'libre'].indexOf(settings.storefront) > -1 ? settings.storefront : 'luma',
-      whatsappConfigured: Boolean(clean(settings.whatsappNumber)), mercadoPagoEnabled: settings.mercadoPagoEnabled !== false, whatsappEnabled: settings.whatsappEnabled !== false,
+      storefront: ['luma', 'ofertas', 'gamer', 'eze', 'libre'].indexOf(settings.storefront) > -1 ? settings.storefront : 'luma',
+      whatsappConfigured: Boolean(clean(settings.whatsappNumber)), whatsappUrl: clean(settings.whatsappNumber) ? `https://wa.me/${String(settings.whatsappNumber).replace(/\D/g, '')}` : '', mercadoPagoEnabled: settings.mercadoPagoEnabled !== false, whatsappEnabled: settings.whatsappEnabled !== false,
       mercadoPagoMode: 'demo',
       content: readStore().content
     };
@@ -3110,7 +3378,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         backgroundColor: /^#[0-9a-f]{6}$/i.test(body.backgroundColor || '') ? body.backgroundColor : mS.backgroundColor,
         surfaceColor: /^#[0-9a-f]{6}$/i.test(body.surfaceColor || '') ? body.surfaceColor : mS.surfaceColor,
         secondaryColor: /^#[0-9a-f]{6}$/i.test(body.secondaryColor || '') ? body.secondaryColor : mS.secondaryColor,
-        storefront: ['luma', 'ofertas', 'gamer', 'libre'].indexOf(body.storefront) > -1 ? body.storefront : (mS.storefront || 'luma'),
+        storefront: ['luma', 'ofertas', 'gamer', 'eze', 'libre'].indexOf(body.storefront) > -1 ? body.storefront : (mS.storefront || 'luma'),
         instagramUrl: body.instagramUrl == null ? mS.instagramUrl : (/^https?:\/\//i.test(body.instagramUrl) ? clean(body.instagramUrl, 500) : ''),
         facebookUrl: body.facebookUrl == null ? mS.facebookUrl : (/^https?:\/\//i.test(body.facebookUrl) ? clean(body.facebookUrl, 500) : ''),
         pinterestUrl: body.pinterestUrl == null ? mS.pinterestUrl : (/^https?:\/\//i.test(body.pinterestUrl) ? clean(body.pinterestUrl, 500) : ''),
@@ -3483,7 +3751,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           backgroundColor: /^#[0-9a-f]{6}$/i.test(body.backgroundColor || '') ? body.backgroundColor : store.settings.backgroundColor,
           surfaceColor: /^#[0-9a-f]{6}$/i.test(body.surfaceColor || '') ? body.surfaceColor : store.settings.surfaceColor,
           secondaryColor: /^#[0-9a-f]{6}$/i.test(body.secondaryColor || '') ? body.secondaryColor : store.settings.secondaryColor,
-          storefront: ['luma','ofertas','gamer','libre'].indexOf(body.storefront)>-1?body.storefront:(store.settings.storefront||'luma'),
+          storefront: ['luma','ofertas','gamer','eze','libre'].indexOf(body.storefront)>-1?body.storefront:(store.settings.storefront||'luma'),
           instagramUrl: body.instagramUrl == null ? store.settings.instagramUrl : (/^https?:\/\//i.test(body.instagramUrl) ? clean(body.instagramUrl,500) : ''),
           facebookUrl: body.facebookUrl == null ? store.settings.facebookUrl : (/^https?:\/\//i.test(body.facebookUrl) ? clean(body.facebookUrl,500) : ''),
           pinterestUrl: body.pinterestUrl == null ? store.settings.pinterestUrl : (/^https?:\/\//i.test(body.pinterestUrl) ? clean(body.pinterestUrl,500) : ''),
@@ -3714,7 +3982,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   // ---- v0.9 · Frentes de tienda: mismo admin, distinta vidriera pública ----
-  const MT_FRONTS = { luma: 'Boutique · Editorial', ofertas: 'Ofertas · Consumo', gamer: 'Gamer · Hardware', libre: 'Libre · Constructor' };
+  const MT_FRONTS = { luma: 'Boutique · Editorial', ofertas: 'Ofertas · Consumo', gamer: 'Gamer · Hardware', eze: 'Eze.pece · Accesorios y servicio', libre: 'Libre · Constructor' };
   function currentFront() {
     const value = state.settings.storefront;
     return MT_FRONTS[value] ? value : 'luma';
@@ -3723,8 +3991,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     document.body.dataset.front = currentFront();
     $('frontOfertas')?.toggleAttribute('hidden', currentFront() !== 'ofertas');
     $('frontGamer')?.toggleAttribute('hidden', currentFront() !== 'gamer');
+    $('frontEze')?.toggleAttribute('hidden', currentFront() !== 'eze');
     blApplyHome();
     renderFrontExtras();
+    ezeReveal();
   }
   function frontCategoryIcon(category) {
     const key = (category || '').toLocaleLowerCase('es');
@@ -3778,6 +4048,47 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           <span>Ver todo <svg><use href="#i-arrow"></use></svg></span>
         </button>`).join('') : '<div class="gmr-empty">Cargá productos en el panel para poblar las categorías.</div>';
     }
+    // ---- v0.16 · Frente Eze.pece: chips del hero + tarjetas de categorías ----
+    const ezeCats = [...new Set(state.products.filter((product) => product.active !== false).map((product) => product.category).filter(Boolean))];
+    const ezeChipRow = $('ezeCatChips');
+    if (ezeChipRow) {
+      ezeChipRow.innerHTML = ezeCats.map((category) => `<button class="eze-chip" type="button" data-front-jump="${esc(category)}"><svg><use href="${frontCategoryIcon(category)}"></use></svg>${esc(category)}</button>`).join('');
+    }
+    const ezeCards = $('ezeCatCards');
+    if (ezeCards) {
+      ezeCards.innerHTML = ezeCats.length ? ezeCats.map((category) => {
+        const count = state.products.filter((product) => product.active !== false && product.category === category).length;
+        return `<button class="eze-card" type="button" data-front-jump="${esc(category)}">
+          <span class="ic"><svg><use href="${frontCategoryIcon(category)}"></use></svg></span>
+          <h3>${esc(category)}</h3>
+          <p>${count === 1 ? '1 producto publicado' : count + ' productos publicados'}. Stock real y entrega inmediata.</p>
+          <span class="more">Ver en el catálogo <svg><use href="#i-arrow"></use></svg></span>
+        </button>`;
+      }).join('') : '<div class="eze-empty">Cargá productos en el panel para ver las categorías acá.</div>';
+    }
+    // ---- v0.16 · Frente Eze.pece: botones de WhatsApp con el número de la tienda ----
+    // El mock público devuelve whatsappUrl armada; el cloud expone whatsappNumber crudo.
+    const ezeWa = String(state.settings.whatsappUrl || '') || (String(state.settings.whatsappNumber || '').replace(/\D/g, '') ? `https://wa.me/${String(state.settings.whatsappNumber).replace(/\D/g, '')}` : '');
+    document.querySelectorAll('#frontEze [data-eze-wa]').forEach((node) => {
+      node.href = ezeWa || '#';
+    });
+  }
+  // ---- v0.16 · Frente Eze.pece: revelados al entrar en pantalla (una sola vez) ----
+  let ezeRevealDone = false;
+  function ezeReveal() {
+    if (ezeRevealDone) return;
+    const nodes = document.querySelectorAll('#frontEze .eze-rv, #frontEze .eze-stagger');
+    if (!nodes.length) return;
+    ezeRevealDone = true;
+    if (!('IntersectionObserver' in window)) { nodes.forEach((node) => node.classList.add('on')); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('on');
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.12 });
+    nodes.forEach((node) => io.observe(node));
   }
   function frontClick(event) {
     const add = event.target.closest('[data-front-add]');
