@@ -152,4 +152,27 @@ test.describe('Modo Tech (v0.17)', () => {
     await expectNoPageErrors(page);
   });
 
+  test('T7 · El FAB del carrito no se pisa con el botón flotante de WhatsApp', async ({ page }) => {
+    await useTechFront(page);
+    const frame = page.frameLocator('#techFrame');
+    await expect(frame.locator('.mt-tech-fab')).toBeVisible({ timeout: 15_000 });
+    await expect(frame.locator('a.wa')).toBeVisible();
+    const check = async () => {
+      const fab = await frame.locator('.mt-tech-fab').boundingBox();
+      const wa = await frame.locator('a.wa').boundingBox();
+      if (!fab || !wa) throw new Error('FAB o .wa sin bounding box');
+      // sin solape horizontal ni vertical
+      const overlap = fab.x < wa.x + wa.width && wa.x < fab.x + fab.width &&
+                      fab.y < wa.y + wa.height && wa.y < fab.y + fab.height;
+      expect(overlap, `Se pisan: fab=${JSON.stringify(fab)} wa=${JSON.stringify(wa)}`).toBe(false);
+      // el carrito queda apilado arriba de WhatsApp
+      expect(fab.y + fab.height).toBeLessThanOrEqual(wa.y);
+    };
+    await check();
+    // también en mobile, donde el media query mueve ambos
+    await page.setViewportSize({ width: 390, height: 844 });
+    await check();
+    await expectNoPageErrors(page);
+  });
+
 });
