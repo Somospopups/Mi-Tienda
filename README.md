@@ -18,13 +18,19 @@ que además funciona como demo offline de un solo dispositivo.
 
 | Modo | Datos | Auth | Uso |
 |---|---|---|---|
-| Demo offline | `localStorage` (`luma_offline_store_v1`) vía mock API embebido que intercepta `fetch('/api/*')` | PIN (defecto `1234`) | Mostrar el producto, doble clic y funciona sin internet |
+| Demo offline | `localStorage` (`luma_offline_store_v1`) vía mock API embebido que intercepta `fetch('/api/*')` | PIN (defecto `1234`) o Clave maestra POPUPS (v0.19) | Mostrar el producto, doble clic y funciona sin internet |
 | Vitrina cloud | Supabase RPC `api_public` (caché cliente 20 s) | pública | Tiendas vendidas |
-| Panel dueño cloud | Supabase RPC `api_panel` + espejo local con sync por sección | Clave de acceso (`ck:` en sessionStorage) | Gestión desde cualquier dispositivo |
+| Panel dueño cloud | Supabase RPC `api_panel` + espejo local con sync por sección | Clave de acceso (`ck:` en sessionStorage) o Clave maestra POPUPS | Gestión desde cualquier dispositivo |
 
 **Puerta POPUPS:** si la tienda está `suspendida` o `baja` (impago gestionado desde la
 Consola POPUPS), un script previo al render bloquea la página completa en cualquier
 dispositivo. Al regularizar, vuelve sola.
+
+**Clave maestra POPUPS (v0.19):** una llave única de POPUPS (guardada como secreto, no
+se reparte) abre el panel de cualquier tienda sin conocer su PIN ni su Clave de acceso.
+En el frontend vive solo su SHA-256; en la nube la valida [`supabase/master-key.sql`](supabase/master-key.sql)
+(hash bcrypt + `mt_key_ok` en las 8 RPC con chequeo de clave). **Aplicación**: SQL Editor
+de Supabase → pegar ese archivo → Run. Ojo: quien la tiene entra a todas las tiendas.
 
 ## Qué incluye
 
@@ -56,7 +62,7 @@ contratos verificados en vivo, esquema reconstruido y procedimiento de exportaci
 1. Descargá `index.html` (o cloná el repo).
 2. Doble clic (abre en cualquier navegador moderno, sin internet).
 3. Tienda: explorá, agregá al carrito, probá el checkout (MP en modo demo o WhatsApp).
-4. Panel: botón "Panel" (o `#admin`) → PIN `1234` (cambialo en Configuración → Seguridad).
+4. Panel: botón "Panel" (o `#admin`) → PIN `1234` (cambialo en Configuración → Seguridad); también entra con la Clave maestra POPUPS.
 5. **Modo edición visual:** logueate en el panel y tocá **"Ver tienda / Editar"** (entra directo al modo edición); o volvé a la tienda y usé el botón flotante **"Editar página"**. Clic sobre un texto, imagen o producto para editarlo; los colores se cambian desde el botón **Colores** de la barra y la paleta completa desde Configuración → General.
 6. **Armar el home (v0.14):** en el modo edición, tocá **Bloques** en la barra y agregá complementos (Portada, Oferta, Testimonios, Video, Productos, Banner). Tocá un bloque para editarlo, **Listo** para guardar y **Terminar** para volver al panel. Con bloques guardados tu página es el home de la tienda; el catálogo se abre desde el menú o desde cualquier botón de la página.
 
@@ -100,6 +106,7 @@ regresión en luma; v0.18: FAB al lado de WhatsApp, edición de textos y fotos d
 - `EventSource` está anulado a propósito (el "live pill" del panel es decorativo hasta conectar SSE/Realtime real).
 - **v0.14 · Página personalizada**: cuando el dueño arma bloques, su home reemplaza al clásico y al catálogo; el menú "Novedades" y "Manifiesto" siguen apuntando a secciones del hogar clásico, que quedan ocultas (el catálogo se abre bien desde el menú y desde los botones `#coleccion`). Borrar todos los bloques devuelve el home clásico. Pendiente para una versión siguiente: ofrecer esas dos secciones como complementos.
 - **v0.15 · Fotos de fondo y peso**: los fondos y las fotos de cabecera se comprimen a ~300 KB (son decorativos) y antes de guardar se revisa el peso: si la página pasa el tope de 3 MB del contenido se achican las fotos más grandes en lugar de guardar el JSON recortado. El límite real por página es de **2,6 MB**; con muchas fotos de fondo conviene usar imágenes de 1400 px o menos.
+- **v0.19 · Clave maestra**: en la demo (`/#admin`) la maestra ya funciona; en la nube falta **aplicar [`supabase/master-key.sql`](supabase/master-key.sql)** en el SQL Editor de Supabase (1 minuto). Hasta entonces, en una tienda cloud la maestra sigue respondiendo "Clave incorrecta".
 
 ## Licencia / contacto
 

