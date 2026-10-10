@@ -1338,6 +1338,16 @@ body.mt-edit-mode #shopApp .mt-edit-active {
 
   /* ---- cabecera fusionada ---- */
   .tf-head { position: sticky; top: 0; z-index: 40; background: var(--tf-sky); padding: 14px 0 0; }
+  /* Asegurar que las secciones y tarjetas queden en capas limpias y no se solapen con la barra pegajosa */
+  .tf-sec { position: relative; z-index: 2; }
+  .tf-cards, .tf-bens, .tf-quotes { position: relative; z-index: 2; }
+  .tf-card, .tf-quote, .tf-ben { position: relative; z-index: 2; }
+  /* Arrastre libre de los textos grandes */
+  .tf-display[data-tf-drag] { position: relative; display: inline-block; transition: box-shadow .2s ease; will-change: transform; }
+  body.mt-edit-mode .tf-display[data-tf-drag] { cursor: grab !important; outline: 2px dashed rgba(255,255,255,.6); border-radius: 8px; padding: 2px 8px; user-select: none; }
+  body.mt-edit-mode .tf-display[data-tf-drag]:hover { outline-color: #fff; background: rgba(255,255,255,.15); }
+  body.mt-edit-mode .tf-display[data-tf-drag].tf-is-dragging { cursor: grabbing !important; opacity: .85; z-index: 50 !important; }
+
   .tf-head.tf-stuck { box-shadow: 0 10px 30px rgba(50, 80, 100, .12); padding-top: 8px; }
   .tf-head.tf-stuck .tf-brand b { font-size: clamp(1.2rem, 2.4vw, 1.55rem); }
   .tf-head.tf-stuck .tf-cats { margin: 8px 0 0; }
@@ -2135,14 +2145,14 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <section class="tf-sec" id="tfWhat">
           <svg class="tf-ring" viewBox="0 0 100 100" style="width:min(74vw,760px);aspect-ratio:1;left:4%;top:8%" aria-hidden="true"><circle cx="50" cy="50" r="49.5" pathLength="100" transform="rotate(-90 50 50)"/></svg>
           <div class="tf-wrap tf-what">
-            <h2 class="tf-display tf-rv" data-tf-split data-content="tchWhat1"></h2>
-            <div class="tf-r2"><h2 class="tf-display tf-rv" data-tf-split data-content="tchWhat2"></h2></div>
+            <h2 class="tf-display tf-rv" data-tf-split data-tf-drag="tchWhat1" data-content="tchWhat1"></h2>
+            <div class="tf-r2"><h2 class="tf-display tf-rv" data-tf-split data-tf-drag="tchWhat2" data-content="tchWhat2"></h2></div>
             <div class="tf-whatlist tf-rv">
               <p data-content="tchWhatSub"></p>
               <ul id="tfWhatList" data-content="tchWhatList" data-content-multiline="true" hidden></ul>
               <ul id="tfWhatListOut"></ul>
             </div>
-            <h2 class="tf-display tf-rv" data-tf-split data-content="tchWhat3"></h2>
+            <h2 class="tf-display tf-rv" data-tf-split data-tf-drag="tchWhat3" data-content="tchWhat3"></h2>
           </div>
         </section>
 
@@ -3949,7 +3959,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       nav1: 'Tienda', nav2: 'Novedades', nav3: 'Nuestra mirada',
       tchCat1: 'Fundas y\nprotectores', tchCat2: 'Auriculares\ny audio', tchCat3: 'Cargadores\ny cables', tchCat4: 'Accesorios\nPC y Mac',
       tchCat5: 'Servicio técnico\nPC y celulares', tchN1: '+1.200', tchN1L: 'Clientes satisfechos', tchN2: '24-48 h', tchN2L: 'Reparaciones express',
-      tchN3: '6 meses', tchN3L: 'De garantía escrita', tchWhat1: 'Conocé', tchWhat2: 'qué', tchWhat3: 'hacemos',
+      tchN3: '6 meses', tchN3L: 'De garantía escrita', tchWhat1: 'Conocé', tchWhat2: 'qué', tchWhat3: 'hacemos', tchWhat1Pos: '', tchWhat2Pos: '', tchWhat3Pos: '',
       tchWhatSub: 'Solucionamos los problemas de tu equipo',
       tchWhatList: 'Reparación de computadoras y notebooks\nServicio técnico para celulares\nFormateo e instalación de programas\nEliminación de virus y mejoras de rendimiento\nVenta de accesorios',
       tchCatsKicker: 'Nuestras categorías', tchCatsTitle: 'Todo para tu equipo, en un solo lugar',
@@ -4411,6 +4421,79 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (head) head.classList.toggle('tf-stuck', y > 30);
     });
   }
+  
+  function tfApplyWhatPositions() {
+    ['tchWhat1', 'tchWhat2', 'tchWhat3'].forEach((k) => {
+      const el = document.querySelector(`[data-tf-drag="${k}"]`);
+      if (!el) return;
+      const raw = state.content[k + 'Pos'];
+      if (raw) {
+        try {
+          const pos = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
+            el.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+            el.dataset.tfX = pos.x;
+            el.dataset.tfY = pos.y;
+            return;
+          }
+        } catch (_) {}
+      }
+      el.style.transform = '';
+      el.dataset.tfX = 0;
+      el.dataset.tfY = 0;
+    });
+  }
+
+  // Drag & drop libre para los textos CONOCÉ, QUÉ, HACEMOS en modo edición
+  (function initTechDrag() {
+    let activeDrag = null;
+    let startX = 0, startY = 0, initX = 0, initY = 0, hasMoved = false;
+
+    document.addEventListener('mousedown', (e) => {
+      if (!document.body.classList.contains('mt-edit-mode')) return;
+      const target = e.target.closest('[data-tf-drag]');
+      if (!target) return;
+      // Iniciar arrastre
+      activeDrag = target;
+      hasMoved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      initX = parseFloat(target.dataset.tfX || 0);
+      initY = parseFloat(target.dataset.tfY || 0);
+      target.classList.add('tf-is-dragging');
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+
+    document.addEventListener('mousemove', (e) => {
+      if (!activeDrag) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+      const curX = Math.round(initX + dx);
+      const curY = Math.round(initY + dy);
+      activeDrag.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
+      activeDrag.dataset.tfX = curX;
+      activeDrag.dataset.tfY = curY;
+    });
+
+    document.addEventListener('mouseup', async (e) => {
+      if (!activeDrag) return;
+      const el = activeDrag;
+      activeDrag = null;
+      el.classList.remove('tf-is-dragging');
+      if (hasMoved) {
+        const key = el.dataset.tfDrag + 'Pos';
+        const val = JSON.stringify({ x: parseFloat(el.dataset.tfX || 0), y: parseFloat(el.dataset.tfY || 0) });
+        state.content[key] = val;
+        try {
+          await api('/api/admin/content', { admin: true, method: 'PUT', body: JSON.stringify({ [key]: val }) });
+          toast('Posición guardada', 'Se actualizó la ubicación del texto.');
+        } catch (_) {}
+      }
+    });
+  })();
+
   function renderTechFront() {
     const root = $('frontTech');
     if (!root) return;
@@ -4420,7 +4503,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     tfBrand();
     tfWhatList();
     tfMirrors();
-    tfSplitWords();
+    tfSplitWords(); tfApplyWhatPositions();
     const count = $('tfCartCount');
     if (count) count.textContent = String(state.cart.reduce((acc, item) => acc + item.qty, 0));
     if (!TF.ready) {
@@ -7466,7 +7549,7 @@ async function mtGuiaPdf() {
     tchCat4: { L: 'Botón 4 del hero', max: 120 }, tchCat5: { L: 'Botón 5 del hero', max: 120 }, tchN1: { L: 'Número 1', max: 120 },
     tchN1L: { L: 'Número 1 · texto', max: 120 }, tchN2: { L: 'Número 2', max: 120 }, tchN2L: { L: 'Número 2 · texto', max: 120 }, tchN3: { L: 'Número 3', max: 120 },
     tchN3L: { L: 'Número 3 · texto', max: 120 }, tchWhat1: { L: 'Titular grande · palabra 1', max: 120 }, tchWhat2: { L: 'Titular grande · palabra 2', max: 120 },
-    tchWhat3: { L: 'Titular grande · palabra 3', max: 120 }, tchWhatSub: { L: 'Bajada del titular grande', max: 120 },
+    tchWhat3: { L: 'Titular grande · palabra 3', max: 120 }, tchWhat1Pos: { L: 'Posición palabra 1', max: 120 }, tchWhat2Pos: { L: 'Posición palabra 2', max: 120 }, tchWhat3Pos: { L: 'Posición palabra 3', max: 120 }, tchWhatSub: { L: 'Bajada del titular grande', max: 120 },
     tchWhatList: { L: 'Lista de servicios (uno por línea)', max: 400 }, tchCatsKicker: { L: 'Categorías · texto superior', max: 120 },
     tchCatsTitle: { L: 'Categorías · título', max: 120 }, tchCatsDesc: { L: 'Categorías · descripción', max: 300 }, tchC1T: { L: 'Tarjeta 1 · título', max: 120 },
     tchC1D: { L: 'Tarjeta 1 · texto', max: 120 }, tchC2T: { L: 'Tarjeta 2 · título', max: 120 }, tchC2D: { L: 'Tarjeta 2 · texto', max: 120 },
