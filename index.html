@@ -1930,16 +1930,13 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .tf-band strong { display: block; font-size: clamp(1.9rem, 5vw, 3.3rem); font-weight: 800; letter-spacing: -.03em; color: #fff; line-height: 1; }
   .tf-band span { display: block; margin-top: 10px; font-size: .84rem; color: #4A4A4A; }
 
-  /* ---- bloque editorial ---- */
-  .tf-what { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(20px, 4vw, 60px); row-gap: clamp(10px, 2.4vw, 30px); position: relative; z-index: 2; }
-  .tf-what > :nth-child(1) { grid-column: 1; }
-  .tf-what > :nth-child(2) { grid-column: 2; }
-  .tf-what > :nth-child(3) { grid-column: 1; }
-  .tf-what > :nth-child(4) { grid-column: 2; align-self: end; justify-self: end; text-align: right; }
-  .tf-display { font-weight: 800; letter-spacing: -.025em; line-height: .95; font-size: clamp(2.6rem, 10vw, 7.5rem); color: #fff; text-transform: uppercase; }
-  .tf-what .tf-r2 { display: flex; justify-content: flex-end; }
-  .tf-whatlist { max-width: 480px; }
-  .tf-whatlist p { font-weight: 800; text-transform: uppercase; font-size: clamp(1rem, 2vw, 1.3rem); color: var(--tf-ink); margin-bottom: 20px; max-width: 24ch; }
+  /* ---- bloque editorial unificado ---- */
+  .tf-what { display: flex; flex-direction: column; gap: clamp(24px, 4vw, 42px); position: relative; z-index: 2; }
+  .tf-what-header { width: 100%; }
+  .tf-display { font-weight: 900; letter-spacing: -.03em; line-height: 1.02; font-size: clamp(2.2rem, 6.5vw, 5.2rem); color: #fff; text-transform: uppercase; margin: 0; word-break: break-word; }
+  .tf-what-title { display: flex; flex-wrap: wrap; gap: 12px clamp(12px, 2.5vw, 24px); align-items: baseline; }
+  .tf-whatlist { max-width: 640px; width: 100%; }
+  .tf-whatlist p { font-weight: 800; text-transform: uppercase; font-size: clamp(1rem, 2vw, 1.25rem); color: var(--tf-ink); margin-bottom: 20px; max-width: 32ch; }
   .tf-whatlist ul { list-style: none; display: grid; gap: 15px; margin: 0; padding: 0; }
   .tf-whatlist li { font-size: 1rem; color: #4A4A4A; padding-bottom: 15px; border-bottom: 1px solid rgba(74,74,74,.18); }
   .tf-whatlist li:last-child { border-bottom: 0; }
@@ -2061,8 +2058,8 @@ body.mt-edit-mode #shopApp .mt-edit-active {
 
   @media (max-width: 900px) {
     .tf-svc { grid-template-columns: 1fr; }
-    .tf-what { grid-template-columns: 1fr; }
-    .tf-what > :nth-child(n) { grid-column: 1; justify-self: start; text-align: left; }
+    .tf-what { gap: 24px; }
+    .tf-display { font-size: clamp(2.1rem, 9vw, 3.4rem); line-height: 1.05; }
     .tf-head-row { flex-wrap: wrap; }
     .tf-act span { display: none; }
     .tf-act { padding: 9px 12px; }
@@ -2699,14 +2696,16 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <section class="tf-sec" id="tfWhat" data-tf-sec="what">
           <svg class="tf-ring" viewBox="0 0 100 100" style="width:min(74vw,760px);aspect-ratio:1;left:4%;top:8%" aria-hidden="true"><circle cx="50" cy="50" r="49.5" pathLength="100" transform="rotate(-90 50 50)"/></svg>
           <div class="tf-wrap tf-what">
-            <h2 class="tf-display tf-rv" data-tf-drag="tchWhat1" data-content="tchWhat1"></h2>
-            <div class="tf-r2"><h2 class="tf-display tf-rv" data-tf-drag="tchWhat2" data-content="tchWhat2"></h2></div>
+            <div class="tf-what-header tf-rv">
+              <h2 class="tf-display tf-what-title">
+                <span data-content="tchWhat1">Conocé</span> <span data-content="tchWhat2">qué</span> <span data-content="tchWhat3">hacemos</span>
+              </h2>
+            </div>
             <div class="tf-whatlist tf-rv">
               <p data-content="tchWhatSub"></p>
               <ul id="tfWhatList" data-content="tchWhatList" data-content-multiline="true" hidden></ul>
               <ul id="tfWhatListOut"></ul>
             </div>
-            <h2 class="tf-display tf-rv" data-tf-drag="tchWhat3" data-content="tchWhat3"></h2>
           </div>
         </section>
 
@@ -2939,7 +2938,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v53</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v54</span></div></div>
     </footer>
   </div>
 
