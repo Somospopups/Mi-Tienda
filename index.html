@@ -1384,21 +1384,95 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .tf-act:hover { background: #fff; border-color: #fff; }
   .tf-act svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; }
   .tf-act b { background: var(--tf-ink); color: #fff; border-radius: 999px; min-width: 20px; height: 20px; display: grid; place-items: center; font-size: .72rem; }
-  .tf-cats { display: grid; grid-template-columns: repeat(7, 1fr); margin: clamp(14px, 2.4vw, 26px) 0 clamp(22px, 3.4vw, 44px); }
-  @media (max-width: 860px) { .tf-cats { display: flex; overflow-x: auto; scrollbar-width: none; } .tf-cat { flex: 0 0 110px; } } .tf-cat { position: relative; display: block; text-align: center; padding: 14px 8px 16px; border-radius: 14px; border: 0; background: transparent; font: inherit; cursor: pointer; isolation: isolate; transition: background .25s ease, transform .25s ease, box-shadow .25s ease; }
-  .tf-cat + .tf-cat::before { content: ""; position: absolute; left: 0; top: 14%; height: 72%; width: 1px; background: rgba(74, 74, 74, .3); }
-  .tf-cat > .tf-in { position: relative; z-index: 1; display: block; overflow: hidden; border-radius: inherit; }
-  .tf-cat > .tf-in::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,.78) 50%, transparent 68%); transform: translateX(-130%); transition: transform .75s cubic-bezier(.22,.8,.3,1); mix-blend-mode: overlay; }
-  .tf-cat:hover > .tf-in::after { transform: translateX(130%); }
-  .tf-cat svg { display: block; margin: 0 auto 9px; width: 25px; height: 25px; fill: none; stroke: var(--tf-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .tf-cat span { display: block; font-size: .8rem; line-height: 1.32; color: #4A4A4A; font-weight: 500; }
-  .tf-cat:hover { background: rgba(255,255,255,.62); transform: translateY(-4px); box-shadow: 0 12px 26px rgba(60,95,120,.16); }
-  .tf-cat:hover::before, .tf-cat:hover + .tf-cat::before { background: transparent; }
-  .tf-cat.is-on { background: #fff; }
-  .tf-cat.is-on span { color: var(--tf-ink); font-weight: 700; }
-  .tf-mirror { position: absolute; left: 0; right: 0; top: 100%; height: 56%; overflow: hidden; pointer-events: none; z-index: 0; opacity: .75;
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.42), rgba(0,0,0,0) 72%); mask-image: linear-gradient(to bottom, rgba(0,0,0,.42), rgba(0,0,0,0) 72%); }
-  .tf-mirror-in { display: block; position: absolute; left: 0; right: 0; top: 0; transform: scaleY(-1); }
+  
+  /* ---- Barra de categorías estilo Apple Glass (Mirroring / Liquid Glass) ---- */
+  .tf-cats {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    margin: clamp(14px, 2.4vw, 24px) 0 clamp(20px, 3.2vw, 36px);
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 20px;
+    padding: 6px;
+    box-shadow: 0 16px 36px rgba(45, 75, 95, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.85);
+    position: relative;
+    z-index: 10;
+  }
+  @media (max-width: 860px) {
+    .tf-cats { display: flex; overflow-x: auto; scrollbar-width: none; border-radius: 16px; padding: 4px; }
+    .tf-cat { flex: 0 0 100px; }
+  }
+  .tf-cat {
+    position: relative; display: block; text-align: center;
+    padding: 12px 6px 14px; border-radius: 15px; border: 0;
+    background: transparent; font: inherit; cursor: pointer;
+    transition: all .25s cubic-bezier(.22,.8,.3,1);
+  }
+  .tf-cat + .tf-cat::before {
+    content: ""; position: absolute; left: 0; top: 18%; height: 64%; width: 1px;
+    background: rgba(0, 0, 0, 0.08);
+  }
+  .tf-cat:hover::before, .tf-cat:hover + .tf-cat::before,
+  .tf-cat.is-on::before, .tf-cat.is-on + .tf-cat::before { background: transparent; }
+  .tf-cat > .tf-in { position: relative; z-index: 1; display: block; border-radius: inherit; }
+  .tf-cat svg {
+    display: block; margin: 0 auto 7px; width: 23px; height: 23px;
+    fill: none; stroke: var(--tf-ink); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform .25s ease;
+  }
+  .tf-cat span {
+    display: block; font-size: .78rem; line-height: 1.25;
+    color: #374151; font-weight: 600; transition: color .2s ease;
+  }
+  .tf-cat:hover {
+    background: rgba(255, 255, 255, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  }
+  .tf-cat:hover svg { transform: scale(1.1); }
+  .tf-cat.is-on {
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 #ffffff;
+  }
+  .tf-cat.is-on span { color: #000000; font-weight: 750; }
+  .tf-cat.is-on svg { stroke: #000000; stroke-width: 2; transform: scale(1.08); }
+
+  /* Desactivar efecto espejo antiguo de letras */
+  .tf-mirror { display: none !important; }
+
+  /* ---- Botón flotante oficial de WhatsApp (Verde oficial #25D366) ---- */
+  .tf-wa-fab {
+    position: fixed; right: 24px; bottom: 24px; z-index: 99;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #25D366; color: #ffffff;
+    display: grid; place-items: center;
+    box-shadow: 0 12px 28px rgba(37, 211, 102, 0.42);
+    border: 2px solid #ffffff;
+    text-decoration: none;
+    transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), box-shadow .25s ease;
+  }
+  .tf-wa-fab svg { width: 32px; height: 32px; fill: none; stroke: #ffffff; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+  .tf-wa-fab:hover {
+    transform: scale(1.12);
+    box-shadow: 0 16px 36px rgba(37, 211, 102, 0.55);
+    background: #20ba59;
+  }
+  .tf-wa-fab:active { transform: scale(.96); }
+  .tf-wa-fab-pulse {
+    position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid #25D366; opacity: .7;
+    animation: tfWaPulse 2.4s ease-out infinite; pointer-events: none;
+  }
+  @keyframes tfWaPulse {
+    0% { transform: scale(1); opacity: .7; }
+    70% { transform: scale(1.35); opacity: 0; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  @media (max-width: 600px) {
+    .tf-wa-fab { right: 18px; bottom: 18px; width: 54px; height: 54px; }
+    .tf-wa-fab svg { width: 28px; height: 28px; }
+  }
 
   /* ---- hero ---- */
   .tf-shots { position: relative; width: 100%; aspect-ratio: 1400 / 700; }
@@ -1479,7 +1553,19 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .tf-quote { background: #fff; border-radius: 22px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,.04); border: 1px solid rgba(74,74,74,.1); }
   .tf-white .tf-quote { background: var(--tf-sky); border-color: transparent; }
 
-  .tf-quote i { font-style: normal; letter-spacing: 4px; font-size: .8rem; display: block; margin-bottom: 12px; }
+  
+  .tf-quote-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
+  .tf-stars { color: #f59e0b; font-size: .85rem; letter-spacing: 3px; }
+  .tf-social-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: .68rem; font-weight: 750; text-transform: uppercase; letter-spacing: .04em;
+    padding: 4px 9px; border-radius: 999px; line-height: 1;
+  }
+  .tf-social-badge svg { width: 12px; height: 12px; }
+  .tf-social-badge.is-ig { background: rgba(225, 48, 108, .12); color: #d62976; border: 1px solid rgba(225, 48, 108, .2); }
+  .tf-social-badge.is-fb { background: rgba(24, 119, 242, .12); color: #1877f2; border: 1px solid rgba(24, 119, 242, .2); }
+  .tf-social-badge.is-wa { background: rgba(37, 211, 102, .14); color: #128c7e; border: 1px solid rgba(37, 211, 102, .25); }
+
   .tf-quote p { font-size: .95rem; margin: 0; }
   .tf-quote small { display: block; margin-top: 16px; font-size: .83rem; color: var(--tf-ink-soft); font-weight: 700; }
 
@@ -1999,6 +2085,8 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4V8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
     <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 9V5h4M16 5h4v4M20 15v4h-4M8 19H4v-4M7 12h10M8 9v6M11 9v6M14 9v6M17 9v6" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M20 11.7a8 8 0 0 1-11.8 7L4 20l1.3-4A8 8 0 1 1 20 11.7Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8.2c.2-.5.5-.5.8-.5h.4c.2 0 .4.1.5.4l.8 1.8c.1.3 0 .5-.2.7l-.6.7c-.2.2-.1.4 0 .6.5 1 1.3 1.8 2.3 2.3.2.1.4.2.6 0l.8-.9c.2-.2.4-.3.7-.2l1.7.8c.3.1.4.3.4.6 0 .7-.4 1.4-1 1.8-.5.3-1.2.5-2 .3-1.1-.3-2.6-1-4.2-2.5-1.3-1.3-2.2-2.8-2.5-4-.2-.8 0-1.4.5-1.9Z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
@@ -2350,9 +2438,30 @@ body.mt-edit-mode #shopApp .mt-edit-active {
 
         <section class="tf-sec tf-white" style="padding-top:0">
           <div class="tf-wrap tf-quotes">
-        <div class="tf-quote tf-rv"><i>★★★★★</i><p data-content="tchQ1"></p><small data-content="tchQ1A"></small></div>
-        <div class="tf-quote tf-rv"><i>★★★★★</i><p data-content="tchQ2"></p><small data-content="tchQ2A"></small></div>
-        <div class="tf-quote tf-rv"><i>★★★★★</i><p data-content="tchQ3"></p><small data-content="tchQ3A"></small></div>
+        <div class="tf-quote tf-rv">
+          <div class="tf-quote-top">
+            <span class="tf-stars">★★★★★</span>
+            <span class="tf-social-badge is-ig" title="Reseña verificada en Instagram"><svg viewBox="0 0 24 24"><use href="#i-instagram"></use></svg> Instagram</span>
+          </div>
+          <p data-content="tchQ1"></p>
+          <small data-content="tchQ1A"></small>
+        </div>
+        <div class="tf-quote tf-rv">
+          <div class="tf-quote-top">
+            <span class="tf-stars">★★★★★</span>
+            <span class="tf-social-badge is-fb" title="Reseña verificada en Facebook"><svg viewBox="0 0 24 24"><use href="#i-facebook"></use></svg> Facebook</span>
+          </div>
+          <p data-content="tchQ2"></p>
+          <small data-content="tchQ2A"></small>
+        </div>
+        <div class="tf-quote tf-rv">
+          <div class="tf-quote-top">
+            <span class="tf-stars">★★★★★</span>
+            <span class="tf-social-badge is-wa" title="Mensaje verificado en WhatsApp"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"></use></svg> WhatsApp</span>
+          </div>
+          <p data-content="tchQ3"></p>
+          <small data-content="tchQ3A"></small>
+        </div>
           </div>
         </section>
 
@@ -2368,6 +2477,13 @@ body.mt-edit-mode #shopApp .mt-edit-active {
             </div>
           </div>
         </section>
+
+        <!-- Botón flotante oficial de WhatsApp -->
+        <a class="tf-wa-fab" id="tfWaFab" href="https://wa.me/5493510000000" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
+          <svg viewBox="0 0 24 24"><use href="#i-whatsapp"></use></svg>
+          <span class="tf-wa-fab-pulse" aria-hidden="true"></span>
+        </a>
+
       </section>
 
       <div class="luma-front" id="lumaTailBlock">
@@ -2410,7 +2526,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v21</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v22</span></div></div>
     </footer>
   </div>
 
@@ -4624,6 +4740,15 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     tfRegisterShots();
     tfPaintShots();
     tfBrand();
+    const waFab = $('tfWaFab');
+    if (waFab) {
+      const num = String(state.settings.whatsappNumber || '').replace(/[^0-9]/g, '');
+      const defaultNum = '5493510000000';
+      const useNum = num || defaultNum;
+      const msg = encodeURIComponent('¡Hola! Vengo desde la página web de Eze.pece.');
+      waFab.href = `https://wa.me/${useNum}?text=${msg}`;
+    }
+
     tfWhatList();
     tfMirrors();
     tfSplitWords(); tfApplyWhatPositions(); tfApplySectionOrder(); tfInjectSectionControls();
