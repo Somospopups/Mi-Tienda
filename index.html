@@ -2183,6 +2183,8 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     };
     var p = new URLSearchParams(location.search).get('tienda');
     if (!p) return;
+    // La vidriera permanece SIEMPRE visible y accesible para todos los clientes y visitantes.
+    // Solo se bloquea si el administrador expresamente la marca como suspendida en la consola.
     function showGate(msg) {
       var css = 'html,body{overflow:hidden!important;height:100%}' +
         'body>*{display:none!important}' +
@@ -2193,58 +2195,21 @@ body.mt-edit-mode #shopApp .mt-edit-active {
       s.textContent = css;
       document.head.appendChild(s);
     }
-    function legacyCheck() {
-      try {
-        var raw = localStorage.getItem('popups_console_v1');
-        if (!raw) return;
+    try {
+      var raw = localStorage.getItem('popups_console_v1');
+      if (raw) {
         var d = JSON.parse(raw);
         var list = d && d.clients && d.clients['mi-tienda'];
-        if (!list || !list.length) return;
-        var t = null;
-        for (var i = 0; i < list.length; i++) {
-          if (list[i].id === p) { t = list[i]; break; }
-        }
-        // Solo suspender si existe en la lista y explícitamente se marcó suspendida o vencida
-        if (t) {
-          if (t.status === 'suspendida') {
-            showGate('🔒 Esta tienda está suspendida\n\nComunicate con POPUPS para reactivar el servicio.\nsomospopups@gmail.com');
-            return;
-          }
-          if (t.paidUntil) {
-            var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-            var vc = new Date(t.paidUntil + 'T00:00:00');
-            if (vc < hoy) {
-              showGate('🔒 Esta tienda está suspendida por vencimiento de abono\n\nComunicate con POPUPS para renovar el servicio.\nsomospopups@gmail.com');
-              return;
+        if (list && list.length) {
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].id === p && list[i].status === 'suspendida') {
+              showGate('🔒 Esta tienda está suspendida\n\nComunicate con POPUPS para reactivar el servicio.\nsomospopups@gmail.com');
+              break;
             }
           }
         }
-      } catch (e) {}
-    }
-    function cloudCheck() {
-      return new Promise(function (resolve) {
-        var done = false;
-        var timer = setTimeout(function () { if (!done) { done = true; resolve(null); } }, 2500);
-        try {
-          fetch(MT_CLOUD.url + '/rest/v1/rpc/api_public', {
-            method: 'POST',
-            headers: { 'apikey': MT_CLOUD.key, 'Authorization': 'Bearer ' + MT_CLOUD.key, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ p_store: p })
-          }).then(function (r) { return r.json(); }).then(function (data) {
-            if (done) return; done = true; clearTimeout(timer);
-            resolve(data || null);
-          }).catch(function () { if (!done) { done = true; clearTimeout(timer); resolve(null); } });
-        } catch (e) { if (!done) { done = true; clearTimeout(timer); resolve(null); } }
-      });
-    }
-    // Verificar si en la nube la tienda tiene bloqueo activo
-    cloudCheck().then(function (data) {
-      if (data && data.error && (data.error === 'store_suspendida' || data.error === 'store_baja')) {
-        showGate('🔒 Esta tienda está suspendida\n\nComunicate con POPUPS para reactivar el servicio.\nsomospopups@gmail.com');
-        return;
       }
-      legacyCheck();
-    });
+    } catch (_) {}
   })();
 </script>
 </head>
@@ -2718,7 +2683,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v31</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v32</span></div></div>
     </footer>
   </div>
 
@@ -3434,10 +3399,15 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const slug = mtSlug();
     if (slug) {
       try {
+        const params = new URLSearchParams(location.search);
+        const urlName = (params.get('name') || '').trim();
+        const urlFront = (params.get('front') || '').trim().toLowerCase();
+        
         const rawConsole = localStorage.getItem('popups_console_v1');
         const consoleData = rawConsole ? JSON.parse(rawConsole) : null;
         const list = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
         const item = list.find((c) => c.id === slug);
+
         if (item) {
           initial.settings.brandName = item.name || slug;
           if (item.storefront) initial.settings.storefront = item.storefront;
@@ -3446,6 +3416,14 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           initial.settings.brandName = 'Eze-pece';
           initial.settings.storefront = 'tech';
           initial.security.adminPin = 'Ger13811';
+        } else {
+          initial.settings.brandName = urlName || slug.charAt(0).toUpperCase() + slug.slice(1);
+          if (urlFront && ['luma', 'ofertas', 'gamer', 'libre', 'tech'].indexOf(urlFront) > -1) {
+            initial.settings.storefront = urlFront;
+          } else {
+            initial.settings.storefront = 'tech';
+          }
+          initial.security.adminPin = '1234';
         }
       } catch (_) {}
     }
@@ -5720,7 +5698,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const origin = window.location.origin + window.location.pathname;
     tbody.innerHTML = list.map((item, idx) => {
       const isSuspended = item.status === 'suspendida';
-      const storeUrl = `${origin}?tienda=${encodeURIComponent(item.id)}`;
+      const storeUrl = `${origin}?tienda=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name || '')}&front=${encodeURIComponent(item.storefront || 'tech')}`;
       const cleanWa = String(item.whatsapp || '').replace(/\D/g, '');
       const waLink = cleanWa ? `https://wa.me/${cleanWa}?text=${encodeURIComponent('Hola ' + (item.ownerName || item.name) + ', te contacto desde el soporte de tu tienda web.')}` : '#';
 
