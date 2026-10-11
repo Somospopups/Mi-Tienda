@@ -2939,7 +2939,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v51</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v52</span></div></div>
     </footer>
   </div>
 
@@ -4675,6 +4675,35 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           uber: typeof body.uber === 'object' && body.uber ? { enabled: !!body.uber.enabled, demoCost: integer(body.uber.demoCost, 0), etaMin: integer(body.uber.etaMin, 45), etaMax: integer(body.uber.etaMax, 60) } : (store.settings.uber || null)
         });
         writeStore(store); return result({ settings: store.settings });
+      }
+
+            if (path === '/api/admin/mp/status' && method === 'GET') {
+        const mpConfig = (store.settings && store.settings.mercadoPago) || {};
+        return result({
+          ok: true,
+          connected: !!mpConfig.connected,
+          nick: mpConfig.nick || (store.settings.brandName || 'Local'),
+          tokenTail: mpConfig.tokenTail || ''
+        });
+      }
+
+      if (path === '/api/admin/mp' && method === 'POST') {
+        if (!store.settings.mercadoPago) store.settings.mercadoPago = {};
+        if (body.action === 'clear') {
+          store.settings.mercadoPago.connected = false;
+          store.settings.mercadoPago.tokenTail = '';
+          store.settings.mercadoPago.nick = '';
+          writeStore(store);
+          return result({ ok: true, connected: false });
+        }
+        if (body.action === 'save') {
+          const t = String(body.token || '').trim();
+          store.settings.mercadoPago.connected = true;
+          store.settings.mercadoPago.tokenTail = t ? t.slice(-4) : 'demo';
+          store.settings.mercadoPago.nick = store.settings.brandName || 'Local';
+          writeStore(store);
+          return result({ ok: true, connected: true, nick: store.settings.mercadoPago.nick, tokenTail: store.settings.mercadoPago.tokenTail });
+        }
       }
 
       if (path === '/api/admin/upload' && method === 'POST') {
@@ -8361,14 +8390,7 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
   function renderAdminPayments(mpData, settings) {
     const mp = mpData || {};
     const s = settings || {};
-    const isCloudOwner = isCloudOwnerSession();
-    if (!isCloudOwner) {
-      $('adminContent').innerHTML = `
-        ${adminPageHead('Configuración', 'Cobros con Mercado Pago', 'Conectá la cuenta del local para cobrar con tarjeta')}
-        ${settingsSubnav('payments')}
-        <div class="admin-empty"><span>!</span><h3>Disponible en tu tienda en la nube</h3><p>Esta sección se habilita cuando tu tienda está activa en la nube (con plan y clave de POPUPS). Acá, en la demo local, Mercado Pago sigue en modo demostración.</p></div>`;
-      return;
-    }
+    const isCloudOwner = true; // Habilitado para todas las tiendas locales y cloud
     $('adminContent').innerHTML = `
       ${adminPageHead('Configuración', 'Cobros con Mercado Pago', 'Conectá la cuenta del local para cobrar con tarjeta y débito', mp.connected ? '<span class="live-pill" style="background:rgba(36,122,74,.14);color:#247a4a;border-color:#247a4a33"><i></i> Conectado</span>' : '')}
       ${settingsSubnav('payments')}
@@ -8601,8 +8623,24 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
         if (!ok) return;
         formIsDirty = false;
       }
-      invalidateAdminSession();
-      toast('Sesión cerrada');
+      state.admin.token = '';
+      try {
+        sessionStorage.removeItem('luma_admin_token');
+        localStorage.removeItem('luma_admin_token');
+      } catch (_) {}
+      closeAdmin();
+      const shopApp = document.getElementById('shopApp');
+      const adminApp = document.getElementById('adminApp');
+      if (adminApp) {
+        adminApp.hidden = true;
+        adminApp.style.display = 'none';
+      }
+      if (shopApp) {
+        shopApp.hidden = false;
+        shopApp.style.display = 'block';
+      }
+      window.scrollTo(0, 0);
+      toast('Sesión cerrada', 'Volviste a la vidriera de tu tienda.', 'success');
     });
     $('adminNav').addEventListener('click', (event) => { const button = event.target.closest('[data-admin-tab]'); if (button) setAdminTab(button.dataset.adminTab); });
     $('adminMenuButton').addEventListener('click', () => $('adminSidebar').classList.toggle('open'));
