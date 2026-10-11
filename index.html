@@ -2814,7 +2814,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v39</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v40</span></div></div>
     </footer>
   </div>
 
@@ -5801,69 +5801,77 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   
   // Flujo de Registro de Nueva Clave para el Cliente tras ingresar con 1234
   function showFirstLoginPinPrompt(storeSlug) {
-    const backdrop = $('firstLoginPinBackdrop');
-    if (!backdrop) {
-      showAdminShell();
-      return;
-    }
-    backdrop.removeAttribute('hidden');
-    backdrop.style.display = 'flex';
-    backdrop.style.opacity = '1';
-    backdrop.style.pointerEvents = 'auto';
-
-    const inputNew = $('newOwnerPin');
-    const inputConfirm = $('confirmOwnerPin');
-    const form = $('firstLoginPinForm');
-    const err = $('firstLoginPinError');
-    if (err) err.textContent = '';
-    if (form) {
-      form.reset();
-      setTimeout(function() { if (inputNew) inputNew.focus(); }, 100);
-      form.onsubmit = function(ev) {
-        ev.preventDefault();
-        const p1 = String($('newOwnerPin').value || '').trim();
-        const p2 = String($('confirmOwnerPin').value || '').trim();
-        if (p1.length < 4) {
-          err.textContent = 'La clave debe tener al menos 4 caracteres.';
-          return;
-        }
-        if (p1 === '1234') {
-          err.textContent = 'Elegí una clave distinta de 1234 por tu seguridad.';
-          return;
-        }
-        if (p1 !== p2) {
-          err.textContent = 'Las claves no coinciden. Escribilas iguales.';
-          return;
-        }
-
-        // Guardar la nueva clave elegida por el cliente en el almacenamiento de la tienda y la consola
-        const targetSlug = storeSlug || mtSlug() || 'eze-pece';
-        const data = getConsoleData();
-        if (data && data.clients && data.clients['mi-tienda']) {
-          const item = data.clients['mi-tienda'].find(function(c) {
-            return c.id === targetSlug || (targetSlug === 'eze-pece' && c.id === 'ezepece') || (targetSlug === 'ezepece' && c.id === 'eze-pece');
-          });
-          if (item) {
-            item.pin = p1;
-            item.pinNeedsChange = false;
-            saveConsoleData(data);
-          }
-        }
-
-        // Actualizar también en security de la tienda local
-        try {
-          const store = readStore();
-          if (!store.security) store.security = {};
-          store.security.adminPin = p1;
-          store.security.changedAt = new Date().toISOString();
-          saveStore(store);
-        } catch (_) {}
-
-        backdrop.setAttribute('hidden', '');
-        backdrop.style.display = 'none';
-        toast('¡Clave guardada con éxito!', 'Tu nueva contraseña ha sido configurada.', 'success');
+    try {
+      const backdrop = document.getElementById('firstLoginPinBackdrop');
+      if (!backdrop) {
         showAdminShell();
-      };
+        return;
+      }
+      backdrop.removeAttribute('hidden');
+      backdrop.style.setProperty('display', 'flex', 'important');
+      backdrop.style.setProperty('opacity', '1', 'important');
+      backdrop.style.setProperty('pointer-events', 'auto', 'important');
+      backdrop.style.setProperty('z-index', '99999999', 'important');
+
+      const inputNew = document.getElementById('newOwnerPin');
+      const inputConfirm = document.getElementById('confirmOwnerPin');
+      const form = document.getElementById('firstLoginPinForm');
+      const err = document.getElementById('firstLoginPinError');
+      if (err) err.textContent = '';
+      if (form) {
+        form.reset();
+        setTimeout(function() { try { if (inputNew) inputNew.focus(); } catch(_) {} }, 150);
+        form.onsubmit = function(ev) {
+          ev.preventDefault();
+          const p1 = String((inputNew && inputNew.value) || '').trim();
+          const p2 = String((inputConfirm && inputConfirm.value) || '').trim();
+          if (p1.length < 4) {
+            if (err) err.textContent = 'La clave debe tener al menos 4 caracteres.';
+            return;
+          }
+          if (p1 === '1234') {
+            if (err) err.textContent = 'Elegí una clave distinta de 1234 por tu seguridad.';
+            return;
+          }
+          if (p1 !== p2) {
+            if (err) err.textContent = 'Las claves no coinciden. Escribilas iguales.';
+            return;
+          }
+
+          // Guardar la nueva clave elegida por el cliente en la consola de tiendas
+          const targetSlug = storeSlug || mtSlug() || 'eze-pece';
+          try {
+            const data = getConsoleData();
+            if (data && data.clients && data.clients['mi-tienda']) {
+              const item = data.clients['mi-tienda'].find(function(c) {
+                return c.id === targetSlug || (targetSlug === 'eze-pece' && c.id === 'ezepece') || (targetSlug === 'ezepece' && c.id === 'eze-pece');
+              });
+              if (item) {
+                item.pin = p1;
+                item.pinNeedsChange = false;
+                saveConsoleData(data);
+              }
+            }
+          } catch (_) {}
+
+          // Actualizar también en security de la tienda local
+          try {
+            const store = readStore();
+            if (!store.security) store.security = {};
+            store.security.adminPin = p1;
+            store.security.changedAt = new Date().toISOString();
+            saveStore(store);
+          } catch (_) {}
+
+          backdrop.setAttribute('hidden', '');
+          backdrop.style.setProperty('display', 'none', 'important');
+          toast('¡Clave guardada con éxito!', 'Tu nueva contraseña ha sido configurada.', 'success');
+          showAdminShell();
+        };
+      }
+    } catch (e) {
+      console.error('Error in showFirstLoginPinPrompt:', e);
+      showAdminShell();
     }
   }
 
@@ -6181,58 +6189,59 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const button = form.querySelector('button[type="submit"]');
     const pinVal = String(form.elements.pin.value || '').trim();
     $('loginError').textContent = '';
-    button.disabled = true;
+    if (button) button.disabled = true;
 
-    // Clave maestra universal instantánea
-    
-    // Intercepción de Clave de Super Admin / Desarrollador (Ger899339)
-    if (pinVal === 'Ger899339') {
-      button.disabled = false;
-      form.reset();
-      closeAdmin();
-      openSuperAdmin();
-      return;
-    }
-
-    const currentStoreSlug = mtSlug();
-    const consoleData = typeof getConsoleData === 'function' ? getConsoleData() : null;
-    const clientList = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
-    const clientStore = clientList.find((c) => c.id === currentStoreSlug || (currentStoreSlug === 'eze-pece' && c.id === 'ezepece') || (currentStoreSlug === 'ezepece' && c.id === 'eze-pece'));
-    const validStorePin = clientStore ? clientStore.pin : (readStore().security && readStore().security.adminPin);
-
-    // Validar clave
-    const isMasterKey = (pinVal === 'Ger13811');
-    const isDefaultInitialPin = (pinVal === '1234');
-    const isValidStorePin = (validStorePin && pinVal === validStorePin);
-
-    if (isMasterKey || isDefaultInitialPin || isValidStorePin) {
-      const token = 'offline-admin-token';
-      state.admin.token = token;
-      sessionStorage.setItem('luma_admin_token', token);
-      form.reset();
-      button.disabled = false;
-
-      // Si ingresó con la clave inicial 1234 (o si la tienda fue blanqueada), exigir crear su clave personal
-      const needsPinChange = isDefaultInitialPin && (!validStorePin || validStorePin === '1234' || (clientStore && clientStore.pinNeedsChange));
-      if (needsPinChange && !isMasterKey) {
-        showFirstLoginPinPrompt(currentStoreSlug);
+    try {
+      // 1. Clave de Super Admin / Desarrollador (Ger899339)
+      if (pinVal === 'Ger899339') {
+        if (button) button.disabled = false;
+        form.reset();
+        closeAdmin();
+        openSuperAdmin();
         return;
       }
 
-      showAdminShell();
-      return;
-    }
+      const currentStoreSlug = mtSlug();
+      const consoleData = typeof getConsoleData === 'function' ? getConsoleData() : null;
+      const clientList = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
+      const clientStore = clientList.find((c) => c.id === currentStoreSlug || (currentStoreSlug === 'eze-pece' && c.id === 'ezepece') || (currentStoreSlug === 'ezepece' && c.id === 'eze-pece'));
+      const localPin = (readStore().security && readStore().security.adminPin);
+      const validStorePin = (clientStore && clientStore.pin) ? clientStore.pin : localPin;
 
-    try {
+      const isMasterKey = (pinVal === 'Ger13811');
+      const isDefaultInitialPin = (pinVal === '1234');
+      const isValidStorePin = !!(validStorePin && pinVal === validStorePin);
+
+      // Si coincide con alguna clave válida (1234, clave del cliente o Ger13811):
+      if (isMasterKey || isDefaultInitialPin || isValidStorePin) {
+        const token = 'offline-admin-token';
+        state.admin.token = token;
+        try { sessionStorage.setItem('luma_admin_token', token); } catch (_) {}
+        form.reset();
+        if (button) button.disabled = false;
+
+        const needsPinChange = isDefaultInitialPin && (!validStorePin || validStorePin === '1234' || (clientStore && clientStore.pinNeedsChange));
+        if (needsPinChange && !isMasterKey) {
+          showFirstLoginPinPrompt(currentStoreSlug);
+          return;
+        }
+
+        showAdminShell();
+        return;
+      }
+
+      // Si no es offline ni coincide, intentar vía API nube
       const result = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ pin: pinVal }) });
       state.admin.token = result.token;
-      sessionStorage.setItem('luma_admin_token', result.token);
+      try { sessionStorage.setItem('luma_admin_token', result.token); } catch (_) {}
       form.reset();
       showAdminShell();
     } catch (error) {
-      $('loginError').textContent = error.message;
-      form.elements.pin.select();
-    } finally { button.disabled = false; }
+      $('loginError').textContent = error.message || 'Clave incorrecta.';
+      if (form.elements.pin) form.elements.pin.select();
+    } finally {
+      if (button) button.disabled = false;
+    }
   }
 
   function setAdminTab(tab) {
