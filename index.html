@@ -283,6 +283,70 @@ svg { width: 1.25em; height: 1.25em; }
 .newsletter-input-row button svg { transition: transform .2s ease; }
 .newsletter-input-row button:hover svg { transform: translateX(4px); }
 .newsletter-consent { position:relative;margin-top:10px;display:flex;align-items:flex-start;gap:7px;color:var(--ink-soft);font-size:.54rem;cursor:pointer }.newsletter-consent>input{position:absolute;opacity:0}.newsletter-consent>i{width:14px;height:14px;border:1px solid rgba(32,34,30,.35);border-radius:3px;flex:0 0 14px;background:transparent}.newsletter-consent>input:checked+i{background:var(--forest,#233219);box-shadow:inset 0 0 0 3px var(--cream-deep)}.newsletter-consent button{height:auto;padding:0;border-bottom:1px solid;background:none;color:inherit;font-size:inherit}
+
+  /* Badge discreto y profesional de POPUPS en pie de página */
+  .footer-bottom-left { display: flex; align-items: center; gap: clamp(14px, 2vw, 24px); flex-wrap: wrap; }
+  .footer-bottom-right { display: flex; align-items: center; gap: 14px; }
+  .popups-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, .55);
+    font-size: .62rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .1);
+    transition: all .2s ease;
+    backdrop-filter: blur(4px);
+  }
+  .popups-badge:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(56, 189, 248, .4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, .15);
+  }
+  .popups-badge-label {
+    opacity: .75;
+    letter-spacing: .04em;
+  }
+  .popups-badge-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .popups-badge-mark {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .popups-badge-mark i {
+    position: absolute;
+    width: 4.8px;
+    height: 4.8px;
+    background: #38bdf8;
+    border-radius: 3.5px .8px 3.5px .8px;
+    transition: background .2s ease;
+  }
+  .popups-badge:hover .popups-badge-mark i {
+    background: #0ea5e9;
+  }
+  .popups-badge-mark i:nth-child(1) { top: 0; left: 0; }
+  .popups-badge-mark i:nth-child(2) { top: 0; right: 0; transform: rotate(90deg); }
+  .popups-badge-mark i:nth-child(3) { bottom: 0; right: 0; transform: rotate(180deg); }
+  .popups-badge-mark i:nth-child(4) { bottom: 0; left: 0; transform: rotate(270deg); }
+  .popups-badge-name {
+    font-weight: 900;
+    letter-spacing: .12em;
+    font-size: .66rem;
+    color: #f8fafc;
+  }
+
 .site-footer { color: rgba(255,255,255,.78); background: var(--brand-dark); }
 .footer-top { width: min(1440px, 100%); min-height: 335px; margin: auto; padding: 70px 5vw; display: grid; grid-template-columns: 1.15fr 1.85fr; gap: 80px; }
 .brand-light { color: #fff; }
@@ -2938,7 +3002,24 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v54</span></div></div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-left">
+          <span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span>
+          <a href="https://somospopups.github.io/Mi-Tienda/" target="_blank" rel="noopener" class="popups-badge" title="Creado con tecnología POPUPS">
+            <span class="popups-badge-label">Desarrollado por</span>
+            <span class="popups-badge-logo">
+              <span class="popups-badge-mark"><i></i><i></i><i></i><i></i></span>
+              <strong class="popups-badge-name">POPUPS</strong>
+            </span>
+          </a>
+        </div>
+        <div class="footer-bottom-right">
+          <button data-legal-page="privacyPolicy">Privacidad</button>
+          <button data-legal-page="termsConditions">Términos</button>
+          <span>Argentina · ARS</span>
+          <span>v55</span>
+        </div>
+      </div>
     </footer>
   </div>
 
