@@ -489,6 +489,131 @@ svg { width: 1.25em; height: 1.25em; }
   }
   .admin-expiry-banner a:hover { transform: scale(1.05); }
 
+
+  /* ============================================================
+     ADMIN & LOGIN UNIVERSAL NEUTRO (POPUPS BUSINESS OS)
+     Uniforme, limpio, profesional, colores neutros para todas las tiendas.
+     ============================================================ */
+  .admin-app {
+    --paper: #ffffff !important;
+    --paper-soft: #f8fafc !important;
+    --ink: #0f172a !important;
+    --ink-soft: #64748b !important;
+    --line: #e2e8f0 !important;
+    --brand-dark: #0f172a !important;
+    --accent: #0284c7 !important;
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  }
+  .admin-login {
+    background: #ffffff !important;
+    grid-template-columns: minmax(460px, .85fr) 1.15fr !important;
+  }
+  .admin-login .login-card {
+    padding: 60px 0 45px !important;
+  }
+  .admin-login .login-brand {
+    color: #0f172a !important;
+  }
+  .admin-login .kicker {
+    color: #0284c7 !important;
+    font-weight: 700 !important;
+    letter-spacing: .12em !important;
+  }
+  .admin-login h1 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: -.03em !important;
+    line-height: 1.08 !important;
+  }
+  .admin-login p {
+    color: #64748b !important;
+  }
+  .admin-login input {
+    border: 1px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border-radius: 12px !important;
+  }
+  .admin-login input:focus {
+    border-color: #0284c7 !important;
+    box-shadow: 0 0 0 3px rgba(2,132,199,.15) !important;
+  }
+  .admin-login button[type="submit"] {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    transition: all .2s ease !important;
+  }
+  .admin-login button[type="submit"]:hover {
+    background: #1e293b !important;
+    transform: translateY(-1px) !important;
+  }
+  .admin-login .login-art {
+    background: #0f172a !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  .admin-login .login-art::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: radial-gradient(circle at 75% 25%, rgba(56, 189, 248, 0.15), transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(30, 41, 59, 0.8), transparent 60%),
+                linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e293b 100%) !important;
+    z-index: 1 !important;
+  }
+  .admin-login .login-art svg.growth-svg-bg {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 2 !important;
+    opacity: .4 !important;
+    pointer-events: none !important;
+  }
+  .admin-login .login-art::after {
+    display: none !important;
+  }
+  .admin-login .login-art-copy {
+    position: absolute !important;
+    bottom: 50px !important;
+    left: 50px !important;
+    right: 50px !important;
+    z-index: 3 !important;
+    color: #ffffff !important;
+  }
+  .admin-login .login-art-copy span {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: clamp(2rem, 3.2vw, 3.2rem) !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    letter-spacing: -.02em !important;
+    color: #f8fafc !important;
+    display: block !important;
+  }
+  .admin-login .login-art-copy span em {
+    font-style: normal !important;
+    background: linear-gradient(135deg, #38bdf8, #818cf8) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+  .admin-login .login-art-copy small {
+    display: block !important;
+    margin-top: 14px !important;
+    font-size: .85rem !important;
+    font-weight: 600 !important;
+    color: #94a3b8 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+  }
+  .admin-sidebar {
+    background: #0f172a !important;
+  }
+
 /* ---------- Admin ---------- */
 .admin-app { position: fixed; z-index: 70; inset: 0; overflow: auto; color: #252621; background: #f3f2ee; }
 .admin-login { min-height: 100vh; display: grid; grid-template-columns: minmax(480px, .88fr) 1.12fr; background: var(--paper); }
@@ -2814,7 +2939,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v41</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v42</span></div></div>
     </footer>
   </div>
 
@@ -2877,7 +3002,37 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <form id="loginForm"><label class="field"><span>PIN de administrador</span><input name="pin" type="password" inputmode="numeric" maxlength="12" required placeholder="••••" autocomplete="current-password"></label><p class="form-error" id="loginError"></p><p class="field-hint" id="loginCloudHint" style="margin:0 0 14px;font-size:12.5px;color:#6f736a;line-height:1.5" hidden>¿Perdiste tu Clave de acceso? Escribinos y te generamos una nueva.</p><button class="button button-dark button-full" type="submit">Ingresar al panel <svg><use href="#i-arrow"></use></svg></button></form>
 
       </div>
-      <div class="login-art"><div class="login-art-copy"><span>Control simple.<br><em>Decisiones claras.</em></span><small>Ventas · Inventario · Catálogo</small></div></div>
+      <div class="login-art">
+        <svg class="growth-svg-bg" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="growthLineGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.1"/>
+              <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#818cf8" stop-opacity="0.9"/>
+            </linearGradient>
+            <linearGradient id="growthAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
+            </linearGradient>
+            <pattern id="gridPattern" width="50" height="50" patternUnits="userSpaceOnUse">
+              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#gridPattern)" />
+          <!-- Curva elegante de crecimiento sostenido y orden -->
+          <path d="M 0 650 Q 200 620, 360 480 T 800 180 L 800 800 L 0 800 Z" fill="url(#growthAreaGrad)"/>
+          <path d="M 0 650 Q 200 620, 360 480 T 800 180" stroke="url(#growthLineGrad)" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- Nodos sutiles de hitos y métricas -->
+          <circle cx="200" cy="620" r="5" fill="#38bdf8" opacity="0.7"/>
+          <circle cx="360" cy="480" r="6" fill="#38bdf8" opacity="0.9"/>
+          <circle cx="560" cy="330" r="6" fill="#818cf8" opacity="0.9"/>
+          <circle cx="800" cy="180" r="8" fill="#818cf8"/>
+        </svg>
+        <div class="login-art-copy">
+          <span>Impulsá tu negocio.<br><em>Orden, claridad y control.</em></span>
+          <small>Ventas · Inventario · Catálogo · Clientes</small>
+        </div>
+      </div>
     </div>
 
     <div class="admin-shell" id="adminShell" hidden>
