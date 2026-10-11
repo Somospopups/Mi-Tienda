@@ -1588,7 +1588,76 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .badge-active { background: rgba(34,197,94,.18); color: #4ade80; border: 1px solid rgba(34,197,94,.3); padding: 3px 8px; border-radius: 999px; font-size: .72rem; font-weight: 750; }
   .badge-suspended { background: rgba(239,68,68,.18); color: #f87171; border: 1px solid rgba(239,68,68,.3); padding: 3px 8px; border-radius: 999px; font-size: .72rem; font-weight: 750; }
 
-  /* ---- hero ---- */
+  
+  /* ---- Optimización de Cabecera en Móviles (Ahorro de espacio) ---- */
+  @media (max-width: 860px) {
+    .tf-head {
+      position: sticky; top: 0; z-index: 40;
+      padding: 10px 0 8px;
+    }
+    .tf-head-row {
+      gap: 10px;
+    }
+    .tf-brand b { font-size: 1.3rem !important; }
+    .tf-acts { gap: 6px; }
+    .tf-act { padding: 7px 11px; font-size: .78rem; }
+    .tf-act svg { width: 15px; height: 15px; }
+
+    /* Barra de categorías en móviles: compacta y limpia */
+    .tf-cats {
+      margin: 10px 0 12px !important;
+      padding: 3px !important;
+      border-radius: 14px !important;
+      gap: 4px;
+    }
+    .tf-cat {
+      flex: 0 0 78px !important;
+      padding: 7px 4px 8px !important;
+      border-radius: 10px !important;
+    }
+    .tf-cat svg {
+      width: 18px !important; height: 18px !important;
+      margin: 0 auto 3px !important;
+    }
+    .tf-cat span {
+      font-size: .68rem !important;
+      line-height: 1.15 !important;
+    }
+
+    /* Al scrollear en celulares (.tf-stuck): solo queda fija la barra superior */
+    .tf-head.tf-stuck {
+      padding: 8px 0 !important;
+      box-shadow: 0 8px 20px rgba(45, 75, 95, .15) !important;
+    }
+    .tf-head.tf-stuck {
+      padding: 4px 0 !important;
+      background: rgba(178, 219, 241, 0.96) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+      box-shadow: 0 4px 14px rgba(45, 75, 95, .12) !important;
+    }
+    .tf-head.tf-stuck .tf-head-row {
+      min-height: 38px;
+    }
+    .tf-head.tf-stuck .tf-brand svg {
+      width: 22px; height: 30px;
+    }
+    .tf-head.tf-stuck .tf-brand b {
+      font-size: 1.05rem !important;
+    }
+    .tf-head.tf-stuck .tf-act {
+      padding: 5px 9px !important;
+      font-size: .72rem !important;
+    }
+    .tf-head.tf-stuck .tf-act svg {
+      width: 14px !important; height: 14px !important;
+    }
+    .tf-head.tf-stuck .tf-cats {
+      display: none !important; /* Oculta las categorías completamente en celular al bajar para liberar toda la pantalla */
+    }
+  }
+
+/* ---- hero ---- */
   .tf-shots { position: relative; width: 100%; aspect-ratio: 1400 / 700; }
   .tf-shots img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transform: scale(1.02); transition: opacity .55s ease, transform .7s cubic-bezier(.22,.9,.3,1); }
   .tf-shots img.is-on { opacity: 1; transform: none; }
@@ -2129,21 +2198,37 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         if (!raw) return;
         var d = JSON.parse(raw);
         var list = d && d.clients && d.clients['mi-tienda'];
+        if (!list || !list.length) return;
         var t = null;
-        if (list) { for (var i = 0; i < list.length; i++) { if (list[i].id === p) { t = list[i]; break; } } }
-        var ok = false;
-        if (t && t.status === 'activa' && t.paidUntil) {
-          var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-          var vc = new Date(t.paidUntil + 'T00:00:00');
-          ok = vc >= hoy;
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].id === p) { t = list[i]; break; }
         }
-        if (!ok) showGate('🔒 Esta tienda está suspendida\n\nSi ya abonaste, avisale a POPUPS y la reactivamos al toque.\nsomospopups@gmail.com');
+        // Solo suspender si existe en la lista y explícitamente se marcó suspendida o vencida
+        if (t) {
+          if (t.status === 'suspendida') {
+            showGate('🔒 Esta tienda está suspendida\n\nComunicate con POPUPS para reactivar el servicio.\nsomospopups@gmail.com');
+            return;
+          }
+          if (t.paidUntil) {
+            var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+            var vc = new Date(t.paidUntil + 'T00:00:00');
+            if (vc < hoy) {
+              showGate('🔒 Esta tienda está suspendida por vencimiento de abono\n\nComunicate con POPUPS para renovar el servicio.\nsomospopups@gmail.com');
+              return;
+            }
+          }
+        }
       } catch (e) {}
+    }
+    // Eze.pece y tiendas locales NUNCA se bloquean por defecto
+    if (p === 'ezepece' || !p) {
+      legacyCheck();
+      return;
     }
     function cloudCheck() {
       return new Promise(function (resolve) {
         var done = false;
-        var timer = setTimeout(function () { if (!done) { done = true; resolve(null); } }, 5000);
+        var timer = setTimeout(function () { if (!done) { done = true; resolve(null); } }, 2500);
         try {
           fetch(MT_CLOUD.url + '/rest/v1/rpc/api_public', {
             method: 'POST',
@@ -2158,11 +2243,8 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     }
     cloudCheck().then(function (data) {
       if (data && data.ok === true) return;
-      if (data && data.error && data.error !== 'store_not_found') {
-        var baja = data.error === 'store_baja';
-        showGate(baja
-          ? '🔒 Esta tienda ya no está activa\n\nSi querés reactivarla, escribile a POPUPS.\nsomospopups@gmail.com'
-          : '🔒 Esta tienda está suspendida\n\nSi ya abonaste, avisale a POPUPS y la reactivamos al toque.\nsomospopups@gmail.com');
+      if (data && data.error && (data.error === 'store_suspendida' || data.error === 'store_baja')) {
+        showGate('🔒 Esta tienda está suspendida\n\nSi ya abonaste, avisale a POPUPS y la reactivamos al toque.\nsomospopups@gmail.com');
         return;
       }
       legacyCheck();
@@ -2640,7 +2722,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v26</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v29</span></div></div>
     </footer>
   </div>
 
