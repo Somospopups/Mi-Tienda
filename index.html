@@ -2939,7 +2939,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v52</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v53</span></div></div>
     </footer>
   </div>
 
@@ -5969,10 +5969,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   function showFirstLoginPinPrompt(storeSlug) {
     try {
       const backdrop = document.getElementById('firstLoginPinBackdrop');
-      if (!backdrop) {
-        showAdminShell();
-        return;
-      }
+      if (!backdrop) return;
       backdrop.removeAttribute('hidden');
       backdrop.style.setProperty('display', 'flex', 'important');
       backdrop.style.setProperty('opacity', '1', 'important');
@@ -5986,7 +5983,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (err) err.textContent = '';
       if (form) {
         form.reset();
-        setTimeout(function() { try { if (inputNew) inputNew.focus(); } catch(_) {} }, 150);
+        setTimeout(function() { try { if (inputNew) inputNew.focus(); } catch(_) {} }, 200);
         form.onsubmit = function(ev) {
           ev.preventDefault();
           const p1 = String((inputNew && inputNew.value) || '').trim();
@@ -6007,7 +6004,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           // Guardar la nueva clave elegida por el cliente en la consola de tiendas
           const targetSlug = storeSlug || mtSlug() || 'eze-pece';
           try {
-            const data = getConsoleData();
+            const data = (typeof getConsoleData === 'function') ? getConsoleData() : JSON.parse(localStorage.getItem('popups_console_v1') || '{}');
             if (data && data.clients && data.clients['mi-tienda']) {
               const item = data.clients['mi-tienda'].find(function(c) {
                 return c.id === targetSlug || (targetSlug === 'eze-pece' && c.id === 'ezepece') || (targetSlug === 'ezepece' && c.id === 'eze-pece');
@@ -6015,29 +6012,32 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
               if (item) {
                 item.pin = p1;
                 item.pinNeedsChange = false;
-                saveConsoleData(data);
+                if (typeof saveConsoleData === 'function') saveConsoleData(data);
+                else localStorage.setItem('popups_console_v1', JSON.stringify(data));
               }
             }
           } catch (_) {}
 
           // Actualizar también en security de la tienda local
           try {
-            const store = readStore();
-            if (!store.security) store.security = {};
-            store.security.adminPin = p1;
-            store.security.changedAt = new Date().toISOString();
-            saveStore(store);
+            const raw = localStorage.getItem('popups_store_' + targetSlug) || localStorage.getItem('luma_offline_store_v1');
+            if (raw) {
+              const sObj = JSON.parse(raw);
+              if (!sObj.security) sObj.security = {};
+              sObj.security.adminPin = p1;
+              sObj.security.changedAt = new Date().toISOString();
+              localStorage.setItem('popups_store_' + targetSlug, JSON.stringify(sObj));
+              localStorage.setItem('luma_offline_store_v1', JSON.stringify(sObj));
+            }
           } catch (_) {}
 
           backdrop.setAttribute('hidden', '');
           backdrop.style.setProperty('display', 'none', 'important');
           toast('¡Clave guardada con éxito!', 'Tu nueva contraseña ha sido configurada.', 'success');
-          showAdminShell();
         };
       }
     } catch (e) {
       console.error('Error in showFirstLoginPinPrompt:', e);
-      showAdminShell();
     }
   }
 
@@ -6434,6 +6434,15 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
             recentOrders: (storeData.orders || []).slice(0, 6)
           });
         } catch (_) {}
+      }
+
+      // Si ingresó con la clave inicial 1234, desplegar obligatoriamente el popup para configurar su clave personal
+      if (pinVal === '1234') {
+        const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
+        setTimeout(function() {
+          showFirstLoginPinPrompt(slug);
+        }, 120);
+        return;
       }
 
       toast('¡Bienvenido a tu panel!', 'Sesión iniciada correctamente.', 'success');
