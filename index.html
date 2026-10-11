@@ -423,6 +423,30 @@ svg { width: 1.25em; height: 1.25em; }
 .pdf-share-actions .button { padding-inline: 15px; }
 .pdf-desktop-note { margin-top: 12px; display: block; color: var(--ink-soft); font-size: .53rem; }
 
+
+  /* Banner de aviso de vigencia en Panel Administrador */
+  .admin-expiry-banner {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #ffffff;
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.28);
+    font-size: .88rem;
+    font-weight: 600;
+  }
+  .admin-expiry-banner b { color: #fef08a; font-weight: 800; }
+  .admin-expiry-banner a {
+    background: #ffffff; color: #b91c1c; font-size: .8rem; font-weight: 800;
+    padding: 7px 16px; border-radius: 999px; text-decoration: none; white-space: nowrap;
+    transition: transform .2s ease;
+  }
+  .admin-expiry-banner a:hover { transform: scale(1.05); }
+
 /* ---------- Admin ---------- */
 .admin-app { position: fixed; z-index: 70; inset: 0; overflow: auto; color: #252621; background: #f3f2ee; }
 .admin-login { min-height: 100vh; display: grid; grid-template-columns: minmax(480px, .88fr) 1.12fr; background: var(--paper); }
@@ -2611,7 +2635,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v24</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v25</span></div></div>
     </footer>
   </div>
 
@@ -2772,8 +2796,16 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <h3>Nueva Tienda / Cliente</h3>
           <div class="super-admin-grid">
             <label>
-              <span>Nombre del Comercio / Cliente</span>
-              <input type="text" name="name" placeholder="Ej: Eze-pece Accesorios" required>
+              <span>Comercio</span>
+              <input type="text" name="name" placeholder="Ej: Eze-pece" required>
+            </label>
+            <label>
+              <span>Nombre del Titular</span>
+              <input type="text" name="ownerName" placeholder="Ej: Ezequiel Pérez" required>
+            </label>
+            <label>
+              <span>WhatsApp del Titular</span>
+              <input type="text" name="whatsapp" placeholder="Ej: 5493510000000" required>
             </label>
             <label>
               <span>Enlace / Identificador (Slug)</span>
@@ -2783,11 +2815,11 @@ body.mt-edit-mode #shopApp .mt-edit-active {
               </div>
             </label>
             <label>
-              <span>Clave / PIN del Administrador</span>
+              <span>PIN / Clave</span>
               <input type="text" name="pin" placeholder="Ej: 1234 o Eze2026" required>
             </label>
             <label>
-              <span>Frente / Estilo Inicial</span>
+              <span>Frente (Exclusivo Desarrollador)</span>
               <select name="storefront">
                 <option value="tech" selected>Tech (Eze-pece / Vidriera de accesorios)</option>
                 <option value="luma">Luma (Boutique / Diseño esencial)</option>
@@ -2797,11 +2829,11 @@ body.mt-edit-mode #shopApp .mt-edit-active {
               </select>
             </label>
             <label>
-              <span>Válido hasta (Abonado hasta)</span>
+              <span>Vence (Válido hasta)</span>
               <input type="date" name="paidUntil" value="2030-12-31" required>
             </label>
             <label>
-              <span>Estado Inicial</span>
+              <span>Estado</span>
               <select name="status">
                 <option value="activa" selected>Activa (Venta y visualización libre)</option>
                 <option value="suspendida">Suspendida (Bloqueo por falta de pago)</option>
@@ -2823,11 +2855,13 @@ body.mt-edit-mode #shopApp .mt-edit-active {
               <thead>
                 <tr>
                   <th>Comercio</th>
-                  <th>Enlace público</th>
+                  <th>Nombre del Titular</th>
                   <th>PIN / Clave</th>
                   <th>Frente</th>
                   <th>Vence</th>
                   <th>Estado</th>
+                  <th>WhatsApp</th>
+                  <th>Link Tienda</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -5483,6 +5517,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     $('adminShell').hidden = false;
     loadAdminTab();
     refreshAlertBadge();
+    mtCheckExpiryBanner();
   }
 
   function updateAlertBadge(count) { const badge = $('adminAlertBadge'); badge.textContent = count; badge.hidden = !count; }
@@ -5496,6 +5531,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!$('adminApp').hidden) showAdminLogin();
   }
 
+  
+  // ==========================================================
   
   // ==========================================================
   // LOGICA DEL PANEL SECRETO SUPER ADMIN / PROGRAMADOR
@@ -5513,7 +5550,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       version: 1,
       clients: {
         'mi-tienda': [
-          { id: 'ezepece', name: 'Eze-pece Accesorios', pin: 'Ger13811', storefront: 'tech', paidUntil: '2030-12-31', status: 'activa' }
+          { id: 'ezepece', name: 'Eze-pece', ownerName: 'Ezequiel Pérez', whatsapp: '5493510000000', pin: 'Ger13811', storefront: 'tech', paidUntil: '2030-12-31', status: 'activa' }
         ]
       }
     };
@@ -5547,7 +5584,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!tbody) return;
 
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#64748b">No hay tiendas registradas aún. ¡Creá la primera arriba!</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#64748b">No hay tiendas registradas aún. ¡Creá la primera arriba!</td></tr>';
       return;
     }
 
@@ -5555,21 +5592,48 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     tbody.innerHTML = list.map((item, idx) => {
       const isSuspended = item.status === 'suspendida';
       const storeUrl = `${origin}?tienda=${encodeURIComponent(item.id)}`;
+      const cleanWa = String(item.whatsapp || '').replace(/\D/g, '');
+      const waLink = cleanWa ? `https://wa.me/${cleanWa}?text=${encodeURIComponent('Hola ' + (item.ownerName || item.name) + ', te contacto desde el soporte de tu tienda web.')}` : '#';
+
       return `
         <tr>
-          <td><b>${esc(item.name)}</b></td>
-          <td><a href="${storeUrl}" target="_blank" style="color:#38bdf8;text-decoration:none">?tienda=<b>${esc(item.id)}</b> ↗</a></td>
-          <td><code style="background:#1e293b;padding:3px 6px;border-radius:4px;color:#38bdf8">${esc(item.pin || '1234')}</code></td>
-          <td><span style="text-transform:capitalize;color:#94a3b8">${esc(item.storefront || 'tech')}</span></td>
-          <td style="color:#cbd5e1">${esc(item.paidUntil || '2030-12-31')}</td>
-          <td><span class="${isSuspended ? 'badge-suspended' : 'badge-active'}">${isSuspended ? '🔒 Suspendida' : '✓ Activa'}</span></td>
+          <td><b>${esc(item.name || '')}</b></td>
+          <td><span style="color:#cbd5e1;font-weight:600">${esc(item.ownerName || 'Sin asignar')}</span></td>
           <td>
-            <div class="super-admin-btn-group">
-              <button class="super-admin-btn btn-copy-link" type="button" data-sa-copy="${esc(storeUrl)}" title="Copiar enlace para el cliente">📋 Link</button>
-              <button class="super-admin-btn btn-toggle-status" type="button" data-sa-toggle="${idx}" title="Suspender o Reactivar">${isSuspended ? 'Reactivar' : 'Suspender'}</button>
-              <button class="super-admin-btn btn-reset-pin" type="button" data-sa-pin="${idx}" title="Cambiar clave o blanquearla">🔑 PIN</button>
-              <button class="super-admin-btn btn-delete-store" type="button" data-sa-del="${idx}" title="Eliminar tienda de la lista">✕</button>
-            </div>
+            <button class="super-admin-btn" style="background:#1e293b;color:#38bdf8;border:1px solid #38bdf844" type="button" data-sa-pin="${idx}" title="Modificar PIN">
+              🔑 ${esc(item.pin || '1234')} ✎
+            </button>
+          </td>
+          <td>
+            <select data-sa-front="${idx}" style="background:#090d16;color:#e2e8f0;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 6px;font-size:.78rem">
+              <option value="tech" ${item.storefront === 'tech' ? 'selected' : ''}>Tech</option>
+              <option value="luma" ${item.storefront === 'luma' ? 'selected' : ''}>Luma</option>
+              <option value="ofertas" ${item.storefront === 'ofertas' ? 'selected' : ''}>Ofertas</option>
+              <option value="gamer" ${item.storefront === 'gamer' ? 'selected' : ''}>Gamer</option>
+              <option value="libre" ${item.storefront === 'libre' ? 'selected' : ''}>Libre</option>
+            </select>
+          </td>
+          <td>
+            <button class="super-admin-btn" style="background:#1e293b;color:#fcd34d;border:1px solid #fcd34d44" type="button" data-sa-date="${idx}" title="Modificar fecha de vencimiento">
+              📅 ${esc(item.paidUntil || '2030-12-31')} ✎
+            </button>
+          </td>
+          <td>
+            <select data-sa-status="${idx}" style="background:${isSuspended ? '#ef444422' : '#22c55e22'};color:${isSuspended ? '#f87171' : '#4ade80'};border:1px solid ${isSuspended ? '#ef444455' : '#22c55e55'};border-radius:6px;padding:4px 8px;font-size:.78rem;font-weight:700">
+              <option value="activa" ${!isSuspended ? 'selected' : ''}>✓ Activa</option>
+              <option value="suspendida" ${isSuspended ? 'selected' : ''}>🔒 Suspendida</option>
+            </select>
+          </td>
+          <td>
+            ${cleanWa ? `<a href="${waLink}" target="_blank" class="super-admin-btn" style="background:#25D36622;color:#25D366;border:1px solid #25D36655;text-decoration:none;display:inline-flex;align-items:center;gap:5px;font-weight:700">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2"><use href="#i-whatsapp"></use></svg> WhatsApp
+            </a>` : '<span style="color:#64748b;font-size:.75rem">Sin número</span>'}
+          </td>
+          <td>
+            <button class="super-admin-btn btn-copy-link" type="button" data-sa-copy="${esc(storeUrl)}" title="Copiar enlace para el cliente">📋 Copiar Link</button>
+          </td>
+          <td>
+            <button class="super-admin-btn btn-delete-store" type="button" data-sa-del="${idx}" title="Eliminar tienda de la lista">✕</button>
           </td>
         </tr>
       `;
@@ -5585,6 +5649,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const form = e.currentTarget;
       const id = String(form.elements.id.value || '').trim().toLowerCase();
       const name = String(form.elements.name.value || '').trim();
+      const ownerName = String(form.elements.ownerName.value || '').trim();
+      const whatsapp = String(form.elements.whatsapp.value || '').trim();
       const pin = String(form.elements.pin.value || '').trim();
       const storefront = String(form.elements.storefront.value || 'tech');
       const paidUntil = String(form.elements.paidUntil.value || '2030-12-31');
@@ -5603,7 +5669,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         return;
       }
 
-      list.push({ id, name, pin, storefront, paidUntil, status });
+      list.push({ id, name, ownerName, whatsapp, pin, storefront, paidUntil, status });
       saveConsoleData(data);
       form.reset();
       form.elements.paidUntil.value = '2030-12-31';
@@ -5612,6 +5678,35 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     });
 
     // Delegación de acciones de la tabla
+    $('superAdminTableBody')?.addEventListener('change', (e) => {
+      const frontSel = e.target.closest('[data-sa-front]');
+      if (frontSel) {
+        const idx = parseInt(frontSel.dataset.saFront, 10);
+        const data = getConsoleData();
+        const item = data.clients['mi-tienda'][idx];
+        if (item) {
+          item.storefront = frontSel.value;
+          saveConsoleData(data);
+          toast('Frente Actualizado', `Frente de ${item.name} cambiado a ${item.storefront}.`);
+        }
+        return;
+      }
+
+      const statusSel = e.target.closest('[data-sa-status]');
+      if (statusSel) {
+        const idx = parseInt(statusSel.dataset.saStatus, 10);
+        const data = getConsoleData();
+        const item = data.clients['mi-tienda'][idx];
+        if (item) {
+          item.status = statusSel.value;
+          saveConsoleData(data);
+          renderSuperAdminTable();
+          toast(item.status === 'activa' ? 'Tienda Activada' : 'Tienda Suspendida', `${item.name} ahora está ${item.status}.`);
+        }
+        return;
+      }
+    });
+
     $('superAdminTableBody')?.addEventListener('click', async (e) => {
       const copyBtn = e.target.closest('[data-sa-copy]');
       if (copyBtn) {
@@ -5625,32 +5720,35 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         return;
       }
 
-      const toggleBtn = e.target.closest('[data-sa-toggle]');
-      if (toggleBtn) {
-        const idx = parseInt(toggleBtn.dataset.saToggle, 10);
-        const data = getConsoleData();
-        const item = data.clients['mi-tienda'][idx];
-        if (item) {
-          item.status = item.status === 'activa' ? 'suspendida' : 'activa';
-          saveConsoleData(data);
-          renderSuperAdminTable();
-          toast(item.status === 'activa' ? 'Tienda Reactivada' : 'Tienda Suspendida', `${item.name} ahora está ${item.status}.`);
-        }
-        return;
-      }
-
       const pinBtn = e.target.closest('[data-sa-pin]');
       if (pinBtn) {
         const idx = parseInt(pinBtn.dataset.saPin, 10);
         const data = getConsoleData();
         const item = data.clients['mi-tienda'][idx];
         if (item) {
-          const newPin = prompt(`Cambiar o blanquear contraseña para "${item.name}":`, item.pin || '1234');
+          const newPin = prompt(`Modificar o blanquear clave para "${item.name}":`, item.pin || '1234');
           if (newPin && newPin.trim()) {
             item.pin = newPin.trim();
             saveConsoleData(data);
             renderSuperAdminTable();
             toast('PIN Actualizado', `La nueva clave de acceso para ${item.name} es: ${item.pin}`, 'success');
+          }
+        }
+        return;
+      }
+
+      const dateBtn = e.target.closest('[data-sa-date]');
+      if (dateBtn) {
+        const idx = parseInt(dateBtn.dataset.saDate, 10);
+        const data = getConsoleData();
+        const item = data.clients['mi-tienda'][idx];
+        if (item) {
+          const newDate = prompt(`Modificar fecha de vencimiento (AAAA-MM-DD) para "${item.name}":`, item.paidUntil || '2030-12-31');
+          if (newDate && /^\d{4}-\d{2}-\d{2}$/.test(newDate.trim())) {
+            item.paidUntil = newDate.trim();
+            saveConsoleData(data);
+            renderSuperAdminTable();
+            toast('Vencimiento Actualizado', `Válido hasta: ${item.paidUntil}`, 'success');
           }
         }
         return;
@@ -5670,6 +5768,36 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         return;
       }
     });
+  }
+
+  // ---- Inyección del Banner Rojo de Aviso de Vencimiento en Panel Admin ----
+  function mtCheckExpiryBanner() {
+    const slug = mtSlug() || 'ezepece';
+    const data = getConsoleData();
+    const list = (data.clients && data.clients['mi-tienda']) || [];
+    const item = list.find((c) => c.id === slug) || list[0];
+    if (!item || !item.paidUntil) return;
+
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const expire = new Date(item.paidUntil + 'T00:00:00');
+    const diffDays = Math.ceil((expire - today) / (1000 * 60 * 60 * 24));
+
+    const adminContent = $('adminContent');
+    if (!adminContent) return;
+
+    const existing = adminContent.querySelector('.admin-expiry-banner');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.className = 'admin-expiry-banner';
+    const daysText = diffDays > 0 ? `Quedan <b>${diffDays} días</b> de servicio activo (vence el ${item.paidUntil}).` : `<b>¡Tu abono está vencido!</b> (Venció el ${item.paidUntil}).`;
+    banner.innerHTML = `
+      <div>
+        ⚠️ <b>AVISO DE SERVICIO:</b> ${daysText}
+      </div>
+      <a href="https://wa.me/5493510000000?text=${encodeURIComponent('Hola, quiero renovar el abono de mi tienda ' + item.name)}" target="_blank" rel="noopener">Renovar Abono ↗</a>
+    `;
+    adminContent.prepend(banner);
   }
 
   async function adminLogin(event) {
@@ -7599,7 +7727,7 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     $('adminContent').innerHTML = `
       ${adminPageHead('Configuración', 'Preferencias de la tienda', 'Personalizá la información operativa y comercial')}
       ${settingsSubnav('general')}
-      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid" style="margin-bottom:14px"><label class="field field-wide"><span>Vidriera / Frente de tienda</span><select name="storefront" style="width:100%;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);font-weight:600;font-size:.85rem;cursor:pointer;"><option value="luma" ${s.storefront === "luma" ? "selected" : ""}>Boutique · Editorial (Luma)</option><option value="ofertas" ${s.storefront === "ofertas" ? "selected" : ""}>Ofertas · Consumo masivo</option><option value="gamer" ${s.storefront === "gamer" ? "selected" : ""}>Gamer · Hardware y setup</option><option value="libre" ${s.storefront === "libre" ? "selected" : ""}>Libre · Constructor visual</option><option value="tech" ${s.storefront === "tech" ? "selected" : ""}>Tech · Accesorios y servicio técnico (Eze.pece)</option></select></label></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div><div class="uber-settings"><h3>Envio con Uber Direct</h3><p>Muestra la entrega con courier en el checkout. En este modo el costo es de referencia (demo): cuando la tienda conecte su cuenta de Uber Direct la cotizacion sera en tiempo real y el precio final lo define Uber. El costo de la entrega se suma al total del pedido.</p><div class="field-grid"><label class="integration-toggle" style="width:100%"><input name="uberEnabled" type="checkbox" ${s.uber && s.uber.enabled!==false ? 'checked' : ''}><i></i><em>${s.uber && s.uber.enabled!==false ? 'Visible en el checkout' : 'Oculto'}</em></label><label class="field"><span>Costo de referencia (demo)</span><div class="money-input"><b>$</b><input name="uberDemoCost" type="number" min="0" value="${s.uber ? s.uber.demoCost || 0 : 4850}"></div></label><label class="field"><span>Entrega estimada: desde</span><input name="uberEtaMin" type="number" min="1" value="${s.uber ? s.uber.etaMin || 45 : 45}"></label><label class="field"><span>Entrega estimada: hasta</span><input name="uberEtaMax" type="number" min="1" value="${s.uber ? s.uber.etaMax || 60 : 60}"></label></div></div></section><section class="settings-card"><h2>Paleta de colores</h2><p>Elegí un punto de partida o generá una nueva: se aplica al instante en toda la tienda.</p><div class="palette-presets">${Object.entries(palettePresets).map(([key,p])=>`<button type="button" data-palette-preset="${key}"><span>${[p.darkColor,p.surfaceColor,p.secondaryColor,p.accentColor].map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${p.name}</b>${key==='botanica'?'<em>Clásica</em>':''}</button>`).join('')}</div><div class="settings-actions"><button class="button button-light random-palette-button" type="button" id="randomPaletteButton"><svg><use href="#i-refresh"></use></svg> Random · Nueva paleta</button></div><div class="contrast-check"><span>Contraste texto / fondo</span><b id="paletteContrast">—</b><small id="paletteContrastStatus">Se calcula al aplicar una paleta.</small></div><small style="display:block;margin-top:10px">Para afinar cada color por separado: <b>Ver tienda / Editar</b> → botón <i>Colores</i>.</small></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>${adminKeyCard(pinChangedAt)}`;
+      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid" style="margin-bottom:14px;display:none"><label class="field field-wide"><span>Vidriera / Frente de tienda</span><select name="storefront" style="width:100%;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);font-weight:600;font-size:.85rem;cursor:pointer;"><option value="luma" ${s.storefront === "luma" ? "selected" : ""}>Boutique · Editorial (Luma)</option><option value="ofertas" ${s.storefront === "ofertas" ? "selected" : ""}>Ofertas · Consumo masivo</option><option value="gamer" ${s.storefront === "gamer" ? "selected" : ""}>Gamer · Hardware y setup</option><option value="libre" ${s.storefront === "libre" ? "selected" : ""}>Libre · Constructor visual</option><option value="tech" ${s.storefront === "tech" ? "selected" : ""}>Tech · Accesorios y servicio técnico (Eze.pece)</option></select></label></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div><div class="uber-settings"><h3>Envio con Uber Direct</h3><p>Muestra la entrega con courier en el checkout. En este modo el costo es de referencia (demo): cuando la tienda conecte su cuenta de Uber Direct la cotizacion sera en tiempo real y el precio final lo define Uber. El costo de la entrega se suma al total del pedido.</p><div class="field-grid"><label class="integration-toggle" style="width:100%"><input name="uberEnabled" type="checkbox" ${s.uber && s.uber.enabled!==false ? 'checked' : ''}><i></i><em>${s.uber && s.uber.enabled!==false ? 'Visible en el checkout' : 'Oculto'}</em></label><label class="field"><span>Costo de referencia (demo)</span><div class="money-input"><b>$</b><input name="uberDemoCost" type="number" min="0" value="${s.uber ? s.uber.demoCost || 0 : 4850}"></div></label><label class="field"><span>Entrega estimada: desde</span><input name="uberEtaMin" type="number" min="1" value="${s.uber ? s.uber.etaMin || 45 : 45}"></label><label class="field"><span>Entrega estimada: hasta</span><input name="uberEtaMax" type="number" min="1" value="${s.uber ? s.uber.etaMax || 60 : 60}"></label></div></div></section><section class="settings-card"><h2>Paleta de colores</h2><p>Elegí un punto de partida o generá una nueva: se aplica al instante en toda la tienda.</p><div class="palette-presets">${Object.entries(palettePresets).map(([key,p])=>`<button type="button" data-palette-preset="${key}"><span>${[p.darkColor,p.surfaceColor,p.secondaryColor,p.accentColor].map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${p.name}</b>${key==='botanica'?'<em>Clásica</em>':''}</button>`).join('')}</div><div class="settings-actions"><button class="button button-light random-palette-button" type="button" id="randomPaletteButton"><svg><use href="#i-refresh"></use></svg> Random · Nueva paleta</button></div><div class="contrast-check"><span>Contraste texto / fondo</span><b id="paletteContrast">—</b><small id="paletteContrastStatus">Se calcula al aplicar una paleta.</small></div><small style="display:block;margin-top:10px">Para afinar cada color por separado: <b>Ver tienda / Editar</b> → botón <i>Colores</i>.</small></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>${adminKeyCard(pinChangedAt)}`;
   }
 
   function renderAdminPayments(mpData, settings) {
