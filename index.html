@@ -438,8 +438,9 @@ svg { width: 1.25em; height: 1.25em; }
 @media (max-width: 768px) {
   .footer-bottom {
     flex-direction: column;
-    gap: 16px;
-    padding: 24px 20px 32px 20px !important;
+    gap: 18px;
+    /* 98px de padding inferior para que el botón flotante de WhatsApp NUNCA tape la versión ni los enlaces */
+    padding: 24px 20px 98px 20px !important;
     align-items: center !important;
     text-align: center !important;
   }
@@ -453,15 +454,19 @@ svg { width: 1.25em; height: 1.25em; }
   .footer-bottom-left > span {
     text-align: center !important;
     width: 100% !important;
+    font-size: .78rem !important;
   }
   .popups-aurora-wrap {
-    margin: 2px auto !important;
+    margin: 4px auto !important;
   }
   .footer-bottom-right {
     justify-content: center !important;
     width: 100% !important;
+    max-width: 320px !important;
+    margin: 0 auto !important;
     flex-wrap: wrap !important;
-    gap: 12px 18px !important;
+    gap: 10px 16px !important;
+    font-size: .74rem !important;
   }
 }
 .footer-bottom>div{display:flex;align-items:center;gap:14px}.footer-bottom button{padding:0;border-bottom:1px solid rgba(255,255,255,.25);color:inherit;background:none;font-size:inherit}.footer-bottom button:hover{color:#fff}.disabled-link{opacity:.35;pointer-events:none}
@@ -3121,7 +3126,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v63</span>
+          <span>v64</span>
         </div>
       </div>
     </footer>
