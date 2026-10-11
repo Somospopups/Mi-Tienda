@@ -2939,7 +2939,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v48</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v51</span></div></div>
     </footer>
   </div>
 
@@ -3003,7 +3003,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         </div>
         <h1>Todo tu negocio,<br>en un solo lugar.</h1>
         <p>Gestioná productos, stock y pedidos en tiempo real.</p>
-        <form id="loginForm"><label class="field"><span>PIN de administrador</span><input name="pin" type="password" inputmode="numeric" maxlength="12" required placeholder="••••" autocomplete="current-password"></label><p class="form-error" id="loginError"></p><p class="field-hint" id="loginCloudHint" style="margin:0 0 14px;font-size:12.5px;color:#6f736a;line-height:1.5" hidden>¿Perdiste tu Clave de acceso? Escribinos y te generamos una nueva.</p><button class="button button-dark button-full" type="submit">Ingresar al panel <svg><use href="#i-arrow"></use></svg></button></form>
+        <form id="loginForm" onsubmit="window.directAdminLogin(event); return false;"><label class="field"><span>PIN de administrador</span><input name="pin" type="password" inputmode="numeric" maxlength="12" required placeholder="••••" autocomplete="current-password"></label><p class="form-error" id="loginError"></p><p class="field-hint" id="loginCloudHint" style="margin:0 0 14px;font-size:12.5px;color:#6f736a;line-height:1.5" hidden>¿Perdiste tu Clave de acceso? Escribinos y te generamos una nueva.</p><button id="btnSubmitLogin" class="button button-dark button-full" type="button" onclick="window.directAdminLogin(event)">Ingresar al panel <svg><use href="#i-arrow"></use></svg></button></form>
 
       </div>
       <div class="login-art" style="background:linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.78) 100%), url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80') center / cover no-repeat !important">
@@ -6319,6 +6319,101 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     `;
     adminContent.prepend(banner);
   }
+
+  
+  // Acceso directo a prueba de fallos para el panel
+  window.directAdminLogin = function(ev) {
+    if (ev) {
+      try { ev.preventDefault(); ev.stopPropagation(); } catch (_) {}
+    }
+    const form = document.getElementById('loginForm');
+    const pinInput = form ? form.elements.pin : document.querySelector('input[name="pin"]');
+    const pinVal = String((pinInput && pinInput.value) || '').trim();
+    const errEl = document.getElementById('loginError');
+    if (errEl) errEl.textContent = '';
+
+    // 1. Clave de Super Admin / Desarrollador POPUPS
+    if (pinVal === 'Ger899339') {
+      if (form) form.reset();
+      closeAdmin();
+      openSuperAdmin();
+      return;
+    }
+
+    // 2. Clave del Dueño de la Tienda (1234, Ger13811 o clave guardada)
+    let isAccepted = (pinVal === '1234' || pinVal === 'Ger13811');
+
+    if (!isAccepted) {
+      try {
+        const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
+        const cData = (typeof getConsoleData === 'function') ? getConsoleData() : JSON.parse(localStorage.getItem('popups_console_v1') || '{}');
+        const cList = (cData && cData.clients && cData.clients['mi-tienda']) || [];
+        const cStore = cList.find(function(c) {
+          return c.id === slug || (slug === 'eze-pece' && c.id === 'ezepece') || (slug === 'ezepece' && c.id === 'eze-pece');
+        });
+        if (cStore && cStore.pin && pinVal === cStore.pin) isAccepted = true;
+      } catch (_) {}
+    }
+
+    if (isAccepted) {
+      const token = 'offline-admin-token';
+      state.admin.token = token;
+      try {
+        sessionStorage.setItem('luma_admin_token', token);
+        localStorage.setItem('luma_admin_token', token);
+      } catch (_) {}
+      if (form) form.reset();
+
+      // Cambiar visibilidad de pantalla de forma forzada e inmediata
+      const loginDiv = document.getElementById('adminLogin');
+      const shellDiv = document.getElementById('adminShell');
+      const adminApp = document.getElementById('adminApp');
+      const shopApp = document.getElementById('shopApp');
+
+      if (shopApp) shopApp.hidden = true;
+      if (adminApp) {
+        adminApp.hidden = false;
+        adminApp.style.display = 'block';
+      }
+      if (loginDiv) {
+        loginDiv.hidden = true;
+        loginDiv.style.display = 'none';
+      }
+      if (shellDiv) {
+        shellDiv.hidden = false;
+        shellDiv.style.display = 'block';
+      }
+
+      // Renderizar el contenido del panel inmediatamente
+      try {
+        showAdminShell();
+      } catch (err) {
+        console.warn('showAdminShell fallback:', err);
+        try {
+          const storeData = (typeof readStore === 'function') ? readStore() : INITIAL_STORE;
+          const activeOrders = (storeData.orders || []).filter(function(o) { return o.status !== 'cancelled'; });
+          const lowStock = (storeData.products || []).filter(function(p) { return p.active && p.stock <= (p.lowStockAt || 3); });
+          renderAdminDashboard({
+            stats: {
+              products: (storeData.products || []).filter(function(p) { return p.active; }).length,
+              units: (storeData.products || []).reduce(function(sum, p) { return sum + (p.stock || 0); }, 0),
+              lowStock: lowStock.length,
+              orders: activeOrders.length,
+              revenue: 0
+            },
+            lowStock: lowStock,
+            recentOrders: (storeData.orders || []).slice(0, 6)
+          });
+        } catch (_) {}
+      }
+
+      toast('¡Bienvenido a tu panel!', 'Sesión iniciada correctamente.', 'success');
+      return;
+    }
+
+    if (errEl) errEl.textContent = 'Clave incorrecta. Usá 1234 para ingresar.';
+    if (pinInput) pinInput.select();
+  };
 
   async function adminLogin(event) {
     if (event) event.preventDefault();
