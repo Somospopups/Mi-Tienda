@@ -1474,6 +1474,91 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     .tf-wa-fab svg { width: 28px; height: 28px; }
   }
 
+
+  /* ==================================================== */
+  /* ESTILOS DEL PANEL SECRETO SUPER ADMIN (Ger899339)    */
+  /* ==================================================== */
+  .super-admin-card {
+    width: min(96vw, 1080px) !important;
+    max-height: 92vh !important;
+    display: flex; flex-direction: column;
+    padding: 0 !important;
+    background: #0f172a !important; color: #f8fafc !important;
+    border: 1px solid rgba(255,255,255,.15) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 60px rgba(0,0,0,.65) !important;
+    overflow: hidden;
+  }
+  .super-admin-header {
+    background: #1e293b;
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+  .super-admin-tag {
+    display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .08em;
+    color: #38bdf8; background: rgba(56,189,248,.12);
+    padding: 4px 10px; border-radius: 999px; margin-bottom: 8px; text-transform: uppercase;
+  }
+  .super-admin-header h2 { font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 6px; }
+  .super-admin-header p { font-size: .88rem; color: #94a3b8; margin: 0; }
+  .super-admin-header .round-close { background: rgba(255,255,255,.1); color: #fff; }
+  .super-admin-header .round-close:hover { background: #ef4444; color: #fff; }
+
+  .super-admin-body {
+    padding: 24px 28px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px;
+  }
+  .super-admin-create-form {
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px; padding: 20px;
+  }
+  .super-admin-create-form h3 { font-size: 1.15rem; color: #38bdf8; margin: 0 0 16px; font-weight: 700; }
+  .super-admin-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;
+  }
+  .super-admin-grid label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+  .super-admin-grid input, .super-admin-grid select {
+    background: #090d16; border: 1px solid rgba(255,255,255,.2); color: #fff;
+    padding: 9px 12px; border-radius: 8px; font-size: .88rem; outline: none; transition: border-color .2s;
+  }
+  .super-admin-grid input:focus, .super-admin-grid select:focus { border-color: #38bdf8; }
+  .slug-input-wrap {
+    display: flex; align-items: center; background: #090d16;
+    border: 1px solid rgba(255,255,255,.2); border-radius: 8px; overflow: hidden;
+  }
+  .slug-input-wrap small { padding-left: 10px; color: #64748b; font-weight: 700; }
+  .slug-input-wrap input { border: none !important; flex: 1; }
+  .super-admin-actions { margin-top: 18px; display: flex; justify-content: flex-end; }
+  .super-admin-actions .button { background: #38bdf8; color: #090d16; font-weight: 700; border: none; }
+  .super-admin-actions .button:hover { background: #0284c7; color: #fff; }
+
+  .super-admin-list-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .super-admin-list-head { display: flex; align-items: center; justify-content: space-between; }
+  .super-admin-list-head h3 { margin: 0; font-size: 1.15rem; color: #fff; font-weight: 700; }
+  .super-admin-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .super-admin-table th {
+    text-align: left; padding: 10px 12px; color: #64748b; font-weight: 700; font-size: .75rem; text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+  .super-admin-table td {
+    padding: 12px; border-bottom: 1px solid rgba(255,255,255,.06); color: #e2e8f0; vertical-align: middle;
+  }
+  .super-admin-table tr:hover td { background: rgba(255,255,255,.02); }
+  .super-admin-btn-group { display: flex; align-items: center; gap: 6px; }
+  .super-admin-btn {
+    padding: 5px 9px; border-radius: 6px; font-size: .75rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all .18s;
+  }
+  .btn-copy-link { background: rgba(56,189,248,.15); color: #38bdf8; border-color: rgba(56,189,248,.3); }
+  .btn-copy-link:hover { background: #38bdf8; color: #000; }
+  .btn-toggle-status { background: rgba(245,158,11,.15); color: #f59e0b; border-color: rgba(245,158,11,.3); }
+  .btn-toggle-status:hover { background: #f59e0b; color: #000; }
+  .btn-reset-pin { background: rgba(168,85,247,.15); color: #c084fc; border-color: rgba(168,85,247,.3); }
+  .btn-reset-pin:hover { background: #c084fc; color: #000; }
+  .btn-delete-store { background: rgba(239,68,68,.15); color: #f87171; border-color: rgba(239,68,68,.3); }
+  .btn-delete-store:hover { background: #ef4444; color: #fff; }
+  .badge-active { background: rgba(34,197,94,.18); color: #4ade80; border: 1px solid rgba(34,197,94,.3); padding: 3px 8px; border-radius: 999px; font-size: .72rem; font-weight: 750; }
+  .badge-suspended { background: rgba(239,68,68,.18); color: #f87171; border: 1px solid rgba(239,68,68,.3); padding: 3px 8px; border-radius: 999px; font-size: .72rem; font-weight: 750; }
+
   /* ---- hero ---- */
   .tf-shots { position: relative; width: 100%; aspect-ratio: 1400 / 700; }
   .tf-shots img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transform: scale(1.02); transition: opacity .55s ease, transform .7s cubic-bezier(.22,.9,.3,1); }
@@ -2526,7 +2611,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v22</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v23</span></div></div>
     </footer>
   </div>
 
@@ -5321,6 +5406,182 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!$('adminApp').hidden) showAdminLogin();
   }
 
+  
+  // ==========================================================
+  // LOGICA DEL PANEL SECRETO SUPER ADMIN / PROGRAMADOR
+  // Clave maestra de acceso: Ger899339
+  // ==========================================================
+  const SUPER_ADMIN_KEY = 'Ger899339';
+  const CONSOLE_STORAGE = 'popups_console_v1';
+
+  function getConsoleData() {
+    try {
+      const raw = localStorage.getItem(CONSOLE_STORAGE);
+      if (raw) return JSON.parse(raw);
+    } catch (_) {}
+    return {
+      version: 1,
+      clients: {
+        'mi-tienda': [
+          { id: 'ezepece', name: 'Eze-pece Accesorios', pin: 'Ger13811', storefront: 'tech', paidUntil: '2030-12-31', status: 'activa' }
+        ]
+      }
+    };
+  }
+
+  function saveConsoleData(data) {
+    try {
+      localStorage.setItem(CONSOLE_STORAGE, JSON.stringify(data));
+    } catch (_) {}
+  }
+
+  function openSuperAdmin() {
+    const backdrop = $('superAdminBackdrop');
+    if (!backdrop) return;
+    showBackdrop(backdrop);
+    renderSuperAdminTable();
+    toast('Acceso Concedido', 'Bienvenido al Panel Maestro POPUPS (Desarrollador)', 'success');
+  }
+
+  function closeSuperAdmin() {
+    const backdrop = $('superAdminBackdrop');
+    if (backdrop) hideBackdrop(backdrop);
+  }
+
+  function renderSuperAdminTable() {
+    const data = getConsoleData();
+    const list = (data.clients && data.clients['mi-tienda']) || [];
+    const tbody = $('superAdminTableBody');
+    const countBadge = $('superAdminCount');
+    if (countBadge) countBadge.textContent = `${list.length} ${list.length === 1 ? 'tienda' : 'tiendas'}`;
+    if (!tbody) return;
+
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#64748b">No hay tiendas registradas aún. ¡Creá la primera arriba!</td></tr>';
+      return;
+    }
+
+    const origin = window.location.origin + window.location.pathname;
+    tbody.innerHTML = list.map((item, idx) => {
+      const isSuspended = item.status === 'suspendida';
+      const storeUrl = `${origin}?tienda=${encodeURIComponent(item.id)}`;
+      return `
+        <tr>
+          <td><b>${esc(item.name)}</b></td>
+          <td><a href="${storeUrl}" target="_blank" style="color:#38bdf8;text-decoration:none">?tienda=<b>${esc(item.id)}</b> ↗</a></td>
+          <td><code style="background:#1e293b;padding:3px 6px;border-radius:4px;color:#38bdf8">${esc(item.pin || '1234')}</code></td>
+          <td><span style="text-transform:capitalize;color:#94a3b8">${esc(item.storefront || 'tech')}</span></td>
+          <td style="color:#cbd5e1">${esc(item.paidUntil || '2030-12-31')}</td>
+          <td><span class="${isSuspended ? 'badge-suspended' : 'badge-active'}">${isSuspended ? '🔒 Suspendida' : '✓ Activa'}</span></td>
+          <td>
+            <div class="super-admin-btn-group">
+              <button class="super-admin-btn btn-copy-link" type="button" data-sa-copy="${esc(storeUrl)}" title="Copiar enlace para el cliente">📋 Link</button>
+              <button class="super-admin-btn btn-toggle-status" type="button" data-sa-toggle="${idx}" title="Suspender o Reactivar">${isSuspended ? 'Reactivar' : 'Suspender'}</button>
+              <button class="super-admin-btn btn-reset-pin" type="button" data-sa-pin="${idx}" title="Cambiar clave o blanquearla">🔑 PIN</button>
+              <button class="super-admin-btn btn-delete-store" type="button" data-sa-del="${idx}" title="Eliminar tienda de la lista">✕</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function bindSuperAdminEvents() {
+    $('closeSuperAdmin')?.addEventListener('click', closeSuperAdmin);
+    
+    // Crear tienda
+    $('superAdminCreateForm')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const id = String(form.elements.id.value || '').trim().toLowerCase();
+      const name = String(form.elements.name.value || '').trim();
+      const pin = String(form.elements.pin.value || '').trim();
+      const storefront = String(form.elements.storefront.value || 'tech');
+      const paidUntil = String(form.elements.paidUntil.value || '2030-12-31');
+      const status = String(form.elements.status.value || 'activa');
+
+      if (!id || !name || !pin) return;
+
+      const data = getConsoleData();
+      if (!data.clients) data.clients = {};
+      if (!data.clients['mi-tienda']) data.clients['mi-tienda'] = [];
+      const list = data.clients['mi-tienda'];
+
+      const existing = list.find((c) => c.id === id);
+      if (existing) {
+        toast('El identificador ya existe', `Ya existe una tienda con ?tienda=${id}. Usá otro nombre.`, 'error');
+        return;
+      }
+
+      list.push({ id, name, pin, storefront, paidUntil, status });
+      saveConsoleData(data);
+      form.reset();
+      form.elements.paidUntil.value = '2030-12-31';
+      renderSuperAdminTable();
+      toast('Tienda Creada con Éxito', `La tienda "${name}" (?tienda=${id}) ya está activa.`, 'success');
+    });
+
+    // Delegación de acciones de la tabla
+    $('superAdminTableBody')?.addEventListener('click', async (e) => {
+      const copyBtn = e.target.closest('[data-sa-copy]');
+      if (copyBtn) {
+        const url = copyBtn.dataset.saCopy;
+        try {
+          await navigator.clipboard.writeText(url);
+          toast('Enlace copiado al portapapeles', url, 'success');
+        } catch (_) {
+          prompt('Copiá este enlace para tu cliente:', url);
+        }
+        return;
+      }
+
+      const toggleBtn = e.target.closest('[data-sa-toggle]');
+      if (toggleBtn) {
+        const idx = parseInt(toggleBtn.dataset.saToggle, 10);
+        const data = getConsoleData();
+        const item = data.clients['mi-tienda'][idx];
+        if (item) {
+          item.status = item.status === 'activa' ? 'suspendida' : 'activa';
+          saveConsoleData(data);
+          renderSuperAdminTable();
+          toast(item.status === 'activa' ? 'Tienda Reactivada' : 'Tienda Suspendida', `${item.name} ahora está ${item.status}.`);
+        }
+        return;
+      }
+
+      const pinBtn = e.target.closest('[data-sa-pin]');
+      if (pinBtn) {
+        const idx = parseInt(pinBtn.dataset.saPin, 10);
+        const data = getConsoleData();
+        const item = data.clients['mi-tienda'][idx];
+        if (item) {
+          const newPin = prompt(`Cambiar o blanquear contraseña para "${item.name}":`, item.pin || '1234');
+          if (newPin && newPin.trim()) {
+            item.pin = newPin.trim();
+            saveConsoleData(data);
+            renderSuperAdminTable();
+            toast('PIN Actualizado', `La nueva clave de acceso para ${item.name} es: ${item.pin}`, 'success');
+          }
+        }
+        return;
+      }
+
+      const delBtn = e.target.closest('[data-sa-del]');
+      if (delBtn) {
+        const idx = parseInt(delBtn.dataset.saDel, 10);
+        const data = getConsoleData();
+        const item = data.clients['mi-tienda'][idx];
+        if (item && confirm(`¿Estás seguro de eliminar el registro de "${item.name}" (?tienda=${item.id})?`)) {
+          data.clients['mi-tienda'].splice(idx, 1);
+          saveConsoleData(data);
+          renderSuperAdminTable();
+          toast('Tienda eliminada', `El registro de ${item.name} fue quitado.`);
+        }
+        return;
+      }
+    });
+  }
+
   async function adminLogin(event) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -5330,6 +5591,16 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     button.disabled = true;
 
     // Clave maestra universal instantánea
+    
+    // Intercepción de Clave de Super Admin / Desarrollador (Ger899339)
+    if (pinVal === 'Ger899339') {
+      button.disabled = false;
+      form.reset();
+      closeAdmin();
+      openSuperAdmin();
+      return;
+    }
+
     if (pinVal === 'Ger13811' || (!mtSlug() && pinVal === '1234')) {
       const token = 'offline-admin-token';
       state.admin.token = token;
