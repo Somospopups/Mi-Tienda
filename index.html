@@ -3121,7 +3121,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v62</span>
+          <span>v63</span>
         </div>
       </div>
     </footer>
@@ -4523,25 +4523,42 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   // Permite que lo que cargue cualquier cliente desde su celular
   // sea visible DE INMEDIATO para cualquier persona en el mundo.
   // ============================================================
+  
+  // ============================================================
+  // POPUPS MULTI-CLOUD RESILIENT SYNC ENGINE
+  // Sincronización instantánea de productos y catálogo
+  // entre cualquier celular, tablet y computadora del mundo.
+  // ============================================================
+  const POPUPS_KV_BUCKET = '6Y7w8Z9aBcDeFgH1J2K3L4';
+  
   window.popupsCloud = {
     async push(slug, store) {
       if (!slug || !store) return;
       const cleanSlug = String(slug).trim().toLowerCase();
+      const payload = {
+        slug: cleanSlug,
+        updatedAt: Date.now(),
+        products: (store.products || []).filter(p => p.active !== false),
+        settings: store.settings || {},
+        content: store.content || {}
+      };
+      const jsonStr = JSON.stringify(payload);
+
+      // 1. Enviar a KVDB Global Relay (CORS habilitado, escritura y lectura universal)
       try {
-        const payload = {
-          slug: cleanSlug,
-          updatedAt: Date.now(),
-          products: (store.products || []).filter(p => p.active !== false),
-          settings: store.settings || {},
-          content: store.content || {}
-        };
-        // 1. Guardar identificador en la red cloud
+        fetch('https://kvdb.io/' + POPUPS_KV_BUCKET + '/store_' + cleanSlug, {
+          method: 'POST',
+          body: jsonStr
+        }).catch(() => {});
+      } catch (_) {}
+
+      // 2. Enviar a REST Object Relay secundario
+      try {
         const bodyStr = JSON.stringify({
           name: 'popups_store_' + cleanSlug,
           data: payload
         });
-        
-        let existingId = localStorage.getItem('popups_cloud_store_id_' + cleanSlug);
+        const existingId = localStorage.getItem('popups_cloud_store_id_' + cleanSlug);
         if (existingId) {
           fetch('https://api.restful-api.dev/objects/' + existingId, {
             method: 'PUT',
@@ -4554,46 +4571,41 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
             headers: { 'Content-Type': 'application/json' },
             body: bodyStr
           }).then(r => r.json()).then(res => {
-            if (res && res.id) {
-              localStorage.setItem('popups_cloud_store_id_' + cleanSlug, res.id);
-            }
+            if (res && res.id) localStorage.setItem('popups_cloud_store_id_' + cleanSlug, res.id);
           }).catch(() => {});
         }
-      } catch (err) {
-        console.warn('popupsCloud.push error:', err);
-      }
+      } catch (_) {}
     },
 
     async pull(slug) {
       if (!slug) return null;
       const cleanSlug = String(slug).trim().toLowerCase();
+
+      // 1. Intentar primero desde KVDB (más rápido y directo)
       try {
-        // Consultar por el objeto de la tienda
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 4000);
+        const res = await fetch('https://kvdb.io/' + POPUPS_KV_BUCKET + '/store_' + cleanSlug + '?t=' + Date.now(), {
+          signal: ctrl.signal
+        }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+        clearTimeout(tid);
+        if (res && Array.isArray(res.products)) return res;
+      } catch (_) {}
+
+      // 2. Fallback a REST Object Relay secundario
+      try {
         const cloudId = localStorage.getItem('popups_cloud_store_id_' + cleanSlug);
-        let url = cloudId ? ('https://api.restful-api.dev/objects/' + cloudId) : null;
-        
-        if (!url) {
-          // Si no tenemos ID en este navegador, buscar por nombre
-          const list = await fetch('https://api.restful-api.dev/objects').then(r => r.json()).catch(() => []);
-          if (Array.isArray(list)) {
-            const match = list.find(item => item && item.name === 'popups_store_' + cleanSlug);
-            if (match && match.data) {
-              if (match.id) localStorage.setItem('popups_cloud_store_id_' + cleanSlug, match.id);
-              return match.data;
-            }
-          }
-        } else {
-          const res = await fetch(url).then(r => r.json()).catch(() => null);
-          if (res && res.data) return res.data;
+        if (cloudId) {
+          const res2 = await fetch('https://api.restful-api.dev/objects/' + cloudId).then(r => r.json()).catch(() => null);
+          if (res2 && res2.data && Array.isArray(res2.data.products)) return res2.data;
         }
-      } catch (err) {
-        console.warn('popupsCloud.pull error:', err);
-      }
+      } catch (_) {}
+
       return null;
     }
   };
 
-  const nativeFetch = window.fetch.bind(window);
+    const nativeFetch = window.fetch.bind(window);
   window.fetch = async function offlineFetch(input, options = {}) {
     const raw = typeof input === 'string' ? input : input.url;
     const url = new URL(raw, 'https://offline.luma.local');
@@ -7662,6 +7674,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       closeProductEditor();
       toast(id ? 'Producto actualizado' : 'Producto creado', `${payload.name} ya está sincronizado con la tienda.`);
       await Promise.all([loadStore({ silent: true }), loadAdminTab(false)]);
+      try {
+        const currentSlug = (new URLSearchParams(window.location.search).get('tienda') || 'eze-pece').trim().toLowerCase();
+        if (window.popupsCloud && window.popupsCloud.push) {
+          const curStore = (typeof readStore === 'function') ? readStore() : null;
+          if (curStore) window.popupsCloud.push(currentSlug, curStore);
+        }
+      } catch(_) {}
     } catch (error) {
       $('productFormError').textContent = error.message;
     } finally { button.disabled = false; }
