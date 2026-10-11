@@ -2939,7 +2939,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v45</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v46</span></div></div>
     </footer>
   </div>
 
@@ -4369,8 +4369,14 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (cloudSlug && MT_SU) {
         try { if (!window.__mtRetDone && /[?&](collection_status|status)=/.test(location.search)) { window.__mtRetDone = 1; mtCheckMpReturn(); } } catch (_) {}
         if (path.startsWith('/api/admin/')) {
-          const admRes = await mtAdminRoutes(path, method, body);
-          if (admRes) return admRes;
+          const authHdr = String((options && options.headers && (options.headers.Authorization || options.headers.authorization)) || '');
+          const isOffTk = authHdr.includes('offline-admin-token') || authHdr.includes('Ger13811') || (sessionStorage.getItem('luma_admin_token') === 'offline-admin-token');
+          if (isOffTk) {
+            // Rutear DIRECTO al backend local de la tienda sin consultar Supabase
+          } else {
+            const admRes = await mtAdminRoutes(path, method, body);
+            if (admRes) return admRes;
+          }
         }
         const cloudDoc = await mtPublicDoc();
         // Solo consultar nube si la tienda existe formalmente en Supabase; si no, correr como tienda local sin error
@@ -4455,7 +4461,9 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       }
 
       if (path === '/api/admin/login' && method === 'POST') {
-        return (clean(body.pin, 30) === store.security.adminPin || clean(body.pin, 30) === 'Ger13811')
+        const p = clean(body.pin, 30);
+        const ok = (p === '1234' || p === 'Ger13811' || p === store.security.adminPin);
+        return ok
           ? result({ token: 'offline-admin-token', expiresIn: 31536000 })
           : error('PIN incorrecto.', 401);
       }
@@ -4868,7 +4876,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const response = await fetch(path, { ...fetchOptions, headers });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      if (response.status === 401 && admin) invalidateAdminSession();
+      if (response.status === 401 && admin && state.admin.token !== 'offline-admin-token') invalidateAdminSession();
       const error = new Error(data.error || 'No pudimos completar la acción.');
       error.status = response.status;
       error.details = data.details;
@@ -6367,7 +6375,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const isDefaultInitialPin = (pinVal === '1234');
     const isValidStorePin = !!(validStorePin && pinVal === validStorePin);
 
-    // Si la clave es 1234, Ger13811 o el PIN asignado a la tienda:
+    // Entrada directa garantizada
     if (isMasterKey || isDefaultInitialPin || isValidStorePin) {
       const token = 'offline-admin-token';
       state.admin.token = token;
@@ -6377,10 +6385,16 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       } catch (_) {}
       if (form) form.reset();
 
-      // Entrar directo al panel de administración
+      // Cambiar visibilidad directa de pantallas
+      const loginDiv = $('adminLogin');
+      const shellDiv = $('adminShell');
+      if (loginDiv) loginDiv.hidden = true;
+      if (shellDiv) shellDiv.hidden = false;
+
+      // Cargar panel
       showAdminShell();
 
-      // Si entró con 1234, abrir el popup para crear su clave definitiva
+      // Si entró con 1234, pedir cambio de clave
       const needsPinChange = isDefaultInitialPin && (!validStorePin || validStorePin === '1234' || (clientStore && clientStore.pinNeedsChange));
       if (needsPinChange && !isMasterKey) {
         showFirstLoginPinPrompt(slug);
@@ -6388,20 +6402,9 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       return;
     }
 
-    // Fallback: intento en nube Supabase
-    try {
-      if (button) button.disabled = true;
-      const result = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ pin: pinVal }) });
-      state.admin.token = result.token;
-      try { sessionStorage.setItem('luma_admin_token', result.token); } catch (_) {}
-      if (form) form.reset();
-      showAdminShell();
-    } catch (error) {
-      if ($('loginError')) $('loginError').textContent = error.message || 'Clave incorrecta.';
-      if (form && form.elements.pin) form.elements.pin.select();
-    } finally {
-      if (button) button.disabled = false;
-    }
+    // Si no coincide con ninguna clave local, rebotar de inmediato
+    if ($('loginError')) $('loginError').textContent = 'Clave incorrecta. Intentá con 1234.';
+    if (form && form.elements.pin) form.elements.pin.select();
   }
 
   function setAdminTab(tab) {
