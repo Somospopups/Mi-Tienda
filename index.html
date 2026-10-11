@@ -3,9 +3,45 @@
 <head>
   <meta charset="utf-8">
 <link rel="icon" href="data:,">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#f6f1e8">
-  <meta name="luma-mode" content="offline">
+
+  <!-- Anti-flash inmediato: detecta frente antes del primer frame de renderizado -->
+  <script>
+    (function() {
+      try {
+        var q = new URLSearchParams(location.search);
+        var f = (q.get('front') || '').trim().toLowerCase();
+        var s = (q.get('tienda') || '').trim().toLowerCase();
+        if (f && ['luma','ofertas','gamer','libre','tech'].indexOf(f) > -1) {
+          document.documentElement.dataset.front = f;
+        } else {
+          document.documentElement.dataset.front = 'tech';
+        }
+      } catch(_) {
+        document.documentElement.dataset.front = 'tech';
+      }
+    })();
+  </script>
+  <style>
+    /* Ocultar Luma instantáneamente antes de que cargue el DOM cuando el frente es tech */
+    html[data-front="tech"] .luma-front,
+    html[data-front="tech"] .site-header,
+    html[data-front="tech"] .announcement,
+    html:not([data-front="luma"]) .luma-front,
+    html:not([data-front="luma"]) .site-header,
+    html:not([data-front="luma"]) .announcement {
+      display: none !important;
+    }
+    html[data-front="tech"] #frontTech,
+    html[data-front="tech"] #frontTechTail,
+    html:not([data-front="luma"]) #frontTech,
+    html:not([data-front="luma"]) #frontTechTail {
+      display: contents !important;
+    }
+  </style>
+
+    <meta name="luma-mode" content="offline">
   <meta name="description" content="LUMA — objetos elegidos para vivir mejor. Tienda online de hogar, bienestar y accesorios.">
   <title>LUMA Offline — Objetos que hacen hogar</title>
   <script>
@@ -37,8 +73,13 @@
 }
 
 * { box-sizing: border-box; }
+html, body {
+  width: 100%; max-width: 100%; overflow-x: hidden;
+  margin: 0; padding: 0;
+}
 html { scroll-behavior: smooth; scroll-padding-top: 110px; }
-body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--sans); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { color: var(--ink); background: var(--paper); font-family: var(--sans); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.shop-app { width: 100%; max-width: 100%; overflow-x: hidden; position: relative; }
 body.no-scroll { overflow: hidden; }
 button, input, textarea, select { color: inherit; font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -1389,7 +1430,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .tf-sec-ctl button:hover { background: #38bdf8; color: #0f172a; transform: scale(1.1); }
   .tf-sec-ctl button:active { transform: scale(.95); }
 
-  .tf-sec { position: relative; z-index: 2; }
+  .tf-sec { position: relative; z-index: 2; max-width: 100%; overflow: hidden; }
   .tf-cards, .tf-bens, .tf-quotes { position: relative; z-index: 2; }
   .tf-card, .tf-quote, .tf-ben { position: relative; z-index: 2; }
   /* Arrastre libre de los textos grandes */
@@ -2228,7 +2269,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   })();
 </script>
 </head>
-<body>
+<body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 8.5h13l-1 11h-11l-1-11Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
@@ -2698,7 +2739,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v34</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v35</span></div></div>
     </footer>
   </div>
 
