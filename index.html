@@ -301,13 +301,13 @@ svg { width: 1.25em; height: 1.25em; }
   }
   .popups-aurora-glow {
     position: absolute;
-    inset: -2px;
-    background: linear-gradient(90deg, #bbf426, #38bdf8, #818cf8, #bbf426);
+    inset: -1px;
+    background: linear-gradient(90deg, rgba(187,244,38,0.7), rgba(56,189,248,0.7), rgba(129,140,248,0.6), rgba(187,244,38,0.7));
     background-size: 300% 100%;
     border-radius: 999px;
-    filter: blur(8px);
-    opacity: 0.55;
-    animation: popupsAuroraMotion 4.5s linear infinite;
+    filter: blur(4px);
+    opacity: 0.28;
+    animation: popupsAuroraMotion 5s linear infinite;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
     z-index: 0;
@@ -347,9 +347,9 @@ svg { width: 1.25em; height: 1.25em; }
     transition: transform 0.25s ease, filter 0.25s ease;
   }
   .popups-aurora-wrap:hover .popups-aurora-glow {
-    opacity: 0.95;
-    filter: blur(14px);
-    inset: -3px;
+    opacity: 0.6;
+    filter: blur(7px);
+    inset: -2px;
   }
   .popups-aurora-link:hover {
     background: #020617;
@@ -435,7 +435,35 @@ svg { width: 1.25em; height: 1.25em; }
 .footer-links a, .footer-links button { padding: 0; color: rgba(255,255,255,.58); background: none; font-size: .71rem; transition: color .2s ease; }
 .footer-links a:hover, .footer-links button:hover { color: #fff; }
 .footer-bottom { width: min(1440px, 100%); min-height: 72px; margin: auto; padding: 14px max(80px, 6vw) 14px 5vw; border-top: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; justify-content: space-between; color: #94a3b8; font-size: .74rem; font-weight: 500; position: relative; z-index: 10; }
-@media (max-width: 768px) { .footer-bottom { flex-direction: column; gap: 10px; padding: 18px 85px 24px 20px; align-items: flex-start; } }
+@media (max-width: 768px) {
+  .footer-bottom {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 20px 32px 20px !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  .footer-bottom-left {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+  .footer-bottom-left > span {
+    text-align: center !important;
+    width: 100% !important;
+  }
+  .popups-aurora-wrap {
+    margin: 2px auto !important;
+  }
+  .footer-bottom-right {
+    justify-content: center !important;
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 12px 18px !important;
+  }
+}
 .footer-bottom>div{display:flex;align-items:center;gap:14px}.footer-bottom button{padding:0;border-bottom:1px solid rgba(255,255,255,.25);color:inherit;background:none;font-size:inherit}.footer-bottom button:hover{color:#fff}.disabled-link{opacity:.35;pointer-events:none}
 
 /* ---------- Drawer & common modals ---------- */
@@ -3095,7 +3123,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v57</span>
+          <span>v58</span>
         </div>
       </div>
     </footer>
