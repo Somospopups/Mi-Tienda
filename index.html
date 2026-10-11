@@ -2611,7 +2611,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v23</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v24</span></div></div>
     </footer>
   </div>
 
@@ -2751,6 +2751,96 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   </div>
 
   <div class="confirm-popover" id="confirmPopover" hidden><div><span class="confirm-icon">!</span><h3 id="confirmTitle">¿Estás seguro?</h3><p id="confirmText"></p><div><button class="button button-light" id="confirmCancel">Cancelar</button><button class="button button-danger" id="confirmAccept">Sí, continuar</button></div></div></div>
+  
+  <!-- ========================================== -->
+  <!-- PANEL DE SUPER ADMIN / PROGRAMADOR POPUPS  -->
+  <!-- Acceso Secreto: Clave Ger899339            -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" id="superAdminBackdrop" style="z-index:99999;" hidden>
+    <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
+      <header class="super-admin-header">
+        <div>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR</span>
+          <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
+          <p>Creá enlaces únicos para clientes, asigná claves, suspendé o activá tiendas y configurá frentes.</p>
+        </div>
+        <button class="round-close" id="closeSuperAdmin" type="button" aria-label="Cerrar panel secreto"><svg><use href="#i-close"></use></svg></button>
+      </header>
+
+      <div class="super-admin-body">
+        <form class="super-admin-create-form" id="superAdminCreateForm">
+          <h3>Nueva Tienda / Cliente</h3>
+          <div class="super-admin-grid">
+            <label>
+              <span>Nombre del Comercio / Cliente</span>
+              <input type="text" name="name" placeholder="Ej: Eze-pece Accesorios" required>
+            </label>
+            <label>
+              <span>Enlace / Identificador (Slug)</span>
+              <div class="slug-input-wrap">
+                <small>?tienda=</small>
+                <input type="text" name="id" placeholder="ezepece" required pattern="^[a-z0-9_-]+$" title="Solo minúsculas, números o guiones">
+              </div>
+            </label>
+            <label>
+              <span>Clave / PIN del Administrador</span>
+              <input type="text" name="pin" placeholder="Ej: 1234 o Eze2026" required>
+            </label>
+            <label>
+              <span>Frente / Estilo Inicial</span>
+              <select name="storefront">
+                <option value="tech" selected>Tech (Eze-pece / Vidriera de accesorios)</option>
+                <option value="luma">Luma (Boutique / Diseño esencial)</option>
+                <option value="ofertas">Ofertas (Supermercado / Descuentos)</option>
+                <option value="gamer">Gamer (Hardware / Neón oscuro)</option>
+                <option value="libre">Libre (Constructor de bloques modular)</option>
+              </select>
+            </label>
+            <label>
+              <span>Válido hasta (Abonado hasta)</span>
+              <input type="date" name="paidUntil" value="2030-12-31" required>
+            </label>
+            <label>
+              <span>Estado Inicial</span>
+              <select name="status">
+                <option value="activa" selected>Activa (Venta y visualización libre)</option>
+                <option value="suspendida">Suspendida (Bloqueo por falta de pago)</option>
+              </select>
+            </label>
+          </div>
+          <div class="super-admin-actions">
+            <button class="button button-dark" type="submit" id="superAdminSubmitBtn">+ Crear Tienda para Cliente</button>
+          </div>
+        </form>
+
+        <div class="super-admin-list-wrap">
+          <div class="super-admin-list-head">
+            <h3>Clientes y Tiendas Registradas</h3>
+            <span id="superAdminCount" class="badge">0 tiendas</span>
+          </div>
+          <div class="table-responsive">
+            <table class="super-admin-table">
+              <thead>
+                <tr>
+                  <th>Comercio</th>
+                  <th>Enlace público</th>
+                  <th>PIN / Clave</th>
+                  <th>Frente</th>
+                  <th>Vence</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="superAdminTableBody">
+                <!-- Rellenado dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div class="toast-region" id="toastRegion" aria-live="polite"></div>
 
   <script>
@@ -7739,6 +7829,7 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     $('currentYear').textContent = new Date().getFullYear();
     document.addEventListener('keydown', keyboardShortcuts);
 
+    bindSuperAdminEvents();
     $('loginForm').addEventListener('submit', adminLogin);
     $('loginBack').addEventListener('click', closeAdmin);
     $('viewStore').addEventListener('click', goStoreAndEdit);
