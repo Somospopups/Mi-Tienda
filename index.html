@@ -2939,7 +2939,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v42</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v43</span></div></div>
     </footer>
   </div>
 
@@ -2995,42 +2995,25 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     <div class="admin-login" id="adminLogin">
       <button class="admin-back" id="loginBack"><svg><use href="#i-arrow"></use></svg> Volver a la tienda</button>
       <div class="login-card">
-        <div class="login-brand"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></div>
-        <span class="kicker">Acceso privado</span>
+        <div class="login-brand" style="margin-bottom:28px">
+          <span style="font-size:.82rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#0284c7;display:inline-flex;align-items:center;gap:8px">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            ACCESO PRIVADO · ADMINISTRACIÓN
+          </span>
+        </div>
         <h1>Todo tu negocio,<br>en un solo lugar.</h1>
         <p>Gestioná productos, stock y pedidos en tiempo real.</p>
         <form id="loginForm"><label class="field"><span>PIN de administrador</span><input name="pin" type="password" inputmode="numeric" maxlength="12" required placeholder="••••" autocomplete="current-password"></label><p class="form-error" id="loginError"></p><p class="field-hint" id="loginCloudHint" style="margin:0 0 14px;font-size:12.5px;color:#6f736a;line-height:1.5" hidden>¿Perdiste tu Clave de acceso? Escribinos y te generamos una nueva.</p><button class="button button-dark button-full" type="submit">Ingresar al panel <svg><use href="#i-arrow"></use></svg></button></form>
 
       </div>
-      <div class="login-art">
-        <svg class="growth-svg-bg" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="growthLineGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.1"/>
-              <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.6"/>
-              <stop offset="100%" stop-color="#818cf8" stop-opacity="0.9"/>
-            </linearGradient>
-            <linearGradient id="growthAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.18"/>
-              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
-            </linearGradient>
-            <pattern id="gridPattern" width="50" height="50" patternUnits="userSpaceOnUse">
-              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#gridPattern)" />
-          <!-- Curva elegante de crecimiento sostenido y orden -->
-          <path d="M 0 650 Q 200 620, 360 480 T 800 180 L 800 800 L 0 800 Z" fill="url(#growthAreaGrad)"/>
-          <path d="M 0 650 Q 200 620, 360 480 T 800 180" stroke="url(#growthLineGrad)" stroke-width="3.5" stroke-linecap="round"/>
-          <!-- Nodos sutiles de hitos y métricas -->
-          <circle cx="200" cy="620" r="5" fill="#38bdf8" opacity="0.7"/>
-          <circle cx="360" cy="480" r="6" fill="#38bdf8" opacity="0.9"/>
-          <circle cx="560" cy="330" r="6" fill="#818cf8" opacity="0.9"/>
-          <circle cx="800" cy="180" r="8" fill="#818cf8"/>
-        </svg>
-        <div class="login-art-copy">
-          <span>Impulsá tu negocio.<br><em>Orden, claridad y control.</em></span>
-          <small>Ventas · Inventario · Catálogo · Clientes</small>
+      <div class="login-art" style="background:linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.78) 100%), url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80') center / cover no-repeat !important">
+        <div class="login-art-copy" style="position:absolute;bottom:48px;left:48px;right:48px;z-index:3;color:#ffffff">
+          <span style="font-size:clamp(1.8rem, 2.8vw, 2.8rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;color:#f8fafc;display:block">
+            Todo tu negocio en orden.<br><em style="font-style:normal;color:#38bdf8">Decisiones con claridad.</em>
+          </span>
+          <small style="display:block;margin-top:14px;font-size:.82rem;font-weight:600;color:#cbd5e1;letter-spacing:.08em;text-transform:uppercase">
+            Ventas · Inventario · Catálogo · Clientes
+          </small>
         </div>
       </div>
     </div>
@@ -3671,7 +3654,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     });
     const ritual = INITIAL_STORE.products.find((item) => item.id === 'set-ritual');
     if (ritual && ritual.image && ritual.image.indexOf('data:image/') === 0) {
-      try { document.documentElement.style.setProperty('--login-art', "url('" + ritual.image + "')"); } catch (_) {}
+      try { // --login-art disabled } catch (_) {}
     }
   })();
 
@@ -6346,61 +6329,64 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   async function adminLogin(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const button = form.querySelector('button[type="submit"]');
-    const pinVal = String(form.elements.pin.value || '').trim();
-    $('loginError').textContent = '';
-    if (button) button.disabled = true;
+    if (event) event.preventDefault();
+    const form = $('loginForm');
+    const button = form ? form.querySelector('button[type="submit"]') : null;
+    const pinVal = String((form && form.elements.pin && form.elements.pin.value) || '').trim();
+    if ($('loginError')) $('loginError').textContent = '';
 
+    // 1. Clave de Super Admin / Desarrollador (Ger899339)
+    if (pinVal === 'Ger899339') {
+      if (form) form.reset();
+      closeAdmin();
+      openSuperAdmin();
+      return;
+    }
+
+    let slug = '';
     try {
-      // 1. Clave de Super Admin / Desarrollador (Ger899339)
-      if (pinVal === 'Ger899339') {
-        if (button) button.disabled = false;
-        form.reset();
-        closeAdmin();
-        openSuperAdmin();
-        return;
+      slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
+    } catch (_) {}
+
+    const consoleData = typeof getConsoleData === 'function' ? getConsoleData() : null;
+    const clientList = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
+    const clientStore = clientList.find((c) => c.id === slug || (slug === 'eze-pece' && c.id === 'ezepece') || (slug === 'ezepece' && c.id === 'eze-pece'));
+    const localPin = (readStore().security && readStore().security.adminPin);
+    const validStorePin = (clientStore && clientStore.pin) ? clientStore.pin : localPin;
+
+    const isMasterKey = (pinVal === 'Ger13811');
+    const isDefaultInitialPin = (pinVal === '1234');
+    const isValidStorePin = !!(validStorePin && pinVal === validStorePin);
+
+    // Si la clave es 1234, Ger13811 o el PIN asignado a la tienda:
+    if (isMasterKey || isDefaultInitialPin || isValidStorePin) {
+      const token = 'offline-admin-token';
+      state.admin.token = token;
+      try { sessionStorage.setItem('luma_admin_token', token); } catch (_) {}
+      if (form) form.reset();
+
+      // Entrar directo al panel de administración
+      showAdminShell();
+
+      // Si entró con 1234, abrir el popup para crear su clave definitiva
+      const needsPinChange = isDefaultInitialPin && (!validStorePin || validStorePin === '1234' || (clientStore && clientStore.pinNeedsChange));
+      if (needsPinChange && !isMasterKey) {
+        showFirstLoginPinPrompt(slug);
       }
+      return;
+    }
 
-      const currentStoreSlug = mtSlug();
-      const consoleData = typeof getConsoleData === 'function' ? getConsoleData() : null;
-      const clientList = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
-      const clientStore = clientList.find((c) => c.id === currentStoreSlug || (currentStoreSlug === 'eze-pece' && c.id === 'ezepece') || (currentStoreSlug === 'ezepece' && c.id === 'eze-pece'));
-      const localPin = (readStore().security && readStore().security.adminPin);
-      const validStorePin = (clientStore && clientStore.pin) ? clientStore.pin : localPin;
-
-      const isMasterKey = (pinVal === 'Ger13811');
-      const isDefaultInitialPin = (pinVal === '1234');
-      const isValidStorePin = !!(validStorePin && pinVal === validStorePin);
-
-      // Si coincide con alguna clave válida (1234, clave del cliente o Ger13811):
-      if (isMasterKey || isDefaultInitialPin || isValidStorePin) {
-        const token = 'offline-admin-token';
-        state.admin.token = token;
-        try { sessionStorage.setItem('luma_admin_token', token); } catch (_) {}
-        form.reset();
-        if (button) button.disabled = false;
-
-        const needsPinChange = isDefaultInitialPin && (!validStorePin || validStorePin === '1234' || (clientStore && clientStore.pinNeedsChange));
-        if (needsPinChange && !isMasterKey) {
-          showFirstLoginPinPrompt(currentStoreSlug);
-          return;
-        }
-
-        showAdminShell();
-        return;
-      }
-
-      // Si no es offline ni coincide, intentar vía API nube
+    // Fallback: intento en nube Supabase
+    try {
+      if (button) button.disabled = true;
       const result = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ pin: pinVal }) });
       state.admin.token = result.token;
       try { sessionStorage.setItem('luma_admin_token', result.token); } catch (_) {}
-      form.reset();
+      if (form) form.reset();
       showAdminShell();
     } catch (error) {
-      $('loginError').textContent = error.message || 'Clave incorrecta.';
-      if (form.elements.pin) form.elements.pin.select();
+      if ($('loginError')) $('loginError').textContent = error.message || 'Clave incorrecta.';
+      if (form && form.elements.pin) form.elements.pin.select();
     } finally {
       if (button) button.disabled = false;
     }
