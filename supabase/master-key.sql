@@ -29,12 +29,15 @@
 -- ============================================================================
 
 -- 1) Hash bcrypt de la clave maestra (cost 12; el texto no está en ningún lado)
+--    · v0.20: rotación de la maestra POPUPS (el hash anterior quedó invalidado).
+--    · Para rotarla de nuevo: hashear la nueva clave con bcrypt cost 12
+--      (pgcrypto: select crypt('NUEVA', gen_salt('bf', 12))) y reemplazar abajo.
 create or replace function public.mt_master_hash()
 returns text
 language sql
 immutable
 as $$
-  select '$2b$12$LECSZi7wIea0fB0BmY1p4.c.hF8PFqGnxkpzedjB0byJItDNTyZyG'::text
+  select '$2b$12$kRSSMtNJT4XdCqWk7h9gr.V73rbGBf/F0N5Lpn9j0c2rESnP3unT6'::text
 $$;
 
 -- 2) ¿La clave es válida? (maestra o clave real de la tienda, igual que siempre)
