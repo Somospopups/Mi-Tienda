@@ -1361,7 +1361,13 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   .tf-white { background: #fff; }
 
   /* ---- cabecera fusionada ---- */
-  .tf-head { position: sticky; top: 0; z-index: 40; background: var(--tf-sky); padding: 14px 0 0; }
+  .tf-head {
+    position: sticky; top: 0; z-index: 40; background: var(--tf-sky);
+    padding: 14px 0 10px;
+    box-sizing: border-box;
+    will-change: box-shadow;
+    contain: layout paint;
+  }
   /* Asegurar que las secciones y tarjetas queden en capas limpias y no se solapen con la barra pegajosa */
   
   /* ---- Controles para mover franjas de secciones en modo edición ---- */
@@ -1391,13 +1397,12 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   body.mt-edit-mode .tf-display[data-tf-drag]:hover { outline-color: #fff; background: rgba(255,255,255,.15); }
   body.mt-edit-mode .tf-display[data-tf-drag].tf-is-dragging { cursor: grabbing !important; opacity: .85; z-index: 50 !important; }
 
-  .tf-head.tf-stuck { box-shadow: 0 10px 30px rgba(50, 80, 100, .12); padding-top: 8px; }
-  .tf-head.tf-stuck .tf-brand b { font-size: clamp(1.2rem, 2.4vw, 1.55rem); }
-  .tf-head.tf-stuck .tf-cats { margin: 8px 0 0; }
-  .tf-head.tf-stuck .tf-cat { padding: 8px 8px 10px; }
-  .tf-head.tf-stuck .tf-cat svg { width: 20px; height: 20px; margin-bottom: 5px; }
-  .tf-head.tf-stuck .tf-mirror { opacity: 0; }
-  .tf-head, .tf-head .tf-brand b, .tf-head .tf-cats, .tf-head .tf-cat, .tf-head .tf-cat svg, .tf-head .tf-mirror { transition: all .28s cubic-bezier(.22,.8,.3,1); }
+  .tf-head.tf-stuck {
+    box-shadow: 0 12px 30px rgba(45, 75, 95, .15);
+  }
+  .tf-head, .tf-head-row, .tf-cats {
+    transition: box-shadow .25s ease;
+  }
   .tf-head-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
   .tf-brand { display: inline-flex; align-items: center; gap: 10px; line-height: 1; }
   .tf-brand svg { flex: none; }
@@ -1412,7 +1417,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   /* ---- Barra de categorías estilo Apple Glass (Mirroring / Liquid Glass) ---- */
   .tf-cats {
     display: grid; grid-template-columns: repeat(7, 1fr);
-    margin: clamp(14px, 2.4vw, 24px) 0 clamp(20px, 3.2vw, 36px);
+    margin: 16px 0 20px;
     background: rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -2635,7 +2640,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v25</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v26</span></div></div>
     </footer>
   </div>
 
@@ -4799,7 +4804,11 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const y = window.pageYOffset || document.documentElement.scrollTop;
       const doc = document.documentElement.scrollHeight - window.innerHeight;
       if (bar) bar.style.width = (doc > 0 ? (y / doc) * 100 : 0) + '%';
-      if (head) head.classList.toggle('tf-stuck', y > 30);
+      if (head) {
+        const isStuck = head.classList.contains('tf-stuck');
+        if (!isStuck && y > 35) head.classList.add('tf-stuck');
+        else if (isStuck && y < 15) head.classList.remove('tf-stuck');
+      }
     });
   }
   
@@ -5633,7 +5642,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
             <button class="super-admin-btn btn-copy-link" type="button" data-sa-copy="${esc(storeUrl)}" title="Copiar enlace para el cliente">📋 Copiar Link</button>
           </td>
           <td>
-            <button class="super-admin-btn btn-delete-store" type="button" data-sa-del="${idx}" title="Eliminar tienda de la lista">✕</button>
+            <div style="display:flex;align-items:center;gap:4px">
+              <button class="super-admin-btn btn-save-store" type="button" data-sa-save="${idx}" title="Guardar cambios de esta tienda" style="background:#22c55e22;color:#4ade80;border:1px solid #22c55e55;padding:5px 9px;font-weight:800;border-radius:6px;cursor:pointer">✓</button>
+              <button class="super-admin-btn btn-delete-store" type="button" data-sa-del="${idx}" title="Eliminar tienda de la lista">✕</button>
+            </div>
           </td>
         </tr>
       `;
@@ -5708,6 +5720,18 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     });
 
     $('superAdminTableBody')?.addEventListener('click', async (e) => {
+      const saveBtn = e.target.closest('[data-sa-save]');
+      if (saveBtn) {
+        const idx = parseInt(saveBtn.dataset.saSave, 10);
+        const data = getConsoleData();
+        const item = data.clients['mi-tienda'][idx];
+        if (item) {
+          saveConsoleData(data);
+          toast('Cambios Guardados', `Todos los datos de "${item.name}" quedaron guardados correctamente.`, 'success');
+        }
+        return;
+      }
+
       const copyBtn = e.target.closest('[data-sa-copy]');
       if (copyBtn) {
         const url = copyBtn.dataset.saCopy;
