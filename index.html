@@ -3123,7 +3123,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v60</span>
+          <span>v61</span>
         </div>
       </div>
     </footer>
@@ -3891,6 +3891,12 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
 
   function writeStore(store) {
     localStorage.setItem(currentStorageKey(), JSON.stringify(store));
+    try {
+      const slug = (new URLSearchParams(window.location.search).get('tienda') || 'eze-pece').trim().toLowerCase();
+      if (window.popupsCloud && window.popupsCloud.push) {
+        window.popupsCloud.push(slug, store);
+      }
+    } catch (_) {}
   }
 
   function result(payload, status = 200) {
@@ -4513,6 +4519,82 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     } catch (_) { }
   }
 
+  
+  // ============================================================
+  // POPUPS GLOBAL CLOUD SYNC ENGINE (Tiendas Vivas en Tiempo Real)
+  // Permite que lo que cargue cualquier cliente desde su celular
+  // sea visible DE INMEDIATO para cualquier persona en el mundo.
+  // ============================================================
+  window.popupsCloud = {
+    async push(slug, store) {
+      if (!slug || !store) return;
+      const cleanSlug = String(slug).trim().toLowerCase();
+      try {
+        const payload = {
+          slug: cleanSlug,
+          updatedAt: Date.now(),
+          products: (store.products || []).filter(p => p.active !== false),
+          settings: store.settings || {},
+          content: store.content || {}
+        };
+        // 1. Guardar identificador en la red cloud
+        const bodyStr = JSON.stringify({
+          name: 'popups_store_' + cleanSlug,
+          data: payload
+        });
+        
+        let existingId = localStorage.getItem('popups_cloud_store_id_' + cleanSlug);
+        if (existingId) {
+          fetch('https://api.restful-api.dev/objects/' + existingId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: bodyStr
+          }).catch(() => {});
+        } else {
+          fetch('https://api.restful-api.dev/objects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: bodyStr
+          }).then(r => r.json()).then(res => {
+            if (res && res.id) {
+              localStorage.setItem('popups_cloud_store_id_' + cleanSlug, res.id);
+            }
+          }).catch(() => {});
+        }
+      } catch (err) {
+        console.warn('popupsCloud.push error:', err);
+      }
+    },
+
+    async pull(slug) {
+      if (!slug) return null;
+      const cleanSlug = String(slug).trim().toLowerCase();
+      try {
+        // Consultar por el objeto de la tienda
+        const cloudId = localStorage.getItem('popups_cloud_store_id_' + cleanSlug);
+        let url = cloudId ? ('https://api.restful-api.dev/objects/' + cloudId) : null;
+        
+        if (!url) {
+          // Si no tenemos ID en este navegador, buscar por nombre
+          const list = await fetch('https://api.restful-api.dev/objects').then(r => r.json()).catch(() => []);
+          if (Array.isArray(list)) {
+            const match = list.find(item => item && item.name === 'popups_store_' + cleanSlug);
+            if (match && match.data) {
+              if (match.id) localStorage.setItem('popups_cloud_store_id_' + cleanSlug, match.id);
+              return match.data;
+            }
+          }
+        } else {
+          const res = await fetch(url).then(r => r.json()).catch(() => null);
+          if (res && res.data) return res.data;
+        }
+      } catch (err) {
+        console.warn('popupsCloud.pull error:', err);
+      }
+      return null;
+    }
+  };
+
   const nativeFetch = window.fetch.bind(window);
   window.fetch = async function offlineFetch(input, options = {}) {
     const raw = typeof input === 'string' ? input : input.url;
@@ -5082,6 +5164,33 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       state.content = { ...state.content, ...(settings.content || {}) };
       state.legal = legalData.legal || {};
       state.products = catalog.products || [];
+
+      // Sincronización en la nube en vivo para visitantes y compradores de todo el mundo:
+      try {
+        const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
+        if (slug && window.popupsCloud && window.popupsCloud.pull) {
+          window.popupsCloud.pull(slug).then(cloudData => {
+            if (cloudData && Array.isArray(cloudData.products) && cloudData.products.length > 0) {
+              state.products = cloudData.products;
+              if (cloudData.settings) state.settings = { ...state.settings, ...cloudData.settings };
+              if (cloudData.content) state.content = { ...state.content, ...cloudData.content };
+              
+              // Actualizar también la memoria local para que la próxima carga sea instantánea
+              try {
+                const cur = readStore();
+                cur.products = cloudData.products;
+                if (cloudData.settings) cur.settings = { ...cur.settings, ...cloudData.settings };
+                if (cloudData.content) cur.content = { ...cur.content, ...cloudData.content };
+                localStorage.setItem(currentStorageKey(), JSON.stringify(cur));
+              } catch (_) {}
+
+              // Re-renderizar la vidriera con los productos nuevos del dueño
+              renderCategories();
+              renderProducts();
+            }
+          }).catch(() => {});
+        }
+      } catch (_) {}
       applySettings();
       applyContent();
       reconcileCart();
