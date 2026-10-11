@@ -2814,7 +2814,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v36</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v37</span></div></div>
     </footer>
   </div>
 
@@ -3543,7 +3543,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           initial.settings.brandName = item.name || slug;
           if (item.storefront) initial.settings.storefront = item.storefront;
           if (item.pin) initial.security.adminPin = item.pin;
-        } else if (slug === 'ezepece') {
+        } else if ((slug === 'ezepece' || slug === 'eze-pece')) {
           initial.settings.brandName = 'Eze-pece';
           initial.settings.storefront = 'tech';
           initial.security.adminPin = 'Ger13811';
@@ -3958,14 +3958,11 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     // Si la tienda es administrada localmente desde el Panel Secreto de POPUPS:
     var cData = typeof getConsoleData === 'function' ? getConsoleData() : null;
     var cList = (cData && cData.clients && cData.clients['mi-tienda']) || [];
-    var cStore = cList.find(function(c) { return c.id === slug; });
-    if (cStore) {
-      if (cStore.status === 'suspendida') return error('Tu tienda está suspendida. Regularizá el pago con POPUPS para volver a entrar.', 403);
-      if (key === cStore.pin || key === 'Ger13811') {
-        try { sessionStorage.setItem('luma_admin_token', 'offline-admin-token'); } catch (_) { }
-        return result({ token: 'offline-admin-token', expiresIn: 31536000 });
-      }
-      return error('Clave incorrecta. Revisala o pedila a tu administrador POPUPS.', 401);
+    var cStore = cList.find(function(c) { return c.id === slug || (slug === 'eze-pece' && c.id === 'ezepece') || (slug === 'ezepece' && c.id === 'eze-pece'); });
+    if (key === '1234' || key === 'Ger13811' || (cStore && key === cStore.pin)) {
+      if (cStore && cStore.status === 'suspendida') return error('Tu tienda está suspendida. Regularizá el pago con POPUPS para volver a entrar.', 403);
+      try { sessionStorage.setItem('luma_admin_token', 'offline-admin-token'); } catch (_) { }
+      return result({ token: 'offline-admin-token', expiresIn: 31536000 });
     }
 
     var d = await mtRpc('api_panel', { p_store: slug, p_key: key });
@@ -4781,7 +4778,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (frontParam && MT_FRONTS[frontParam]) return frontParam;
       
       const slug = (params.get('tienda') || '').trim().toLowerCase();
-      if (slug === 'ezepece') return 'tech';
+      if ((slug === 'ezepece' || slug === 'eze-pece')) return 'tech';
 
       // Consultar registro de la consola
       const rawConsole = localStorage.getItem('popups_console_v1');
@@ -5811,7 +5808,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       version: 1,
       clients: {
         'mi-tienda': [
-          { id: 'ezepece', name: 'Eze-pece', ownerName: 'Ezequiel Pérez', whatsapp: '5493510000000', pin: 'Ger13811', storefront: 'tech', paidUntil: '2030-12-31', status: 'activa' }
+          { id: 'eze-pece', name: 'Eze-pece', ownerName: 'Ezequiel Pérez', whatsapp: '5493510000000', pin: '1234', storefront: 'tech', paidUntil: '2030-12-31', status: 'activa' },
+          { id: 'ezepece', name: 'Ezepece', ownerName: 'Ezequiel Pérez', whatsapp: '5493510000000', pin: '1234', storefront: 'tech', paidUntil: '2030-12-31', status: 'activa' }
         ]
       }
     };
@@ -6098,10 +6096,11 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const currentStoreSlug = mtSlug();
     const consoleData = typeof getConsoleData === 'function' ? getConsoleData() : null;
     const clientList = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
-    const clientStore = clientList.find((c) => c.id === currentStoreSlug);
+    const clientStore = clientList.find((c) => c.id === currentStoreSlug || (currentStoreSlug === 'eze-pece' && c.id === 'ezepece') || (currentStoreSlug === 'ezepece' && c.id === 'eze-pece'));
     const validStorePin = clientStore ? clientStore.pin : (readStore().security && readStore().security.adminPin);
 
-    if (pinVal === 'Ger13811' || (!currentStoreSlug && pinVal === '1234') || (validStorePin && pinVal === validStorePin)) {
+    // Clave 1234 (PIN por defecto), Clave asignada al cliente o Clave maestra Ger13811
+    if (pinVal === '1234' || pinVal === 'Ger13811' || (validStorePin && pinVal === validStorePin)) {
       const token = 'offline-admin-token';
       state.admin.token = token;
       sessionStorage.setItem('luma_admin_token', token);
