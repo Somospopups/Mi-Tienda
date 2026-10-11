@@ -1514,8 +1514,8 @@ body.mt-edit-mode #shopApp .mt-edit-active {
 
   /* ---- Botón flotante oficial de WhatsApp (Verde oficial #25D366) ---- */
   .tf-wa-fab {
-    position: fixed; right: 24px; bottom: max(28px, calc(env(safe-area-inset-bottom) + 24px)); z-index: 999;
-    width: 60px; height: 60px; border-radius: 50%;
+    position: fixed; right: 16px; bottom: max(20px, calc(env(safe-area-inset-bottom) + 16px)); z-index: 999;
+    width: 58px; height: 58px; border-radius: 50%;
     background: #25D366; color: #ffffff;
     display: grid; place-items: center;
     box-shadow: 0 12px 28px rgba(37, 211, 102, 0.48), 0 4px 12px rgba(0,0,0,.15);
@@ -1523,7 +1523,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     text-decoration: none;
     transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), box-shadow .25s ease;
   }
-  .tf-wa-fab svg { width: 32px; height: 32px; fill: none; stroke: #ffffff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .tf-wa-fab svg { width: 31px; height: 31px; fill: none; stroke: #ffffff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .tf-wa-fab:hover {
     transform: scale(1.12);
     box-shadow: 0 16px 36px rgba(37, 211, 102, 0.6);
@@ -1542,11 +1542,11 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   }
   @media (max-width: 768px) {
     .tf-wa-fab {
-      right: 18px;
-      bottom: calc(76px + env(safe-area-inset-bottom)) !important; /* Despeja la barra inferior del navegador móvil */
-      width: 58px; height: 58px;
+      right: 14px !important;
+      bottom: calc(26px + env(safe-area-inset-bottom)) !important; /* Bien esquinado abajo a la derecha */
+      width: 54px !important; height: 54px !important;
     }
-    .tf-wa-fab svg { width: 30px; height: 30px; }
+    .tf-wa-fab svg { width: 28px !important; height: 28px !important; }
   }
 
 
@@ -1712,6 +1712,81 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     .tf-head.tf-stuck .tf-cats {
       display: none !important; /* Oculta las categorías completamente en celular al bajar para liberar toda la pantalla */
     }
+  }
+
+
+  /* ---- Carrito estilizado con la paleta de Eze-pece (Celeste / Blanco puro / Gris oscuro) ---- */
+  body[data-front="tech"] .cart-drawer {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border-left: 1px solid rgba(178, 219, 241, 0.5) !important;
+  }
+  body[data-front="tech"] .drawer-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+  body[data-front="tech"] .drawer-header > div > span {
+    color: #0284c7 !important;
+    font-weight: 800 !important;
+  }
+  body[data-front="tech"] .drawer-header h2 {
+    color: #0f172a !important;
+    font-family: var(--sans) !important;
+    font-weight: 800 !important;
+  }
+  body[data-front="tech"] .shipping-progress {
+    background: #f0f9ff !important;
+    border-bottom: 1px solid #bae6fd !important;
+  }
+  body[data-front="tech"] .progress-track {
+    background: #e0f2fe !important;
+  }
+  body[data-front="tech"] .progress-track i {
+    background: #0284c7 !important;
+  }
+  body[data-front="tech"] .cart-content {
+    background: #f8fafc !important;
+  }
+  body[data-front="tech"] .empty-cart-icon {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+  }
+  body[data-front="tech"] .empty-cart-icon span {
+    color: #0284c7 !important;
+  }
+  body[data-front="tech"] .empty-cart h3 {
+    font-family: var(--sans) !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+  }
+  body[data-front="tech"] .cart-item {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    margin-bottom: 10px !important;
+  }
+  body[data-front="tech"] .quantity-control {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+  }
+  body[data-front="tech"] .cart-footer {
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+  }
+  body[data-front="tech"] .cart-totals span {
+    font-family: var(--sans) !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+  }
+  body[data-front="tech"] .button-checkout {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-radius: 999px !important;
+    font-weight: 750 !important;
+  }
+  body[data-front="tech"] .button-checkout:hover {
+    background: #0284c7 !important;
   }
 
 /* ---- hero ---- */
@@ -2739,7 +2814,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v35</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v36</span></div></div>
     </footer>
   </div>
 
