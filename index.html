@@ -1473,22 +1473,22 @@ body.mt-edit-mode #shopApp .mt-edit-active {
 
   /* ---- Botón flotante oficial de WhatsApp (Verde oficial #25D366) ---- */
   .tf-wa-fab {
-    position: fixed; right: 24px; bottom: 24px; z-index: 99;
+    position: fixed; right: 24px; bottom: max(28px, calc(env(safe-area-inset-bottom) + 24px)); z-index: 999;
     width: 60px; height: 60px; border-radius: 50%;
     background: #25D366; color: #ffffff;
     display: grid; place-items: center;
-    box-shadow: 0 12px 28px rgba(37, 211, 102, 0.42);
-    border: 2px solid #ffffff;
+    box-shadow: 0 12px 28px rgba(37, 211, 102, 0.48), 0 4px 12px rgba(0,0,0,.15);
+    border: 2.5px solid #ffffff;
     text-decoration: none;
     transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), box-shadow .25s ease;
   }
-  .tf-wa-fab svg { width: 32px; height: 32px; fill: none; stroke: #ffffff; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+  .tf-wa-fab svg { width: 32px; height: 32px; fill: none; stroke: #ffffff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .tf-wa-fab:hover {
     transform: scale(1.12);
-    box-shadow: 0 16px 36px rgba(37, 211, 102, 0.55);
+    box-shadow: 0 16px 36px rgba(37, 211, 102, 0.6);
     background: #20ba59;
   }
-  .tf-wa-fab:active { transform: scale(.96); }
+  .tf-wa-fab:active { transform: scale(.95); }
   .tf-wa-fab-pulse {
     position: absolute; inset: -4px; border-radius: 50%;
     border: 2px solid #25D366; opacity: .7;
@@ -1499,9 +1499,13 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     70% { transform: scale(1.35); opacity: 0; }
     100% { transform: scale(1.35); opacity: 0; }
   }
-  @media (max-width: 600px) {
-    .tf-wa-fab { right: 18px; bottom: 18px; width: 54px; height: 54px; }
-    .tf-wa-fab svg { width: 28px; height: 28px; }
+  @media (max-width: 768px) {
+    .tf-wa-fab {
+      right: 18px;
+      bottom: calc(76px + env(safe-area-inset-bottom)) !important; /* Despeja la barra inferior del navegador móvil */
+      width: 58px; height: 58px;
+    }
+    .tf-wa-fab svg { width: 30px; height: 30px; }
   }
 
 
@@ -1605,6 +1609,17 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     .tf-act svg { width: 15px; height: 15px; }
 
     /* Barra de categorías en móviles: compacta y limpia */
+    /* Animación indicadora de deslizamiento horizontal (Cue Hint) */
+    @keyframes tfScrollHint {
+      0%, 100% { transform: translateX(0); }
+      30% { transform: translateX(-34px); }
+      60% { transform: translateX(8px); }
+      80% { transform: translateX(-12px); }
+    }
+    .tf-cats.tf-hint-cue {
+      animation: tfScrollHint 1.4s cubic-bezier(.25, 1, .5, 1) 1s 1 forwards;
+    }
+
     .tf-cats {
       margin: 10px 0 12px !important;
       padding: 3px !important;
@@ -2683,7 +2698,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v33</span></div></div>
+      <div class="footer-bottom"><span>© <span id="currentYear">2026</span> <span data-brand>LUMA</span>. Hecho con intención.</span><div><button data-legal-page="privacyPolicy">Privacidad</button><button data-legal-page="termsConditions">Términos</button><span>Argentina · ARS</span><span>v34</span></div></div>
     </footer>
   </div>
 
@@ -5078,6 +5093,19 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     tfWhatList();
     tfMirrors();
     tfSplitWords(); tfApplyWhatPositions(); tfApplySectionOrder(); tfInjectSectionControls();
+    // Animación sutil de desplazamiento horizontal para indicar deslizamiento
+    const catsNav = $('tfCats');
+    if (catsNav && window.innerWidth <= 860 && !window.__tfHintShown) {
+      window.__tfHintShown = true;
+      catsNav.classList.add('tf-hint-cue');
+      setTimeout(() => {
+        try {
+          catsNav.scrollTo({ left: 75, behavior: 'smooth' });
+          setTimeout(() => catsNav.scrollTo({ left: 0, behavior: 'smooth' }), 650);
+        } catch (_) {}
+      }, 700);
+    }
+
     const count = $('tfCartCount');
     if (count) count.textContent = String(state.cart.reduce((acc, item) => acc + item.qty, 0));
     if (!TF.ready) {
