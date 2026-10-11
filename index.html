@@ -1603,8 +1603,7 @@ body.mt-edit-mode #shopApp [data-content],
 body.mt-edit-mode #shopApp [data-content-image],
 body.mt-edit-mode #shopApp [data-brand],
 body.mt-edit-mode #shopApp #announcement,
-body.mt-edit-mode #shopApp [data-free-shipping],
-body.mt-edit-mode #shopApp .product-card {
+body.mt-edit-mode #shopApp [data-free-shipping] {
   outline: 1.5px dashed rgba(217,99,60,.5); outline-offset: 3px; cursor: pointer;
   transition: outline-color .15s ease;
 }
@@ -1612,8 +1611,7 @@ body.mt-edit-mode #shopApp [data-content]:hover,
 body.mt-edit-mode #shopApp [data-content-image]:hover,
 body.mt-edit-mode #shopApp [data-brand]:hover,
 body.mt-edit-mode #shopApp #announcement:hover,
-body.mt-edit-mode #shopApp [data-free-shipping]:hover,
-body.mt-edit-mode #shopApp .product-card:hover {
+body.mt-edit-mode #shopApp [data-free-shipping]:hover {
   outline: 2px solid var(--accent); outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(217,99,60,.16);
 }
@@ -3123,7 +3121,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v61</span>
+          <span>v62</span>
         </div>
       </div>
     </footer>
@@ -9476,7 +9474,6 @@ async function mtGuiaPdf() {
     tchCtaTitle: { L: 'Cierre · título', max: 120 }, tchCtaDesc: { L: 'Cierre · descripción', max: 300 }, tchCtaBtn: { L: 'Cierre · botón', max: 120 }
   };
   const MT_EDIT_TARGETS = [
-    { sel: '.product-card', kind: 'product' },
     { sel: '[data-content-image]', kind: 'image' },
     { sel: '[data-logo-slot]', kind: 'brand' },
     { sel: '[data-brand]', kind: 'brand' },
@@ -9528,7 +9525,7 @@ async function mtGuiaPdf() {
     MT_EDIT.root = root;
     const bar = document.createElement('div');
     bar.className = 'mt-edit-bar'; bar.hidden = true;
-    bar.innerHTML = '<b>Modo edición</b><span>Hacé clic sobre un texto, imagen, producto o bloque para editarlo.</span><button type="button" data-mt-blocks>Bloques</button><button type="button" data-mt-colors>Colores</button><button type="button" data-mt-done>Terminar</button>';
+    bar.innerHTML = '<b>Modo edición</b><span>Hacé clic sobre un texto, imagen o bloque para editarlo (los productos se gestionan en el Panel).</span><button type="button" data-mt-blocks>Bloques</button><button type="button" data-mt-colors>Colores</button><button type="button" data-mt-done>Terminar</button>';
     bar.addEventListener('click', async (event) => {
       if (event.target.closest('[data-mt-done]')) {
         const ok = await confirmDialog({
@@ -9570,6 +9567,16 @@ async function mtGuiaPdf() {
     if (event.target.closest('[data-tf-drag]')) return;
     if (BL_EDIT.editing && event.target instanceof Element && event.target.closest('#frontBuilder')) return;
     if (event.target.closest('.mt-edit-popover') || event.target.closest('.mt-edit-bar') || event.target.closest('.mt-edit-float')) return;
+    
+    // Si hace clic en un producto durante el modo de edición visual, avisarle que los productos se gestionan desde el panel
+    const prodCard = event.target.closest('.product-card');
+    if (prodCard) {
+      event.preventDefault();
+      event.stopPropagation();
+      toast('Gestión de productos', 'Para crear, editar o eliminar productos, ingresá al Panel de Administrador → Productos.', 'info');
+      return;
+    }
+
     const hit = mtEditResolve(event.target);
     if (!hit) return;
     event.preventDefault();
