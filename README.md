@@ -1,3 +1,10 @@
+# 🚀 POPUPS Business Platform · Tiendas Web Autogestionables
+
+> 📖 **MANUAL MAESTRO DE ARQUITECTURA Y REGLAS PARA IA:**  
+> Antes de realizar cualquier cambio en este repositorio, leé detalladamente el archivo **[`MANUAL_POPUPS.md`](MANUAL_POPUPS.md)**. Allí se detallan los 3 pilares intocables (Cabecera, Pie con Motion Graphics de POPUPS y Panel de Administrador Universal), el modelo comercial de personalización de vidrieras con clientes y el protocolo de publicación con `PUBLICAR.bat`.
+
+---
+
 # Mi-Tienda · POPUPS
 
 Tienda online + panel de administración para comercios. Producto vendido por **POPUPS**:
