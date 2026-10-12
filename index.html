@@ -2646,12 +2646,25 @@ body.mt-edit-mode #shopApp .mt-edit-active {
      2. Las 3 Tarjetas de Reseñas de Redes Sociales (.tf-quote)
      ============================================================ */
 
-  /* Fondo ambiental sutil en ambas secciones para que el cristal refracte luz real */
-  .tf-sec.tf-white, 
+  /* Fondo ambiental continuo y armónico para que no haya líneas de corte */
+  #tfSecBens {
+    padding-bottom: 24px !important;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(240, 248, 253, 0.6) 100%) !important;
+  }
+
+  .tf-sec-quotes,
   section[data-tf-sec="community"],
   .tf-sec:has(.tf-quotes) {
-    background: radial-gradient(circle at 50% 30%, rgba(178, 219, 241, 0.35) 0%, rgba(245, 250, 254, 0.7) 65%, #ffffff 100%) !important;
+    padding-top: 36px !important;
+    padding-bottom: clamp(60px, 8vw, 110px) !important;
+    background: linear-gradient(180deg, rgba(240, 248, 253, 0.6) 0%, rgba(178, 219, 241, 0.3) 30%, #ffffff 100%) !important;
     position: relative !important;
+  }
+
+  /* Separación superior para que las tarjetas de reseñas respiren y nunca se corten */
+  .tf-quotes {
+    margin-top: 10px !important;
+    padding-top: 14px !important;
   }
 
   /* ------------------------------------------------------------
@@ -3185,7 +3198,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           </div>
         </section>
 
-        <section class="tf-sec tf-white" style="padding-top:0">
+        <section class="tf-sec tf-white tf-sec-quotes" id="tfSecQuotes" data-tf-sec="community">
           <div class="tf-wrap tf-quotes">
         <div class="tf-quote tf-rv">
           <div class="tf-quote-top">
@@ -3290,7 +3303,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v65</span>
+          <span>v66</span>
         </div>
       </div>
     </footer>
