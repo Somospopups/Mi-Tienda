@@ -4453,57 +4453,140 @@ img{display:block;max-width:100%}
 
 
   
-  /* Ocultar el catálogo de la vidriera vieja (#coleccion) cuando estamos en ACTITUD */
-  body[data-front="actitud"] #coleccion {
-    display: none !important;
-  }
+  <style id="floating-dock-header-v84">
+  /* ============================================================
+     BARRA SUPERIOR FLOTANTE UNIVERSAL (FLOATING CAPSULE DOCK) v84
+     ============================================================ */
+
+  /* Ocultar catálogo de la vidriera vieja en actitud */
+  body[data-front="actitud"] #coleccion,
   html[data-front="actitud"] #coleccion {
     display: none !important;
   }
 
-  /* BARRA SUPERIOR UNIVERSAL ADAPTABLE AL COLOR DE CADA VIDRIERA */
-  .tf-head {
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  /* Cuando el frente es TECH (Celeste): */
-  body[data-front="tech"] .tf-head {
-    background: #B2DBF1 !important;
-    border-bottom: 1.5px solid rgba(45, 75, 95, 0.15) !important;
-  }
-  body[data-front="tech"] .tf-head b,
-  body[data-front="tech"] .tf-head .tf-act {
-    color: #333333 !important;
+  /* La barra superior es una CÁPSULA FLOTANTE fija con cristal líquido */
+  .tf-floating-navbar {
+    position: fixed !important;
+    top: 16px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(94vw, 1100px) !important;
+    height: 60px !important;
+    z-index: 99999 !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border-radius: 999px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 12px 35px -8px rgba(15, 23, 42, 0.18), inset 0 1px 1px #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 18px 0 22px !important;
+    box-sizing: border-box !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
   }
 
-  /* Cuando el frente es ACTITUD (Retro Rosa Pastel): */
-  body[data-front="actitud"] .tf-head {
-    background: #eae6e3 !important; /* Color crema retro de Eze-pece */
-    border-bottom: 2px solid #2d2a26 !important;
-    box-shadow: 0 4px 18px rgba(45, 42, 38, 0.08) !important;
+  /* Espacio superior para que el contenido de las vidrieras pase por detrás */
+  body[data-front="actitud"] main,
+  body[data-front="actitud"] .hero,
+  body[data-front="tech"] #frontTech,
+  body[data-front="tech"] .tf-front {
+    padding-top: 86px !important;
   }
-  body[data-front="actitud"] .tf-head b,
-  body[data-front="actitud"] .tf-head .tf-act {
-    color: #2d2a26 !important;
+
+  /* Brand dentro de la cápsula flotante */
+  .tf-floating-navbar .tf-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+    color: #0f172a !important;
+  }
+  .tf-floating-navbar .tf-brand b {
+    font-size: 1.15rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.03em !important;
+    color: #0f172a !important;
+  }
+
+  /* Acciones / Botones en la cápsula */
+  .tf-floating-navbar .tf-acts {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .tf-floating-navbar .tf-act {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: rgba(15, 23, 42, 0.05) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    padding: 7px 14px !important;
+    border-radius: 999px !important;
+    color: #0f172a !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+  }
+  .tf-floating-navbar .tf-act:hover {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+  }
+  .tf-floating-navbar .tf-act svg {
+    width: 15px !important;
+    height: 15px !important;
+    stroke: currentColor !important;
+    fill: none !important;
+    stroke-width: 2 !important;
+  }
+  .tf-floating-navbar .tf-act:hover svg {
+    stroke: #ffffff !important;
+  }
+
+  /* Botón de Carrito destacado */
+  .tf-floating-navbar .tf-act#tfCart {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    padding: 7px 16px !important;
+  }
+  .tf-floating-navbar .tf-act#tfCart svg {
+    stroke: #ffffff !important;
+  }
+  .tf-floating-navbar .tf-act#tfCart b {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    padding: 2px 7px !important;
+    border-radius: 999px !important;
+    font-size: 0.72rem !important;
     font-weight: 800 !important;
-  }
-  body[data-front="actitud"] .tf-head .tf-act:hover {
-    color: #d32929 !important; /* Kimchi red */
-  }
-  body[data-front="actitud"] .tf-head #tfCartCount {
-    background: #efc415 !important; /* Lemon yellow */
-    color: #2d2a26 !important;
+    margin-left: 2px !important;
   }
 
-  /* BARRA SUPERIOR COMPARTIDA PARA TODOS LOS FRENTES (v81) */
-  body[data-front="actitud"] #tfHead,
-  body[data-front="tech"] #tfHead {
-    display: block !important;
+  /* En celulares */
+  @media (max-width: 768px) {
+    .tf-floating-navbar {
+      top: 10px !important;
+      width: calc(100vw - 20px) !important;
+      height: 54px !important;
+      padding: 0 12px 0 16px !important;
+    }
+    .tf-floating-navbar .tf-act span {
+      display: none !important;
+    }
+    .tf-floating-navbar .tf-act {
+      padding: 8px !important;
+    }
+    body[data-front="actitud"] main,
+    body[data-front="actitud"] .hero,
+    body[data-front="tech"] #frontTech,
+    body[data-front="tech"] .tf-front {
+      padding-top: 74px !important;
+    }
   }
-  body[data-front="actitud"] .tf-head {
-    background: #e3a898 !important;
-    border-bottom: 2px solid #2d2a26;
-  }
+</style>
 
 </head>
 <body data-front="tech">
@@ -5109,7 +5192,7 @@ img{display:block;max-width:100%}
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v83</span>
+          <span>v84</span>
         </div>
       </div>
     </footer>
@@ -12677,30 +12760,26 @@ async function mtGuiaPdf() {
 
 </body>
 </html>
-<!-- BARRA SUPERIOR UNIVERSAL COMPARTIDA PARA TODAS LAS VIDRIERAS -->
-  <header class="tf-head" id="tfHead" style="position:sticky;top:0;z-index:9999;width:100%;transition:background .25s ease;">
-    <div class="tf-wrap">
-      <div class="tf-head-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
-        <a class="tf-brand" href="#inicio" aria-label="Ir al inicio" style="display:flex;align-items:center;gap:8px;">
-          <span data-logo-slot hidden></span>
-          <svg viewBox="0 0 30 42" width="28" height="38" aria-hidden="true">
-            <rect x="3" y="3" width="24" height="36" rx="10" fill="none" stroke="#333333" stroke-width="4.4"/>
-            <path d="M21 17v12a6 6 0 0 1-6 6" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/>
-          </svg>
-          <b id="tfBrandText" style="font-size:1.25rem;font-weight:900;letter-spacing:-0.03em;"><span data-brand hidden></span>EZE-PECE</b>
-        </a>
-        <div class="tf-acts" style="display:flex;align-items:center;gap:10px;">
-          <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
-          </button>
-          <button class="tf-act" type="button" id="tfAdmin" onclick="openAdmin()" aria-label="Abrir panel administrador">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
-          </button>
-          <button class="tf-act" type="button" id="tfCart" onclick="openCart()" aria-label="Abrir carrito">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
-          </button>
-        </div>
-      </div>
+<!-- BARRA SUPERIOR FLOTANTE UNIVERSAL (FLOATING CAPSULE DOCK) -->
+  <header class="tf-floating-navbar" id="tfHead">
+    <a class="tf-brand" href="#inicio" aria-label="Ir al inicio">
+      <span data-logo-slot hidden></span>
+      <svg viewBox="0 0 30 42" width="24" height="34" aria-hidden="true">
+        <rect x="3" y="3" width="24" height="36" rx="10" fill="none" stroke="#0f172a" stroke-width="4.4"/>
+        <path d="M21 17v12a6 6 0 0 1-6 6" fill="none" stroke="#0284c7" stroke-width="4.4" stroke-linecap="round"/>
+      </svg>
+      <b id="tfBrandText"><span data-brand hidden></span>EZE-PECE</b>
+    </a>
+    <div class="tf-acts">
+      <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
+      </button>
+      <button class="tf-act" type="button" id="tfAdmin" onclick="openAdmin()" aria-label="Abrir panel administrador">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
+      </button>
+      <button class="tf-act" type="button" id="tfCart" onclick="openCart()" aria-label="Abrir carrito">
+        <svg viewBox="0 0 24 24"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
+      </button>
     </div>
   </header>
 
