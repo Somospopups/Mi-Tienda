@@ -15,29 +15,51 @@
         var s = (q.get('tienda') || '').trim().toLowerCase();
         if (f && ['luma','ofertas','gamer','libre','tech'].indexOf(f) > -1) {
           document.documentElement.dataset.front = f;
-        } else {
-          document.documentElement.dataset.front = 'tech';
+          return;
         }
+        // Leer persistencia guardada por el usuario
+        var savedFront = localStorage.getItem('luma_active_front') || localStorage.getItem('popups_storefront_' + s);
+        if (savedFront && ['luma','ofertas','gamer','libre','tech'].indexOf(savedFront) > -1) {
+          document.documentElement.dataset.front = savedFront;
+          return;
+        }
+        var rawConsole = localStorage.getItem('popups_console_v1');
+        if (rawConsole) {
+          var cData = JSON.parse(rawConsole);
+          var list = (cData && cData.clients && cData.clients['mi-tienda']) || [];
+          var item = list.find(function(c) { return c.id === s || (s === 'ezepece' && c.id === 'eze-pece') || (s === 'eze-pece' && c.id === 'ezepece'); });
+          if (item && item.storefront && ['luma','ofertas','gamer','libre','tech'].indexOf(item.storefront) > -1) {
+            document.documentElement.dataset.front = item.storefront;
+            return;
+          }
+        }
+        var rawStore = localStorage.getItem('luma_offline_store_v1');
+        if (rawStore) {
+          var sData = JSON.parse(rawStore);
+          if (sData && sData.settings && sData.settings.storefront) {
+            document.documentElement.dataset.front = sData.settings.storefront;
+            return;
+          }
+        }
+        document.documentElement.dataset.front = 'tech';
       } catch(_) {
         document.documentElement.dataset.front = 'tech';
       }
     })();
   </script>
   <style>
-    /* Ocultar Luma instantáneamente antes de que cargue el DOM cuando el frente es tech */
+    /* Control exacto por vidriera seleccionada */
     html[data-front="tech"] .luma-front,
-    html[data-front="tech"] .site-header,
-    html[data-front="tech"] .announcement,
-    html:not([data-front="luma"]) .luma-front,
-    html:not([data-front="luma"]) .site-header,
-    html:not([data-front="luma"]) .announcement {
+    html[data-front="tech"] .site-header {
       display: none !important;
     }
     html[data-front="tech"] #frontTech,
-    html[data-front="tech"] #frontTechTail,
-    html:not([data-front="luma"]) #frontTech,
-    html:not([data-front="luma"]) #frontTechTail {
+    html[data-front="tech"] #frontTechTail {
       display: contents !important;
+    }
+    html:not([data-front="tech"]) #frontTech,
+    html:not([data-front="tech"]) #frontTechTail {
+      display: none !important;
     }
   </style>
 
@@ -4140,7 +4162,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v86</span>
+          <span>v87</span>
         </div>
       </div>
     </footer>
@@ -6335,22 +6357,32 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     try {
       const params = new URLSearchParams(location.search);
       const frontParam = (params.get('front') || '').trim().toLowerCase();
-      if (frontParam && MT_FRONTS[frontParam]) return frontParam;
+      if (frontParam && MT_FRONTS[frontParam]) {
+        localStorage.setItem('luma_active_front', frontParam);
+        return frontParam;
+      }
       
       const slug = (params.get('tienda') || '').trim().toLowerCase();
-      if ((slug === 'ezepece' || slug === 'eze-pece')) return 'tech';
 
-      // Consultar registro de la consola
+      // 1. Prioridad: Lo que el usuario eligió y guardó activamente
+      const localActive = localStorage.getItem('luma_active_front') || localStorage.getItem('popups_storefront_' + slug);
+      if (localActive && MT_FRONTS[localActive]) return localActive;
+
+      // 2. Registro en consola de administración
       const rawConsole = localStorage.getItem('popups_console_v1');
       if (rawConsole) {
         const consoleData = JSON.parse(rawConsole);
         const list = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
-        const item = list.find((c) => c.id === slug);
+        const item = list.find((c) => c.id === slug || (slug === 'ezepece' && c.id === 'eze-pece') || (slug === 'eze-pece' && c.id === 'ezepece'));
         if (item && item.storefront && MT_FRONTS[item.storefront]) return item.storefront;
       }
     } catch (_) {}
+    
+    // 3. Configuración de la tienda
     const value = state.settings.storefront;
-    return MT_FRONTS[value] ? value : (mtSlug() === 'ezepece' ? 'tech' : 'tech');
+    if (value && MT_FRONTS[value]) return value;
+
+    return 'tech';
   }
   function applyStorefront() {
     document.body.dataset.front = currentFront();
@@ -7790,7 +7822,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         if (item) {
           item.storefront = frontSel.value;
           saveConsoleData(data);
-          toast('Frente Actualizado', `Frente de ${item.name} cambiado a ${item.storefront}.`);
+          localStorage.setItem('luma_active_front', item.storefront);
+          localStorage.setItem('popups_storefront_' + item.id, item.storefront);
+          document.documentElement.dataset.front = item.storefront;
+          document.body.dataset.front = item.storefront;
+          if (state && state.settings) state.settings.storefront = item.storefront;
+          toast('Frente Guardado', `Vidriera cambiada a ${item.storefront.toUpperCase()} con éxito.`);
+          applyStorefront();
         }
         return;
       }
@@ -10245,6 +10283,12 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     button.disabled = true;
     try {
       await api('/api/admin/settings', { admin: true, method: 'PUT', body: JSON.stringify(settingsValues) });
+      if (settingsValues.storefront) {
+        localStorage.setItem('luma_active_front', settingsValues.storefront);
+        localStorage.setItem('popups_storefront_' + mtSlug(), settingsValues.storefront);
+        document.documentElement.dataset.front = settingsValues.storefront;
+        document.body.dataset.front = settingsValues.storefront;
+      }
       toast('Configuración guardada', 'La tienda ya muestra los cambios.');
       await Promise.all([loadStore({ silent: true }), loadAdminTab(false)]);
     } catch (error) { toast('No se pudo guardar', error.message, 'error'); }
