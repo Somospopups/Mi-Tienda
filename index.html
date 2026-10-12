@@ -3525,6 +3525,99 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   }
 </style>
 
+
+<style id="micro-animations-delight-v73">
+  /* ============================================================
+     ANIMACIONES PREMIUM: TAPS, POPUP SPRING Y CARRITO (v73)
+     ============================================================ */
+
+  /* 1. Sensación táctil (Haptic Press) en todas las tarjetas y botones */
+  .product-card, .tf-card, .tf-dock-product-card, .tf-quote {
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease !important;
+    touch-action: manipulation;
+  }
+
+  .product-card:active, .tf-card:active, .tf-dock-product-card:active {
+    transform: scale(0.96) !important;
+    transition: transform 0.08s ease-out !important;
+  }
+
+  /* Efecto en botones al presionar */
+  .product-add:active, .tf-dock-add-btn:active, .btn:active, .modal-add:active {
+    transform: scale(0.90) !important;
+    transition: transform 0.08s ease-out !important;
+  }
+
+  /* 2. Apertura del Popup con curva Spring / Elástica tipo iOS */
+  #productModalBackdrop {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.32s ease !important;
+  }
+
+  #productModalBackdrop.visible {
+    opacity: 1 !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+  }
+
+  #productModalBackdrop .modal {
+    opacity: 0;
+    transform: scale(0.86) translateY(28px) !important;
+    transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease !important;
+    will-change: transform, opacity;
+  }
+
+  #productModalBackdrop.visible .modal {
+    opacity: 1 !important;
+    transform: scale(1) translateY(0) !important;
+  }
+
+  /* 3. Animación de explosión / bote energético del Carrito */
+  @keyframes cartBadgeBounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.6) rotate(-8deg); background: #0284c7; }
+    60% { transform: scale(1.2) rotate(4deg); }
+    80% { transform: scale(1.35); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .cart-badge-bounce {
+    animation: cartBadgeBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  @keyframes cartBtnWiggle {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.15) translateY(-3px); }
+    50% { transform: scale(1.08) rotate(-5deg); }
+    75% { transform: scale(1.08) rotate(5deg); }
+  }
+
+  .cart-btn-wiggle {
+    animation: cartBtnWiggle 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  /* 4. Bolita voladora mágica que viaja hacia el carrito */
+  .flying-cart-dot {
+    position: fixed;
+    z-index: 999999;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #0284c7;
+    box-shadow: 0 0 16px rgba(2, 132, 199, 0.8), inset 0 0 4px #ffffff;
+    pointer-events: none;
+    transition: all 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+  }
+</style>
+
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
@@ -4013,7 +4106,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v72</span>
+          <span>v73</span>
         </div>
       </div>
     </footer>
@@ -6945,7 +7038,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     saveCart();
     renderCart();
     toast('Agregado al carrito', product.name);
-    animateCartBadge();
+    const triggerEl = (typeof event !== 'undefined' && event && event.target) ? event.target : document.activeElement;
+    flyToCartAnimation(triggerEl);
   }
 
   function updateCart(id, delta) {
@@ -6996,10 +7090,59 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       </article>`).join('');
   }
 
-  function animateCartBadge() {
-    const badge = $('cartCount');
-    badge.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 350, easing: 'ease-out' });
+
+  function flyToCartAnimation(startElem) {
+    try {
+      const cartTarget = $('tfCartBtn') || $('cartButton');
+      if (!cartTarget) return animateCartBadge();
+      
+      const startRect = startElem ? startElem.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 20, height: 20 };
+      const targetRect = cartTarget.getBoundingClientRect();
+      
+      const dot = document.createElement('div');
+      dot.className = 'flying-cart-dot';
+      dot.innerHTML = '+1';
+      dot.style.left = (startRect.left + startRect.width / 2 - 11) + 'px';
+      dot.style.top = (startRect.top + startRect.height / 2 - 11) + 'px';
+      dot.style.transform = 'scale(0.4)';
+      dot.style.opacity = '0.9';
+      document.body.appendChild(dot);
+      
+      requestAnimationFrame(() => {
+        dot.style.transform = 'scale(1.2)';
+        requestAnimationFrame(() => {
+          dot.style.left = (targetRect.left + targetRect.width / 2 - 11) + 'px';
+          dot.style.top = (targetRect.top + targetRect.height / 2 - 11) + 'px';
+          dot.style.transform = 'scale(0.2)';
+          dot.style.opacity = '0.2';
+        });
+      });
+      
+      setTimeout(() => {
+        dot.remove();
+        animateCartBadge();
+      }, 620);
+    } catch(e) {
+      animateCartBadge();
+    }
   }
+
+  function animateCartBadge() {
+    const badges = [$('cartCount'), $('tfCartCount')].filter(Boolean);
+    badges.forEach(b => {
+      b.classList.remove('cart-badge-bounce');
+      void b.offsetWidth;
+      b.classList.add('cart-badge-bounce');
+    });
+    
+    const btns = [$('cartButton'), $('tfCartBtn')].filter(Boolean);
+    btns.forEach(btn => {
+      btn.classList.remove('cart-btn-wiggle');
+      void btn.offsetWidth;
+      btn.classList.add('cart-btn-wiggle');
+    });
+  }
+
 
   function openCart() {
     $('cartOverlay').hidden = false;
