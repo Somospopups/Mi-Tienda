@@ -3618,6 +3618,157 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   }
 </style>
 
+
+<style id="tf-dock-compact-sizes-v74">
+  /* Tamaño refinado y compacto en Escritorio */
+  .tf-products-dock-right {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important;
+    gap: 14px !important;
+  }
+
+  .tf-dock-product-card {
+    min-width: 0 !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-radius: 18px !important;
+    padding: 8px 8px 12px !important;
+    border: 1.2px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 6px 18px -4px rgba(2, 60, 100, 0.08), inset 0 1px 1px #fff !important;
+    cursor: pointer !important;
+  }
+
+  .tf-dock-media {
+    position: relative !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    background: #f8fafc !important;
+    margin-bottom: 8px !important;
+  }
+
+  .tf-dock-media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  .tf-dock-quick-view {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .tf-dock-quick-view svg {
+    width: 11px;
+    height: 11px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    fill: none;
+  }
+
+  .tf-dock-product-card:hover .tf-dock-quick-view {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  .tf-dock-badge {
+    top: 6px !important;
+    left: 6px !important;
+    font-size: 0.55rem !important;
+    padding: 3px 6px !important;
+  }
+
+  .tf-dock-category {
+    font-size: 0.58rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .tf-dock-name {
+    font-size: 0.78rem !important;
+    line-height: 1.22 !important;
+    margin: 0 0 4px !important;
+    font-weight: 700 !important;
+  }
+
+  .tf-dock-price {
+    font-size: 0.88rem !important;
+    font-weight: 800 !important;
+  }
+
+  .tf-dock-add-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .tf-dock-add-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* EN CELULARES (< 768px): Cuadrícula compacta de 2 columnas armónica */
+  @media (max-width: 768px) {
+    .tf-split-view {
+      flex-direction: column !important;
+      gap: 14px !important;
+    }
+    
+    .tf-card-docked-left {
+      max-width: 100% !important;
+      padding: 18px !important;
+      margin-bottom: 0 !important;
+    }
+
+    .tf-products-dock-right {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+      width: 100% !important;
+    }
+
+    .tf-dock-product-card {
+      border-radius: 16px !important;
+      padding: 7px 7px 10px !important;
+    }
+
+    .tf-dock-media {
+      border-radius: 12px !important;
+      margin-bottom: 6px !important;
+    }
+
+    .tf-dock-name {
+      font-size: 0.72rem !important;
+      -webkit-line-clamp: 2;
+    }
+
+    .tf-dock-price {
+      font-size: 0.80rem !important;
+    }
+
+    .tf-dock-add-btn {
+      width: 28px !important;
+      height: 28px !important;
+    }
+
+    .tf-dock-add-btn svg {
+      width: 12px !important;
+      height: 12px !important;
+    }
+  }
+</style>
+
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
@@ -4106,7 +4257,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v73</span>
+          <span>v74</span>
         </div>
       </div>
     </footer>
@@ -6411,48 +6562,51 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!items.length) {
       if (catKey === 'fundas') {
         items = [
-          { id: 'f-1', name: 'Funda Clear Case con MagSafe', price: 18500 },
-          { id: 'f-2', name: 'Vidrio Templado 9H Antiespía', price: 8900 },
-          { id: 'f-3', name: 'Funda Silicone Suave Antigolpe', price: 15200 }
+          { id: 'f-1', name: 'Funda Clear Case con MagSafe', price: 18500, category: 'Fundas & Protección', description: 'Protección premium transparente con anillo magnético alineado para carga rápida MagSafe.', stock: 15, lowStockAt: 3 },
+          { id: 'f-2', name: 'Vidrio Templado 9H Antiespía', price: 8900, category: 'Fundas & Protección', description: 'Cristal templado dureza 9H con filtro de privacidad angular antiespía y recubrimiento oleofóbico.', stock: 24, lowStockAt: 5 },
+          { id: 'f-3', name: 'Funda Silicone Suave Antigolpe', price: 15200, category: 'Fundas & Protección', description: 'Silicona líquida con interior de microfibra suave que amortigua golpes y caídas de hasta 2 metros.', stock: 8, lowStockAt: 2 }
         ];
       } else if (catKey === 'audio') {
         items = [
-          { id: 'a-1', name: 'Auriculares In-Ear True Wireless', price: 34900 },
-          { id: 'a-2', name: 'Auriculares Vincha Cancelación de Ruido', price: 68000 },
-          { id: 'a-3', name: 'Parlante Bluetooth Portátil', price: 42000 }
+          { id: 'a-1', name: 'Auriculares In-Ear True Wireless', price: 34900, category: 'Audio & Sonido', description: 'Sonido estéreo de alta fidelidad con cancelación pasiva, Bluetooth 5.3 y hasta 28 hs de autonomía con estuche.', stock: 12, lowStockAt: 3 },
+          { id: 'a-2', name: 'Auriculares Vincha Cancelación de Ruido', price: 68000, category: 'Audio & Sonido', description: 'Almohadillas ergonómicas memory-foam, drivers de 40mm y cancelación activa de ruido ambiental.', stock: 6, lowStockAt: 2 },
+          { id: 'a-3', name: 'Parlante Bluetooth Portátil', price: 42000, category: 'Audio & Sonido', description: 'Potencia acústica 360° con certificación IPX7 resistente al agua y batería para todo el día.', stock: 9, lowStockAt: 2 }
         ];
       } else if (catKey === 'cargadores') {
         items = [
-          { id: 'c-1', name: 'Fuente Carga Rápida USB-C 20 W', price: 16900 },
-          { id: 'c-2', name: 'Cable USB-C a Lightning Reforzado 2 m', price: 12500 },
-          { id: 'c-3', name: 'Cargador Rápido GaN 65 W Multi-puerto', price: 36000 }
+          { id: 'c-1', name: 'Fuente Carga Rápida USB-C 20 W', price: 16900, category: 'Carga & Energía', description: 'Cargador compacto Power Delivery 20W con chip inteligente de protección térmica y sobrevoltaje.', stock: 20, lowStockAt: 4 },
+          { id: 'c-2', name: 'Cable USB-C a Lightning Reforzado 2 m', price: 12500, category: 'Carga & Energía', description: 'Mallado de nylon balístico ultra resistente y conectores de aluminio reforzado anti-quiebre.', stock: 18, lowStockAt: 3 },
+          { id: 'c-3', name: 'Cargador Rápido GaN 65 W Multi-puerto', price: 36000, category: 'Carga & Energía', description: 'Tecnología GaN para cargar notebooks y teléfonos simultáneamente a máxima velocidad.', stock: 7, lowStockAt: 2 }
         ];
       } else {
         items = [
-          { id: 'p-1', name: 'Hub USB-C 7 en 1 con HDMI 4K', price: 32500 },
-          { id: 'p-2', name: 'Soporte Ergonómico para Notebook', price: 18000 },
-          { id: 'p-3', name: 'Mouse Inalámbrico Silencioso', price: 21500 }
+          { id: 'p-1', name: 'Hub USB-C 7 en 1 con HDMI 4K', price: 32500, category: 'Periféricos & Accesorios', description: 'Expansión total: salida HDMI 4K@60Hz, 3 puertos USB 3.0, lector SD/MicroSD y PD 100W passthrough.', stock: 11, lowStockAt: 3 },
+          { id: 'p-2', name: 'Soporte Ergonómico para Notebook', price: 18000, category: 'Periféricos & Accesorios', description: 'Aluminio anodizado regulable en 6 niveles de altura, disipación pasiva y gomas antideslizantes.', stock: 14, lowStockAt: 3 },
+          { id: 'p-3', name: 'Mouse Inalámbrico Silencioso', price: 21500, category: 'Periféricos & Accesorios', description: 'Diseño anatómico con clics silenciosos del 90%, sensor óptico de alta precisión y receptor USB nano.', stock: 16, lowStockAt: 4 }
         ];
       }
     }
+    window.__tfFallbackProducts = window.__tfFallbackProducts || {};
+    items.forEach(it => { window.__tfFallbackProducts[it.id] = it; });
 
     const itemsHtml = items.map((it, idx) => {
       const delay = (idx * 0.06 + 0.04).toFixed(2);
       const imgUrl = (it.image && it.image !== 'fallback') ? safeImage(it.image) : (typeof safeImage === 'function' ? safeImage(it.image) : '');
       const badge = it.badge ? `<span class="tf-dock-badge">${esc(it.badge)}</span>` : '';
       return `
-        <article class="tf-dock-product-card" style="animation-delay: ${delay}s" data-product-card="${esc(it.id)}">
-          <div class="tf-dock-media" onclick="openProduct('${esc(it.id)}')">
+        <article class="tf-dock-product-card" style="animation-delay: ${delay}s" onclick="openProduct('${esc(it.id)}')" role="button" tabindex="0" aria-label="Ver detalles de ${esc(it.name)}">
+          <div class="tf-dock-media">
             <img src="${imgUrl || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' fill=\'%23e2e8f0\'><rect width=\'200\' height=\'200\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'32\' fill=\'%2394a3b8\'>📦</text></svg>'}" alt="${esc(it.name)}" loading="lazy">
             ${badge}
+            <span class="tf-dock-quick-view"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Info</span>
           </div>
           <div class="tf-dock-info">
             <div class="tf-dock-meta">
               <span class="tf-dock-category">${esc(it.category || title)}</span>
-              <h4 class="tf-dock-name" onclick="openProduct('${esc(it.id)}')" style="cursor:pointer;">${esc(it.name)}</h4>
+              <h4 class="tf-dock-name">${esc(it.name)}</h4>
               <div class="tf-dock-price">${formatMoney(it.price)}</div>
             </div>
-            <button type="button" class="tf-dock-add-btn" onclick="addToCart('${esc(it.id)}')" aria-label="Agregar al carrito">
+            <button type="button" class="tf-dock-add-btn" onclick="event.stopPropagation(); addToCart('${esc(it.id)}')" aria-label="Agregar al carrito">
               <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
             </button>
           </div>
@@ -7177,7 +7331,10 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function openProduct(id) {
-    const product = productById(id);
+    let product = productById(id);
+    if (!product && window.__tfFallbackProducts && window.__tfFallbackProducts[id]) {
+      product = window.__tfFallbackProducts[id];
+    }
     if (!product) return;
     state.selectedProduct = id;
     state.modalQuantity = 1;
