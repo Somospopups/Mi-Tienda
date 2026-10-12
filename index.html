@@ -3075,7 +3075,14 @@ body.mt-edit-mode #shopApp .mt-edit-active {
      ============================================================ */
 
   /* Telón de fondo con desenfoque cinematográfico */
-  #productModalBackdrop.modal-backdrop {
+  #productModalBackdrop.modal-backdrop[hidden] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  #productModalBackdrop.modal-backdrop:not([hidden]) {
     background: rgba(15, 23, 42, 0.65) !important;
     backdrop-filter: blur(14px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
@@ -3812,7 +3819,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v69</span>
+          <span>v70</span>
         </div>
       </div>
     </footer>
@@ -5971,32 +5978,33 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       state.legal = legalData.legal || {};
       state.products = catalog.products || [];
 
-      // Sincronización en la nube en vivo para visitantes y compradores de todo el mundo:
-      try {
-        const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
-        if (slug && window.popupsCloud && window.popupsCloud.pull) {
-          window.popupsCloud.pull(slug).then(cloudData => {
-            if (cloudData && Array.isArray(cloudData.products) && cloudData.products.length > 0) {
-              state.products = cloudData.products;
-              if (cloudData.settings) state.settings = { ...state.settings, ...cloudData.settings };
-              if (cloudData.content) state.content = { ...state.content, ...cloudData.content };
-              
-              // Actualizar también la memoria local para que la próxima carga sea instantánea
-              try {
-                const cur = readStore();
-                cur.products = cloudData.products;
-                if (cloudData.settings) cur.settings = { ...cur.settings, ...cloudData.settings };
-                if (cloudData.content) cur.content = { ...cur.content, ...cloudData.content };
-                localStorage.setItem(currentStorageKey(), JSON.stringify(cur));
-              } catch (_) {}
-
-              // Re-renderizar la vidriera con los productos nuevos del dueño
-              renderCategories();
-              renderProducts();
-            }
-          }).catch(() => {});
-        }
-      } catch (_) {}
+      // Sincronización ultrarrápida no bloqueante en segundo plano:
+      setTimeout(() => {
+        try {
+          const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
+          if (slug && window.popupsCloud && window.popupsCloud.pull) {
+            window.popupsCloud.pull(slug).then(cloudData => {
+              if (cloudData && Array.isArray(cloudData.products) && cloudData.products.length > 0) {
+                const isDiff = JSON.stringify(state.products.map(p=>p.id)) !== JSON.stringify(cloudData.products.map(p=>p.id));
+                if (isDiff) {
+                  state.products = cloudData.products;
+                  if (cloudData.settings) state.settings = { ...state.settings, ...cloudData.settings };
+                  if (cloudData.content) state.content = { ...state.content, ...cloudData.content };
+                  try {
+                    const cur = readStore();
+                    cur.products = cloudData.products;
+                    if (cloudData.settings) cur.settings = { ...cur.settings, ...cloudData.settings };
+                    if (cloudData.content) cur.content = { ...cur.content, ...cloudData.content };
+                    localStorage.setItem(currentStorageKey(), JSON.stringify(cur));
+                  } catch (_) {}
+                  renderCategories();
+                  renderProducts();
+                }
+              }
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      }, 50);
       applySettings();
       applyContent();
       reconcileCart();
@@ -6251,11 +6259,11 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       const delay = (idx * 0.07 + 0.05).toFixed(2);
       return `
         <div class="tf-dock-product" style="animation-delay: ${delay}s">
-          <div>
+          <div style="cursor:pointer;" onclick="openProduct('${it.id}')">
             <h4>${it.name}</h4>
             <div class="tf-dock-price">$ ${Number(it.price).toLocaleString('es-AR')}</div>
           </div>
-          <button type="button" class="tf-dock-btn" onclick="addToCart('${it.id}')">Agregar al carrito</button>
+          <button type="button" class="tf-dock-btn" onclick="event.stopPropagation(); addToCart('${it.id}')">Agregar al carrito</button>
         </div>
       `;
     }).join('');
