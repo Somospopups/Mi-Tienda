@@ -4779,57 +4779,35 @@ img{display:block;max-width:100%}
   </footer>
   </div>
 
-<section class="tf-front" id="frontTech" aria-label="Vidriera de accesorios y servicio técnico" hidden>
-        <div class="tf-progress" id="tfProgress" aria-hidden="true"></div>
-
-        <div class="tf-head" id="tfHead">
-          <div class="tf-wrap">
-            <div class="tf-head-row">
-              <a class="tf-brand" href="#inicio" aria-label="Ir al inicio">
-                <span data-logo-slot hidden></span>
-                <svg viewBox="0 0 30 42" width="30" height="42" aria-hidden="true">
-                  <rect x="3" y="3" width="24" height="36" rx="10" fill="none" stroke="#333333" stroke-width="4.4"/>
-                  <path d="M21 17v12a6 6 0 0 1-6 6" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/>
-                </svg>
-                <b id="tfBrandText"><span data-brand hidden></span></b>
-              </a>
-              <div class="tf-acts">
-                <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
-                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
-                </button>
-                <button class="tf-act" type="button" id="tfAdmin" aria-label="Abrir panel administrador">
-                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
-                </button>
-                <button class="tf-act" type="button" id="tfCart" aria-label="Abrir carrito">
-                  <svg viewBox="0 0 24 24"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
-                </button>
-              </div>
-            </div>
-            <nav class="tf-cats" id="tfCats" aria-label="Categorías destacadas">
-          <button class="tf-cat" type="button" data-tf-home>
-            <span class="tf-in"><svg viewBox="0 0 24 24"><path d="m3 9.5 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 21.5V12h6v9.5"/></svg><span>Inicio</span></span>
+<!-- BARRA SUPERIOR UNIVERSAL COMPARTIDA PARA TODAS LAS VIDRIERAS -->
+  <header class="tf-head" id="tfHead" style="position:sticky;top:0;z-index:9999;width:100%;transition:background .25s ease;">
+    <div class="tf-wrap">
+      <div class="tf-head-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+        <a class="tf-brand" href="#inicio" aria-label="Ir al inicio" style="display:flex;align-items:center;gap:8px;">
+          <span data-logo-slot hidden></span>
+          <svg viewBox="0 0 30 42" width="28" height="38" aria-hidden="true">
+            <rect x="3" y="3" width="24" height="36" rx="10" fill="none" stroke="#333333" stroke-width="4.4"/>
+            <path d="M21 17v12a6 6 0 0 1-6 6" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/>
+          </svg>
+          <b id="tfBrandText" style="font-size:1.25rem;font-weight:900;letter-spacing:-0.03em;"><span data-brand hidden></span>EZE-PECE</b>
+        </a>
+        <div class="tf-acts" style="display:flex;align-items:center;gap:10px;">
+          <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
           </button>
-          <button class="tf-cat is-on" type="button" data-tf-cat="todo">
-            <span class="tf-in"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg><span>Todos</span></span>
+          <button class="tf-act" type="button" id="tfAdmin" onclick="openAdmin()" aria-label="Abrir panel administrador">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
           </button>
-          <button class="tf-cat" type="button" data-tf-cat="fundas">
-            <span class="tf-in"><svg viewBox="0 0 24 24"><rect x="7" y="2.2" width="10" height="19.6" rx="2.6"/><line x1="10.7" y1="18.6" x2="13.3" y2="18.6"/></svg><span data-content="tchCat1" data-content-multiline="true"></span></span>
+          <button class="tf-act" type="button" id="tfCart" onclick="openCart()" aria-label="Abrir carrito">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
           </button>
-          <button class="tf-cat" type="button" data-tf-cat="audio">
-            <span class="tf-in"><svg viewBox="0 0 24 24"><path d="M4.2 14.6v-2.4a7.8 7.8 0 0 1 15.6 0v2.4"/><rect x="2" y="12.6" width="4.6" height="7.4" rx="2.3"/><rect x="17.4" y="12.6" width="4.6" height="7.4" rx="2.3"/></svg><span data-content="tchCat2" data-content-multiline="true"></span></span>
-          </button>
-          <button class="tf-cat" type="button" data-tf-cat="cargadores">
-            <span class="tf-in"><svg viewBox="0 0 24 24"><path d="M9 2.4v4.2M15 2.4v4.2"/><path d="M5.8 6.6h12.4v4.2a6.2 6.2 0 0 1-12.4 0Z"/><path d="M12 17v4.6"/></svg><span data-content="tchCat3" data-content-multiline="true"></span></span>
-          </button>
-          <button class="tf-cat" type="button" data-tf-cat="pcmac">
-            <span class="tf-in"><svg viewBox="0 0 24 24"><rect x="3.4" y="4.6" width="17.2" height="11.4" rx="1.8"/><path d="M1.6 19.4h20.8"/></svg><span data-content="tchCat4" data-content-multiline="true"></span></span>
-          </button>
-          <button class="tf-cat" type="button" data-tf-cat="tecnico">
-            <span class="tf-in"><svg viewBox="0 0 24 24"><path d="M20.2 5.3a5.2 5.2 0 0 1-6.9 6.6l-7.5 7.6a2.1 2.1 0 0 1-3-3l7.6-7.5a5.2 5.2 0 0 1 6.6-6.9l-3.1 3.1 1.6 3.2 3.2 1.6Z"/></svg><span data-content="tchCat5" data-content-multiline="true"></span></span>
-          </button>
-            </nav>
-          </div>
         </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="tf-front" id="frontTech" aria-label="Vidriera de accesorios y servicio técnico" hidden>
+        <div class="tf-progress" id="tfProgress" aria-hidden="true"></div>
 
         <div class="tf-wrap" id="inicio">
           <div class="tf-shots" id="tfShots">
@@ -5113,7 +5091,7 @@ img{display:block;max-width:100%}
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v81</span>
+          <span>v82</span>
         </div>
       </div>
     </footer>
@@ -5899,7 +5877,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           if (item.pin) initial.security.adminPin = item.pin;
         } else if ((slug === 'ezepece' || slug === 'eze-pece')) {
           initial.settings.brandName = 'Eze-pece';
-          initial.settings.storefront = 'tech';
+          initial.settings.storefront = (item && item.storefront) ? item.storefront : 'actitud';
           initial.security.adminPin = 'Ger13811';
         } else {
           initial.settings.brandName = urlName || slug.charAt(0).toUpperCase() + slug.slice(1);
@@ -7331,17 +7309,26 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       
       const slug = (params.get('tienda') || '').trim().toLowerCase();
 
-      // Consultar registro de la consola (Super Admin)
+      // 1. Consultar registro de la consola (Super Admin)
       const rawConsole = localStorage.getItem('popups_console_v1');
       if (rawConsole) {
         const consoleData = JSON.parse(rawConsole);
         const list = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
-        const item = list.find((c) => c.id === slug || (slug === 'ezepece' && c.id === 'eze-pece') || (slug === 'eze-pece' && c.id === 'ezepece'));
+        const item = list.find((c) => c.id === slug || (slug === 'ezepece' && c.id === 'eze-pece') || (slug === 'eze-pece' && c.id === 'ezepece') || (!slug && (c.id === 'ezepece' || c.id === 'eze-pece')));
         if (item && item.storefront && MT_FRONTS[item.storefront]) return item.storefront;
       }
+
+      // 2. Consultar almacenamiento local de la tienda
+      const rawStore = localStorage.getItem('luma_offline_store_v1');
+      if (rawStore) {
+        const store = JSON.parse(rawStore);
+        if (store && store.settings && store.settings.storefront && MT_FRONTS[store.settings.storefront]) {
+          return store.settings.storefront;
+        }
+      }
     } catch (_) {}
-    const value = state.settings.storefront;
-    return MT_FRONTS[value] ? value : 'tech';
+    const value = state && state.settings && state.settings.storefront;
+    return MT_FRONTS[value] ? value : 'actitud';
   }
   
   // ============================================================
@@ -9014,31 +9001,48 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         const data = getConsoleData();
         const item = data.clients['mi-tienda'][idx];
         if (item) {
-          // Leer el valor seleccionado en el dropdown de esa fila
           const frontSel = document.querySelector(`select[data-sa-front="${idx}"]`);
-          if (frontSel) {
-            item.storefront = frontSel.value;
+          const chosenFront = frontSel ? frontSel.value : (item.storefront || 'actitud');
+          item.storefront = chosenFront;
+
+          // Sincronizar todos los alias de Eze-pece
+          if (item.id === 'ezepece' || item.id === 'eze-pece') {
+            data.clients['mi-tienda'].forEach(c => {
+              if (c.id === 'ezepece' || c.id === 'eze-pece') c.storefront = chosenFront;
+            });
           }
           saveConsoleData(data);
 
-          // Actualizar estado activo
-          state.settings.storefront = item.storefront;
+          // Actualizar storage de la tienda activa
           try {
             const st = readStore();
-            st.settings.storefront = item.storefront;
+            st.settings.storefront = chosenFront;
             writeStore(st);
+            if (state && state.settings) state.settings.storefront = chosenFront;
           } catch (_) {}
 
-          // Aplicar inmediatamente sin demoras
-          applyStorefront();
+          // Forzar dataset.front en html y body directamente
+          document.documentElement.dataset.front = chosenFront;
+          document.body.dataset.front = chosenFront;
 
-          // Gran cartel de confirmación visible
-          alert(`¡CAMBIOS REALIZADOS CON ÉXITO!
+          // Forzar visibilidad directa en el DOM
+          const fTech = $('frontTech');
+          const fTechTail = $('frontTechTail');
+          const fAct = $('frontActitud');
+          if (chosenFront === 'actitud') {
+            if (fTech) { fTech.hidden = true; fTech.style.display = 'none'; }
+            if (fTechTail) { fTechTail.hidden = true; fTechTail.style.display = 'none'; }
+            if (fAct) { fAct.hidden = false; fAct.style.display = 'block'; }
+            setTimeout(initActitudInteractions, 20);
+          } else if (chosenFront === 'tech') {
+            if (fTech) { fTech.hidden = false; fTech.style.display = 'contents'; }
+            if (fTechTail) { fTechTail.hidden = false; fTechTail.style.display = 'contents'; }
+            if (fAct) { fAct.hidden = true; fAct.style.display = 'none'; }
+          }
 
-La tienda "${item.name}" ahora tiene activa la vidriera: ${item.storefront.toUpperCase()}.
-
-Los cambios se aplicaron al instante en la pantalla.`);
-          toast('Cambios Guardados', `¡Vidriera cambiada a ${item.storefront.toUpperCase()} con éxito!`, 'success');
+          // Cartel de confirmación al usuario
+          alert(`¡CAMBIOS REALIZADOS CON ÉXITO!\n\nLa tienda "${item.name}" ahora tiene activa la vidriera: ${chosenFront.toUpperCase()}.\n\nLos cambios ya están aplicados en pantalla.`);
+          toast('Cambios Guardados', `¡Vidriera cambiada a ${chosenFront.toUpperCase()} con éxito!`, 'success');
           renderSuperAdminTable();
         }
         return;
