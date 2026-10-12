@@ -4647,7 +4647,7 @@ img{display:block;max-width:100%}
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v89</span>
+          <span>v90</span>
         </div>
       </div>
     </footer>
@@ -8517,9 +8517,8 @@ function applyStorefront() {
           </td>
           <td>
             <select data-sa-front="${idx}" style="background:#090d16;color:#e2e8f0;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 6px;font-size:.78rem">
-              <option value="actitud" ${item.storefront === 'actitud' ? 'selected' : ''}>Actitud</option>
-<option value="actitud" ${item.storefront === 'actitud' ? 'selected' : ''}>Actitud</option>
-<option value="tech" ${item.storefront === 'tech' ? 'selected' : ''}>Tech</option>
+              <option value="actitud" ${item.storefront === 'actitud' ? 'selected' : ''}>Actitud (Original)</option>
+              <option value="tech" ${item.storefront === 'tech' ? 'selected' : ''}>Tech (Celeste)</option>
               <option value="luma" ${item.storefront === 'luma' ? 'selected' : ''}>Luma</option>
               <option value="ofertas" ${item.storefront === 'ofertas' ? 'selected' : ''}>Ofertas</option>
               <option value="gamer" ${item.storefront === 'gamer' ? 'selected' : ''}>Gamer</option>
@@ -8606,11 +8605,15 @@ function applyStorefront() {
           saveConsoleData(data);
           localStorage.setItem('luma_active_front', item.storefront);
           localStorage.setItem('popups_storefront_' + item.id, item.storefront);
+          if (item.id === 'ezepece' || item.id === 'eze-pece') {
+            localStorage.setItem('popups_storefront_ezepece', item.storefront);
+            localStorage.setItem('popups_storefront_eze-pece', item.storefront);
+          }
           document.documentElement.dataset.front = item.storefront;
           document.body.dataset.front = item.storefront;
           if (state && state.settings) state.settings.storefront = item.storefront;
-          toast('Frente Guardado', `Vidriera cambiada a ${item.storefront.toUpperCase()} con éxito.`);
           applyStorefront();
+          toast('Vidriera Seleccionada', `Elegiste ${item.storefront.toUpperCase()}. Tocá ✓ para confirmar.`);
         }
         return;
       }
@@ -8634,11 +8637,46 @@ function applyStorefront() {
       const saveBtn = e.target.closest('[data-sa-save]');
       if (saveBtn) {
         const idx = parseInt(saveBtn.dataset.saSave, 10);
+        const tr = saveBtn.closest('tr');
+        const frontSelect = tr ? tr.querySelector('select[data-sa-front]') : null;
+        const statusSelect = tr ? tr.querySelector('select[data-sa-status]') : null;
         const data = getConsoleData();
         const item = data.clients['mi-tienda'][idx];
         if (item) {
+          if (frontSelect) item.storefront = frontSelect.value;
+          if (statusSelect) item.status = statusSelect.value;
           saveConsoleData(data);
-          toast('Cambios Guardados', `Todos los datos de "${item.name}" quedaron guardados correctamente.`, 'success');
+          
+          // Persistencia inmediata
+          localStorage.setItem('luma_active_front', item.storefront);
+          localStorage.setItem('popups_storefront_' + item.id, item.storefront);
+          if (item.id === 'ezepece' || item.id === 'eze-pece') {
+            localStorage.setItem('popups_storefront_ezepece', item.storefront);
+            localStorage.setItem('popups_storefront_eze-pece', item.storefront);
+          }
+          document.documentElement.dataset.front = item.storefront;
+          document.body.dataset.front = item.storefront;
+          if (typeof state !== 'undefined' && state.settings) {
+            state.settings.storefront = item.storefront;
+          }
+
+          // Aplicar cambios en la vidriera de inmediato
+          if (typeof applyStorefront === 'function') {
+            applyStorefront();
+          }
+
+          // Feedback visual en el botón
+          const originalText = saveBtn.innerHTML;
+          saveBtn.innerHTML = '✓ ¡LISTO!';
+          saveBtn.style.background = '#22c55e';
+          saveBtn.style.color = '#ffffff';
+          setTimeout(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.style.background = '#22c55e22';
+            saveBtn.style.color = '#4ade80';
+          }, 1500);
+
+          toast('¡Vidriera Aplicada!', `Se activó "${item.storefront.toUpperCase()}" y se guardaron los cambios.`, 'success');
         }
         return;
       }
@@ -10965,8 +11003,8 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
     $('adminContent').innerHTML = `
       ${adminPageHead('Configuración', 'Preferencias de la tienda', 'Personalizá la información operativa y comercial')}
       ${settingsSubnav('general')}
-      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid" style="margin-bottom:14px;display:none"><label class="field field-wide"><span>Vidriera / Frente de tienda</span><select name="storefront" style="width:100%;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);font-weight:600;font-size:.85rem;cursor:pointer;"><option value="luma" ${s.storefront === "luma" ? "selected" : ""}>Boutique · Editorial (Luma)</option><option value="ofertas" ${s.storefront === "ofertas" ? "selected" : ""}>Ofertas · Consumo masivo</option><option value="gamer" ${s.storefront === "gamer" ? "selected" : ""}>Gamer · Hardware y setup</option><option value="libre" ${s.storefront === "libre" ? "selected" : ""}>Libre · Constructor visual</option><option value="actitud" ${s.storefront === "actitud" ? "selected" : ""}>Actitud · Retro Urbano Eze.pece (Colores Original)</option>
-<option value="tech" ${s.storefront === "tech" ? "selected" : ""}>Tech · Celeste Cristal Moderno</option></select></label></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div><div class="uber-settings"><h3>Envio con Uber Direct</h3><p>Muestra la entrega con courier en el checkout. En este modo el costo es de referencia (demo): cuando la tienda conecte su cuenta de Uber Direct la cotizacion sera en tiempo real y el precio final lo define Uber. El costo de la entrega se suma al total del pedido.</p><div class="field-grid"><label class="integration-toggle" style="width:100%"><input name="uberEnabled" type="checkbox" ${s.uber && s.uber.enabled!==false ? 'checked' : ''}><i></i><em>${s.uber && s.uber.enabled!==false ? 'Visible en el checkout' : 'Oculto'}</em></label><label class="field"><span>Costo de referencia (demo)</span><div class="money-input"><b>$</b><input name="uberDemoCost" type="number" min="0" value="${s.uber ? s.uber.demoCost || 0 : 4850}"></div></label><label class="field"><span>Entrega estimada: desde</span><input name="uberEtaMin" type="number" min="1" value="${s.uber ? s.uber.etaMin || 45 : 45}"></label><label class="field"><span>Entrega estimada: hasta</span><input name="uberEtaMax" type="number" min="1" value="${s.uber ? s.uber.etaMax || 60 : 60}"></label></div></div></section><section class="settings-card"><h2>Paleta de colores</h2><p>Elegí un punto de partida o generá una nueva: se aplica al instante en toda la tienda.</p><div class="palette-presets">${Object.entries(palettePresets).map(([key,p])=>`<button type="button" data-palette-preset="${key}"><span>${[p.darkColor,p.surfaceColor,p.secondaryColor,p.accentColor].map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${p.name}</b>${key==='botanica'?'<em>Clásica</em>':''}</button>`).join('')}</div><div class="settings-actions"><button class="button button-light random-palette-button" type="button" id="randomPaletteButton"><svg><use href="#i-refresh"></use></svg> Random · Nueva paleta</button></div><div class="contrast-check"><span>Contraste texto / fondo</span><b id="paletteContrast">—</b><small id="paletteContrastStatus">Se calcula al aplicar una paleta.</small></div><small style="display:block;margin-top:10px">Para afinar cada color por separado: <b>Ver tienda / Editar</b> → botón <i>Colores</i>.</small></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>${adminKeyCard(pinChangedAt)}`;
+      <form id="settingsForm"><div class="settings-layout"><div><section class="settings-card"><h2>Identidad</h2><p>Estos datos se actualizan instantáneamente en la tienda.</p><div class="brand-logo-setting"><div class="brand-logo-preview" id="settingsLogoPreview">${s.logo ? `<img src="${safeImage(s.logo)}" alt="Logo actual">` : '<span class="brand-mark"><i></i><i></i><i></i><i></i></span>'}</div><div><b>Logo de la empresa</b><small>PNG, JPG o WEBP. Recomendamos una imagen cuadrada o apaisada con fondo transparente.</small><div><button class="button button-light button-small" type="button" id="chooseLogoButton"><svg><use href="#i-upload"></use></svg> ${s.logo ? 'Reemplazar logo' : 'Subir logo'}</button><button class="logo-remove" type="button" id="removeLogoButton" ${s.logo ? '' : 'hidden'}>Quitar</button></div><em id="logoUploadStatus"></em></div><input type="file" id="settingsLogoFile" accept="image/png,image/jpeg,image/webp" hidden><input type="hidden" name="logo" value="${esc(s.logo || '')}"></div><div class="field-grid" style="margin-bottom:14px;display:none"><label class="field field-wide"><span>Vidriera / Frente de tienda</span><select name="storefront" style="width:100%;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);font-weight:600;font-size:.85rem;cursor:pointer;"><option value="luma" ${s.storefront === "luma" ? "selected" : ""}>Boutique · Editorial (Luma)</option><option value="ofertas" ${s.storefront === "ofertas" ? "selected" : ""}>Ofertas · Consumo masivo</option><option value="gamer" ${s.storefront === "gamer" ? "selected" : ""}>Gamer · Hardware y setup</option><option value="libre" ${s.storefront === "libre" ? "selected" : ""}>Libre · Constructor visual</option><option value="actitud" ${s.storefront === "actitud" ? "selected" : ""}>Actitud · Retro Urbano Eze.pece (Original)</option>
+<option value="tech" ${s.storefront === "tech" ? "selected" : ""}>Tech · Celeste Moderno</option></select></label></div><div class="field-grid"><label class="field field-wide"><span>Nombre de marca</span><input name="brandName" maxlength="30" value="${esc(s.brandName)}"></label><label class="field field-wide"><span>Frase de marca</span><input name="tagline" maxlength="120" value="${esc(s.tagline)}"></label><label class="field field-wide"><span>Barra de anuncio</span><input name="announcement" maxlength="140" value="${esc(s.announcement)}"></label></div></section><section class="settings-card"><h2>Envíos y retiro</h2><p>Definí cuándo bonificar el envío y cuánto cobrar en el resto de los casos.</p><div class="field-grid"><label class="field"><span>Envío gratis desde</span><div class="money-input"><b>$</b><input name="freeShippingThreshold" type="number" min="0" value="${s.freeShippingThreshold}"></div></label><label class="field"><span>Costo de envío</span><div class="money-input"><b>$</b><input name="shippingFlat" type="number" min="0" value="${s.shippingFlat}"></div></label><label class="field field-wide"><span>Texto para retiro</span><input name="pickupLabel" value="${esc(s.pickupLabel)}"></label></div><div class="uber-settings"><h3>Envio con Uber Direct</h3><p>Muestra la entrega con courier en el checkout. En este modo el costo es de referencia (demo): cuando la tienda conecte su cuenta de Uber Direct la cotizacion sera en tiempo real y el precio final lo define Uber. El costo de la entrega se suma al total del pedido.</p><div class="field-grid"><label class="integration-toggle" style="width:100%"><input name="uberEnabled" type="checkbox" ${s.uber && s.uber.enabled!==false ? 'checked' : ''}><i></i><em>${s.uber && s.uber.enabled!==false ? 'Visible en el checkout' : 'Oculto'}</em></label><label class="field"><span>Costo de referencia (demo)</span><div class="money-input"><b>$</b><input name="uberDemoCost" type="number" min="0" value="${s.uber ? s.uber.demoCost || 0 : 4850}"></div></label><label class="field"><span>Entrega estimada: desde</span><input name="uberEtaMin" type="number" min="1" value="${s.uber ? s.uber.etaMin || 45 : 45}"></label><label class="field"><span>Entrega estimada: hasta</span><input name="uberEtaMax" type="number" min="1" value="${s.uber ? s.uber.etaMax || 60 : 60}"></label></div></div></section><section class="settings-card"><h2>Paleta de colores</h2><p>Elegí un punto de partida o generá una nueva: se aplica al instante en toda la tienda.</p><div class="palette-presets">${Object.entries(palettePresets).map(([key,p])=>`<button type="button" data-palette-preset="${key}"><span>${[p.darkColor,p.surfaceColor,p.secondaryColor,p.accentColor].map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${p.name}</b>${key==='botanica'?'<em>Clásica</em>':''}</button>`).join('')}</div><div class="settings-actions"><button class="button button-light random-palette-button" type="button" id="randomPaletteButton"><svg><use href="#i-refresh"></use></svg> Random · Nueva paleta</button></div><div class="contrast-check"><span>Contraste texto / fondo</span><b id="paletteContrast">—</b><small id="paletteContrastStatus">Se calcula al aplicar una paleta.</small></div><small style="display:block;margin-top:10px">Para afinar cada color por separado: <b>Ver tienda / Editar</b> → botón <i>Colores</i>.</small></section></div><aside><section class="settings-card"><h2>Integraciones</h2><p>Canales habilitados para completar las ventas.</p><div class="integration-card"><span>mp</span><div><b>Mercado Pago</b><small>${mpLive ? 'Credenciales detectadas en el servidor' : 'Agregá MP_ACCESS_TOKEN para cobrar de verdad'}</small></div><span class="integration-state ${mpLive ? 'live' : ''}">${mpLive ? 'Real' : 'Demo'}</span><label class="integration-toggle"><input name="mercadoPagoEnabled" type="checkbox" ${s.mercadoPagoEnabled!==false?'checked':''}><i></i><em>${s.mercadoPagoEnabled!==false?'Visible':'Oculto'}</em></label></div><div class="integration-card whatsapp"><span>◔</span><div><b>WhatsApp</b><small>Usá código de país, sin + ni espacios</small></div><span class="integration-state ${s.whatsappNumber ? 'live' : ''}">${s.whatsappNumber ? 'Listo' : 'Pendiente'}</span><label class="integration-toggle"><input name="whatsappEnabled" type="checkbox" ${s.whatsappEnabled!==false?'checked':''}><i></i><em>${s.whatsappEnabled!==false?'Visible':'Oculto'}</em></label></div><label class="field" style="margin-top:14px"><span>Número de WhatsApp</span><input name="whatsappNumber" inputmode="tel" placeholder="5493510000000" value="${esc(s.whatsappNumber)}"></label></section></section></aside></div><div class="settings-actions"><button class="button button-dark" type="submit">Guardar cambios <svg><use href="#i-check"></use></svg></button></div></form>${adminKeyCard(pinChangedAt)}`;
   }
 
   function renderAdminPayments(mpData, settings) {
