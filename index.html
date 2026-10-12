@@ -4452,6 +4452,49 @@ img{display:block;max-width:100%}
 </style>
 
 
+  
+  /* Ocultar el catálogo de la vidriera vieja (#coleccion) cuando estamos en ACTITUD */
+  body[data-front="actitud"] #coleccion {
+    display: none !important;
+  }
+  html[data-front="actitud"] #coleccion {
+    display: none !important;
+  }
+
+  /* BARRA SUPERIOR UNIVERSAL ADAPTABLE AL COLOR DE CADA VIDRIERA */
+  .tf-head {
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Cuando el frente es TECH (Celeste): */
+  body[data-front="tech"] .tf-head {
+    background: #B2DBF1 !important;
+    border-bottom: 1.5px solid rgba(45, 75, 95, 0.15) !important;
+  }
+  body[data-front="tech"] .tf-head b,
+  body[data-front="tech"] .tf-head .tf-act {
+    color: #333333 !important;
+  }
+
+  /* Cuando el frente es ACTITUD (Retro Rosa Pastel): */
+  body[data-front="actitud"] .tf-head {
+    background: #eae6e3 !important; /* Color crema retro de Eze-pece */
+    border-bottom: 2px solid #2d2a26 !important;
+    box-shadow: 0 4px 18px rgba(45, 42, 38, 0.08) !important;
+  }
+  body[data-front="actitud"] .tf-head b,
+  body[data-front="actitud"] .tf-head .tf-act {
+    color: #2d2a26 !important;
+    font-weight: 800 !important;
+  }
+  body[data-front="actitud"] .tf-head .tf-act:hover {
+    color: #d32929 !important; /* Kimchi red */
+  }
+  body[data-front="actitud"] .tf-head #tfCartCount {
+    background: #efc415 !important; /* Lemon yellow */
+    color: #2d2a26 !important;
+  }
+
   /* BARRA SUPERIOR COMPARTIDA PARA TODOS LOS FRENTES (v81) */
   body[data-front="actitud"] #tfHead,
   body[data-front="tech"] #tfHead {
@@ -4779,32 +4822,7 @@ img{display:block;max-width:100%}
   </footer>
   </div>
 
-<!-- BARRA SUPERIOR UNIVERSAL COMPARTIDA PARA TODAS LAS VIDRIERAS -->
-  <header class="tf-head" id="tfHead" style="position:sticky;top:0;z-index:9999;width:100%;transition:background .25s ease;">
-    <div class="tf-wrap">
-      <div class="tf-head-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
-        <a class="tf-brand" href="#inicio" aria-label="Ir al inicio" style="display:flex;align-items:center;gap:8px;">
-          <span data-logo-slot hidden></span>
-          <svg viewBox="0 0 30 42" width="28" height="38" aria-hidden="true">
-            <rect x="3" y="3" width="24" height="36" rx="10" fill="none" stroke="#333333" stroke-width="4.4"/>
-            <path d="M21 17v12a6 6 0 0 1-6 6" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/>
-          </svg>
-          <b id="tfBrandText" style="font-size:1.25rem;font-weight:900;letter-spacing:-0.03em;"><span data-brand hidden></span>EZE-PECE</b>
-        </a>
-        <div class="tf-acts" style="display:flex;align-items:center;gap:10px;">
-          <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
-          </button>
-          <button class="tf-act" type="button" id="tfAdmin" onclick="openAdmin()" aria-label="Abrir panel administrador">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
-          </button>
-          <button class="tf-act" type="button" id="tfCart" onclick="openCart()" aria-label="Abrir carrito">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+
 
   <section class="tf-front" id="frontTech" aria-label="Vidriera de accesorios y servicio técnico" hidden>
         <div class="tf-progress" id="tfProgress" aria-hidden="true"></div>
@@ -5091,7 +5109,7 @@ img{display:block;max-width:100%}
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v82</span>
+          <span>v83</span>
         </div>
       </div>
     </footer>
@@ -12659,3 +12677,30 @@ async function mtGuiaPdf() {
 
 </body>
 </html>
+<!-- BARRA SUPERIOR UNIVERSAL COMPARTIDA PARA TODAS LAS VIDRIERAS -->
+  <header class="tf-head" id="tfHead" style="position:sticky;top:0;z-index:9999;width:100%;transition:background .25s ease;">
+    <div class="tf-wrap">
+      <div class="tf-head-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+        <a class="tf-brand" href="#inicio" aria-label="Ir al inicio" style="display:flex;align-items:center;gap:8px;">
+          <span data-logo-slot hidden></span>
+          <svg viewBox="0 0 30 42" width="28" height="38" aria-hidden="true">
+            <rect x="3" y="3" width="24" height="36" rx="10" fill="none" stroke="#333333" stroke-width="4.4"/>
+            <path d="M21 17v12a6 6 0 0 1-6 6" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/>
+          </svg>
+          <b id="tfBrandText" style="font-size:1.25rem;font-weight:900;letter-spacing:-0.03em;"><span data-brand hidden></span>EZE-PECE</b>
+        </a>
+        <div class="tf-acts" style="display:flex;align-items:center;gap:10px;">
+          <button class="tf-act" type="button" id="tfSearch" aria-label="Buscar productos">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span>Buscar</span>
+          </button>
+          <button class="tf-act" type="button" id="tfAdmin" onclick="openAdmin()" aria-label="Abrir panel administrador">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Panel</span>
+          </button>
+          <button class="tf-act" type="button" id="tfCart" onclick="openCart()" aria-label="Abrir carrito">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M6 7h12l-1.2 13H7.2Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Carrito</span><b id="tfCartCount">0</b>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
