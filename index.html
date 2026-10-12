@@ -2638,6 +2638,170 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     } catch (_) {}
   })();
 </script>
+<style id="crystal-glass-theme">
+  /* ============================================================
+     VIDRIO DE CRISTAL ÓPTICO (REAL CRYSTAL GLASS)
+     Aplicado EXCLUSIVAMENTE a:
+     1. Las 4 Tarjetas de Categorías (.tf-card)
+     2. Las 3 Tarjetas de Reseñas de Redes Sociales (.tf-quote)
+     ============================================================ */
+
+  /* Fondo ambiental sutil en ambas secciones para que el cristal refracte luz real */
+  .tf-sec.tf-white, 
+  section[data-tf-sec="community"],
+  .tf-sec:has(.tf-quotes) {
+    background: radial-gradient(circle at 50% 30%, rgba(178, 219, 241, 0.35) 0%, rgba(245, 250, 254, 0.7) 65%, #ffffff 100%) !important;
+    position: relative !important;
+  }
+
+  /* ------------------------------------------------------------
+     1. LAS 4 TARJETAS DE CATEGORÍAS EN VIDRIO DE CRISTAL
+     ------------------------------------------------------------ */
+  .tf-card {
+    position: relative !important;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.28) 45%,
+      rgba(255, 255, 255, 0.45) 100%
+    ) !important;
+    backdrop-filter: blur(28px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+    border-radius: 28px !important;
+    padding: 36px 30px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
+    border-top: 2px solid #ffffff !important;
+    box-shadow: 
+      0 24px 50px -12px rgba(2, 60, 100, 0.16),
+      0 8px 20px -4px rgba(0, 0, 0, 0.04),
+      inset 0 2px 2px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.35) !important;
+    overflow: hidden !important;
+    transition: all 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    text-align: left !important;
+  }
+
+  /* Reflejo de luz diagonal característico del cristal cortado */
+  .tf-card::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0.12) 32%,
+      rgba(255, 255, 255, 0.0) 45%,
+      rgba(255, 255, 255, 0.2) 75%,
+      rgba(255, 255, 255, 0.0) 100%
+    ) !important;
+    border-radius: 28px !important;
+    pointer-events: none !important;
+  }
+
+  .tf-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.75) 0%,
+      rgba(255, 255, 255, 0.38) 45%,
+      rgba(255, 255, 255, 0.6) 100%
+    ) !important;
+    border-color: #ffffff !important;
+    box-shadow: 
+      0 35px 70px -15px rgba(2, 132, 199, 0.28),
+      0 12px 28px -4px rgba(0, 0, 0, 0.08),
+      inset 0 2px 3px 0 #ffffff,
+      inset 0 -1px 2px 0 rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .tf-card .tf-ic {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid #ffffff !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04), inset 0 1px 1px #fff !important;
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  .tf-card h3, .tf-card p, .tf-card .tf-more {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  /* ------------------------------------------------------------
+     2. LAS 3 TARJETAS DE RESEÑAS DE REDES SOCIALES (CRISTAL)
+     ------------------------------------------------------------ */
+  .tf-quote {
+    position: relative !important;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.62) 0%,
+      rgba(255, 255, 255, 0.3) 45%,
+      rgba(255, 255, 255, 0.48) 100%
+    ) !important;
+    backdrop-filter: blur(28px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+    border-radius: 28px !important;
+    padding: 34px 30px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
+    border-top: 2px solid #ffffff !important;
+    box-shadow: 
+      0 24px 50px -12px rgba(2, 60, 100, 0.16),
+      0 8px 20px -4px rgba(0, 0, 0, 0.04),
+      inset 0 2px 2px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.35) !important;
+    overflow: hidden !important;
+    transition: all 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  /* Reflejo de cristal para las reseñas */
+  .tf-quote::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0.12) 32%,
+      rgba(255, 255, 255, 0.0) 45%,
+      rgba(255, 255, 255, 0.2) 75%,
+      rgba(255, 255, 255, 0.0) 100%
+    ) !important;
+    border-radius: 28px !important;
+    pointer-events: none !important;
+  }
+
+  .tf-quote:hover {
+    transform: translateY(-7px) scale(1.018) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(255, 255, 255, 0.4) 45%,
+      rgba(255, 255, 255, 0.62) 100%
+    ) !important;
+    border-color: #ffffff !important;
+    box-shadow: 
+      0 35px 70px -15px rgba(2, 132, 199, 0.28),
+      0 12px 28px -4px rgba(0, 0, 0, 0.08),
+      inset 0 2px 3px 0 #ffffff,
+      inset 0 -1px 2px 0 rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .tf-quote .tf-quote-top,
+  .tf-quote p,
+  .tf-quote small {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  /* Insignias sociales dentro de la tarjeta de cristal */
+  .tf-social-badge {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px #fff !important;
+  }
+</style>
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
