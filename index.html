@@ -3066,6 +3066,264 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   }
 </style>
 
+<style id="pro-product-modal-theme">
+  /* ============================================================
+     REDESISEÑO PROFESIONAL DEL POPUP DE DETALLE DE PRODUCTO
+     - Tamaño armónico que no desborda la pantalla
+     - Esquinas redondeadas (border-radius: 28px) con aspecto de tarjeta flotante
+     - Tipografía proporcionada y scroll interno limpio
+     ============================================================ */
+
+  /* Telón de fondo con desenfoque cinematográfico */
+  #productModalBackdrop.modal-backdrop {
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(14px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+    padding: clamp(16px, 3vw, 40px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 999999 !important;
+  }
+
+  /* Tarjeta flotante del popup */
+  #productModal.product-modal {
+    width: min(860px, calc(100vw - 32px)) !important;
+    max-height: min(650px, calc(100vh - 48px)) !important;
+    min-height: auto !important;
+    background: #ffffff !important;
+    border-radius: 28px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 
+      0 30px 80px -15px rgba(0, 0, 0, 0.35),
+      0 12px 30px -5px rgba(0, 0, 0, 0.15),
+      inset 0 1px 1px #fff !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1.15fr !important;
+    overflow: hidden !important;
+    position: relative !important;
+    transform: scale(0.97) translateY(12px) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+  }
+
+  #productModalBackdrop.visible #productModal.product-modal {
+    transform: scale(1) translateY(0) !important;
+  }
+
+  /* Columna izquierda: Imagen del producto */
+  .product-modal-media {
+    position: relative !important;
+    background: #f8fafc !important;
+    min-height: auto !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .product-modal-media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.4s ease !important;
+  }
+
+  .product-modal-media .product-badge {
+    position: absolute !important;
+    top: 16px !important;
+    left: 16px !important;
+    z-index: 2 !important;
+    background: #ea580c !important;
+    color: #ffffff !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    padding: 4px 10px !important;
+    border-radius: 999px !important;
+    letter-spacing: 0.03em !important;
+  }
+
+  /* Columna derecha: Información del producto */
+  .product-modal-copy {
+    padding: 36px 36px 32px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    max-height: min(650px, calc(100vh - 48px)) !important;
+    overflow-y: auto !important;
+    text-align: left !important;
+  }
+
+  /* Botón de cerrar tipo cápsula flotante */
+  .product-modal-copy .round-close {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: rgba(241, 245, 249, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    display: grid !important;
+    place-items: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    z-index: 10 !important;
+  }
+
+  .product-modal-copy .round-close:hover {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    transform: rotate(90deg) scale(1.08) !important;
+  }
+
+  /* Categoría (eyebrow) */
+  .product-modal-copy .product-category {
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: #0284c7 !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Título del producto */
+  .product-modal-copy h2 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif !important;
+    font-size: clamp(1.4rem, 2.2vw, 1.85rem) !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em !important;
+    margin: 0 0 10px !important;
+  }
+
+  /* Precios */
+  .modal-price {
+    margin: 0 0 16px !important;
+    display: flex !important;
+    align-items: baseline !important;
+    gap: 10px !important;
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    color: #0284c7 !important;
+  }
+
+  .modal-price s {
+    font-size: 0.9rem !important;
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+  }
+
+  /* Descripción con tipografía legible y altura balanceada */
+  .product-description {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    font-size: 0.92rem !important;
+    line-height: 1.55 !important;
+    color: #475569 !important;
+    margin: 0 0 20px !important;
+    max-height: 180px !important;
+    overflow-y: auto !important;
+    padding-right: 8px !important;
+  }
+
+  /* Scrollbar fina y estética para la descripción */
+  .product-description::-webkit-scrollbar,
+  .product-modal-copy::-webkit-scrollbar {
+    width: 5px;
+  }
+  .product-description::-webkit-scrollbar-thumb,
+  .product-modal-copy::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+  }
+
+  /* Stock badge */
+  .modal-stock {
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+    border-radius: 999px !important;
+    padding: 6px 14px !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    align-self: flex-start !important;
+    margin-bottom: 20px !important;
+  }
+
+  .modal-stock.low {
+    background: #fff7ed !important;
+    color: #ea580c !important;
+  }
+
+  /* Fila de acciones (Cantidad + Agregar) */
+  .product-modal-actions {
+    margin-top: auto !important;
+    display: grid !important;
+    grid-template-columns: 105px 1fr !important;
+    gap: 12px !important;
+    padding-top: 14px !important;
+  }
+
+  .modal-quantity {
+    height: 46px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 999px !important;
+    background: #f8fafc !important;
+  }
+
+  .product-modal-actions .button-dark {
+    height: 46px !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-radius: 999px !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: background 0.2s ease, transform 0.2s ease !important;
+  }
+
+  .product-modal-actions .button-dark:hover {
+    background: #0284c7 !important;
+    transform: translateY(-1px) !important;
+  }
+
+  /* Beneficios al pie del modal */
+  .product-perks {
+    margin-top: 16px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid #f1f5f9 !important;
+    display: flex !important;
+    gap: 16px !important;
+    color: #64748b !important;
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Adaptación en móviles (< 768px) */
+  @media (max-width: 768px) {
+    #productModal.product-modal {
+      grid-template-columns: 1fr !important;
+      max-height: 88vh !important;
+      overflow-y: auto !important;
+    }
+    .product-modal-media {
+      height: 240px !important;
+      min-height: 240px !important;
+    }
+    .product-modal-copy {
+      padding: 24px 20px 24px !important;
+      max-height: none !important;
+    }
+  }
+</style>
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
@@ -3554,7 +3812,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v68</span>
+          <span>v69</span>
         </div>
       </div>
     </footer>
