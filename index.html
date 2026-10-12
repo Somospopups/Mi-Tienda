@@ -3803,6 +3803,44 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     margin: 0 0 16px;
   }
 
+  
+  /* Badges y productos múltiples para interesados recurrentes */
+  .lead-badge.recurrent {
+    background: #fef08a !important;
+    color: #854d0e !important;
+    border: 1px solid #facc15;
+    font-weight: 800;
+  }
+  .lead-badge.vip {
+    background: #fed7aa !important;
+    color: #9a3412 !important;
+    border: 1px solid #fb923c;
+    font-weight: 800;
+    animation: pulseVip 2s infinite ease-in-out;
+  }
+  @keyframes pulseVip {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .lead-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .lead-history-item {
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid #0284c7;
+  }
+
   /* Estilos del panel de Interesados */
   .lead-card {
     background: #ffffff;
@@ -4414,7 +4452,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v75</span>
+          <span>v76</span>
         </div>
       </div>
     </footer>
@@ -9405,51 +9443,114 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     }
   });
 
-  // Renderizar la vista de "Interesados" en el Panel de Administrador
+  
+  // Agrupar interesados por número de teléfono normalizado
+  function getGroupedLeads() {
+    const rawLeads = state.admin.leads || getLocalLeads();
+    const groups = {};
+
+    rawLeads.forEach(item => {
+      // Normalizar número telefónico quitando caracteres no numéricos
+      const normPhone = customerPhoneNumber(item.phone) || String(item.phone || '').replace(/\D/g, '') || 'sin-numero';
+      if (!groups[normPhone]) {
+        groups[normPhone] = {
+          normPhone: normPhone,
+          phone: item.phone,
+          name: item.name,
+          visitsCount: 0,
+          latestAt: item.createdAt,
+          items: [],
+          allIds: []
+        };
+      }
+      const g = groups[normPhone];
+      g.visitsCount += 1;
+      g.allIds.push(item.id);
+      // El nombre más reciente o completo
+      if (item.name && item.name.length >= g.name.length) g.name = item.name;
+      if (new Date(item.createdAt) > new Date(g.latestAt)) g.latestAt = item.createdAt;
+
+      // Guardar productos únicos o visitas
+      g.items.push({
+        id: item.id,
+        productName: item.productName || 'Producto',
+        productPrice: item.productPrice,
+        date: item.createdAt
+      });
+    });
+
+    return Object.values(groups).sort((a, b) => new Date(b.latestAt) - new Date(a.latestAt));
+  }
+
+  // Renderizar la vista de "Interesados" en el Panel de Administrador (Agrupada por teléfono)
   function renderAdminLeads() {
-    const leads = state.admin.leads || getLocalLeads();
+    const grouped = getGroupedLeads();
+    const totalEntries = (state.admin.leads || getLocalLeads()).length;
     $('adminContent').innerHTML = `
-      ${adminPageHead('Ventas & Oportunidades', 'Interesados', `${leads.length} personas interesadas pendientes de cierre`, '')}
+      ${adminPageHead('Ventas & Oportunidades', 'Interesados', `${grouped.length} personas interesadas (${totalEntries} intentos de compra registrados)`, '')}
       ${customerAdminTabs('leads')}
       <div class="customer-summary-strip" style="margin-bottom: 24px;">
         <div>
           <span class="stat-icon blue"><svg><use href="#i-customers"></use></svg></span>
-          <p><b>${leads.length}</b><small>Interesados activos</small></p>
+          <p><b>${grouped.length}</b><small>Contactos agrupados</small></p>
         </div>
         <div>
           <span class="stat-icon green"><svg><use href="#i-whatsapp"></use></svg></span>
-          <p><b>WhatsApp</b><small>Contacto directo en 1 clic</small></p>
+          <p><b>${grouped.filter(g => g.visitsCount > 1).length}</b><small>Interesados recurrentes</small></p>
         </div>
         <div>
           <span class="stat-icon gold"><svg><use href="#i-check"></use></svg></span>
-          <p><b>1 Clic</b><small>Pasa directo a Clientes</small></p>
+          <p><b>1 Clic</b><small>Cierre y pase a Clientes</small></p>
         </div>
       </div>
       <div class="customer-grid" id="leadsGrid"></div>
     `;
 
     const target = $('leadsGrid');
-    if (!leads.length) {
+    if (!grouped.length) {
       target.innerHTML = `
         <div class="admin-panel customer-empty" style="grid-column: 1 / -1;">
           <div class="admin-empty">
             <span>✨</span>
             <h3>No hay interesados pendientes</h3>
-            <p>Cada vez que un cliente nuevo intente comprar por primera vez, acá aparecerá su nombre, teléfono y producto de interés para que cierres la venta por WhatsApp.</p>
+            <p>Cada vez que un cliente nuevo intente comprar por primera vez, acá aparecerá su nombre, teléfono y producto de interés agrupado para que cierres la venta por WhatsApp.</p>
           </div>
         </div>
       `;
       return;
     }
 
-    target.innerHTML = leads.map(l => {
-      const initials = customerInitials(l.name);
-      const dateStr = new Date(l.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-      const phoneDigits = customerPhoneNumber(l.phone);
-      const firstName = l.name.trim().split(/\s+/)[0];
-      const prodText = l.productName ? `el producto ${l.productName}` : 'tus productos';
-      const waMsg = encodeURIComponent(`Hola ${firstName}! Te escribo de ${state.settings.brandName || 'la tienda'} porque vi que te interesó ${prodText}. ¿Te gustaría que te ayude a coordinar el envío o despejar alguna duda?`);
-      const waUrl = phoneDigits ? `https://wa.me/${phoneDigits}?text=${waMsg}` : '#';
+    target.innerHTML = grouped.map(g => {
+      const initials = customerInitials(g.name);
+      const dateStr = new Date(g.latestAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+      const phoneDigits = customerPhoneNumber(g.phone);
+      const firstName = g.name.trim().split(/\s+/)[0];
+      
+      const isVip = g.visitsCount >= 3;
+      const isRecurrent = g.visitsCount > 1;
+      const badgeText = isVip ? `🔥 Entró ${g.visitsCount} veces (Muy Interesado)` : (isRecurrent ? `👀 Entró ${g.visitsCount} veces` : 'Nueva oportunidad');
+      const badgeClass = isVip ? 'lead-badge vip' : (isRecurrent ? 'lead-badge recurrent' : 'lead-badge');
+
+      // Texto de WhatsApp adaptado según si es recurrente (ofrecer descuento o beneficio)
+      const lastProd = g.items[0] || {};
+      const prodText = lastProd.productName ? `el producto ${lastProd.productName}` : 'nuestros productos';
+      let waMessage = `Hola ${firstName}! Te escribo de ${state.settings.brandName || 'la tienda'} porque vi que te interesó ${prodText}. ¿Te gustaría que te ayude a coordinar el envío o despejar alguna duda?`;
+      if (isRecurrent) {
+        waMessage = `Hola ${firstName}! Te escribo de ${state.settings.brandName || 'la tienda'}. Notamos que estuviste mirando ${prodText} en varias ocasiones y queremos ofrecerte una atención especial para que puedas concretar tu compra hoy. ¿Te interesaría?`;
+      }
+      const waUrl = phoneDigits ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(waMessage)}` : '#';
+
+      const historyHtml = g.items.map(it => {
+        const hDate = new Date(it.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="lead-history-item">
+            <span><b>${esc(it.productName)}</b> ${it.productPrice ? `<small style="color:#0284c7;font-weight:700;">(${formatMoney(it.productPrice)})</small>` : ''}</span>
+            <small style="color:#64748b;">${hDate}</small>
+          </div>
+        `;
+      }).join('');
+
+      const encodedNormPhone = encodeURIComponent(g.normPhone);
 
       return `
         <article class="lead-card">
@@ -9458,31 +9559,32 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
               <div class="lead-user">
                 <span class="lead-avatar">${esc(initials)}</span>
                 <div>
-                  <h3 style="font-size: 1.05rem; margin: 0; color: #0f172a;">${esc(l.name)}</h3>
-                  <p style="margin: 3px 0 0; font-size: 0.85rem; color: #64748b;"><svg style="width:13px;height:13px;vertical-align:middle;margin-right:4px;"><use href="#i-phone"></use></svg>${esc(l.phone)}</p>
+                  <h3 style="font-size: 1.05rem; margin: 0; color: #0f172a;">${esc(g.name)}</h3>
+                  <p style="margin: 3px 0 0; font-size: 0.85rem; color: #64748b;"><svg style="width:13px;height:13px;vertical-align:middle;margin-right:4px;"><use href="#i-phone"></use></svg>${esc(g.phone)}</p>
                 </div>
               </div>
-              <span class="lead-badge">Oportunidad</span>
+              <span class="${badgeClass}">${badgeText}</span>
             </div>
+            
             <div style="margin-top: 14px;">
-              <div class="lead-prod-box">
-                <small style="color: #64748b; font-size: 0.72rem; text-transform: uppercase; font-weight: 700;">Producto que quiso comprar:</small>
-                <b>${esc(l.productName || 'Varios productos')}</b>
-                ${l.productPrice ? `<span style="color:#0284c7;font-weight:700;">${formatMoney(l.productPrice)}</span>` : ''}
+              <small style="color: #64748b; font-size: 0.72rem; text-transform: uppercase; font-weight: 700;">Productos consultados (${g.items.length}):</small>
+              <div class="lead-history-list">
+                ${historyHtml}
               </div>
-              <div style="margin-top: 6px; font-size: 0.74rem; color: #94a3b8; text-align: right;">
-                Interesado: ${dateStr}
+              <div style="margin-top: 8px; font-size: 0.74rem; color: #94a3b8; text-align: right;">
+                Última visita: ${dateStr}
               </div>
             </div>
           </div>
+          
           <div class="lead-actions">
             <a class="lead-btn-wa" href="${waUrl}" target="_blank" rel="noopener">
-              <svg style="width:16px;height:16px;fill:currentColor;"><use href="#i-whatsapp"></use></svg> Chatear por WhatsApp
+              <svg style="width:16px;height:16px;fill:currentColor;"><use href="#i-whatsapp"></use></svg> ${isRecurrent ? 'Ofrecer Beneficio WhatsApp' : 'Chatear por WhatsApp'}
             </a>
-            <button type="button" class="lead-btn-convert" onclick="convertLeadToCustomer('${esc(l.id)}')">
+            <button type="button" class="lead-btn-convert" onclick="convertGroupedLeadToCustomer('${encodedNormPhone}')">
               <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;"><path d="M20 6L9 17l-5-5"/></svg> ¡Venta Concretada!
             </button>
-            <button type="button" class="lead-btn-delete" onclick="deleteLead('${esc(l.id)}')" title="Descartar">
+            <button type="button" class="lead-btn-delete" onclick="deleteGroupedLead('${encodedNormPhone}')" title="Descartar todos los registros de este número">
               <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><use href="#i-trash"></use></svg>
             </button>
           </div>
@@ -9490,6 +9592,63 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       `;
     }).join('');
   }
+
+  // Convertir grupo de interesados a Cliente oficial
+  async function convertGroupedLeadToCustomer(encodedNormPhone) {
+    const normPhone = decodeURIComponent(encodedNormPhone);
+    const grouped = getGroupedLeads();
+    const g = grouped.find(item => item.normPhone === normPhone);
+    if (!g) return;
+
+    try {
+      // 1. Guardar cliente
+      const customerPayload = {
+        fullName: g.name,
+        phone: g.phone,
+        business: '',
+        address: '',
+        origin: g.visitsCount > 1 ? `interesado_recurrente_${g.visitsCount}_visitas` : 'interesado_cerrado'
+      };
+      await api('/api/admin/customers', { admin: true, method: 'POST', body: JSON.stringify(customerPayload) }).catch(() => {});
+
+      // 2. Sumar compra de los productos consultados
+      const customersRes = await api('/api/admin/customers', { admin: true }).catch(() => ({ customers: [] }));
+      const newCust = (customersRes.customers || []).find(c => customerPhoneNumber(c.phone) === customerPhoneNumber(g.phone));
+      if (newCust && g.items.length) {
+        const totalAmount = g.items.reduce((s, it) => s + (Number(it.productPrice) || 0), 0);
+        const prodSummary = g.items.map(it => it.productName).filter(Boolean).join(' + ');
+        await api(`/api/admin/customers/${encodeURIComponent(newCust.id)}/purchases`, {
+          admin: true,
+          method: 'POST',
+          body: JSON.stringify({
+            date: new Date().toISOString().slice(0, 10),
+            amount: totalAmount,
+            description: `${prodSummary} (Cerrado por WhatsApp tras ${g.visitsCount} visitas)`
+          })
+        }).catch(() => {});
+      }
+
+      // 3. Eliminar todos los registros de este teléfono de la lista de interesados
+      await deleteGroupedLead(encodedNormPhone, false);
+      toast('¡Venta concretada!', `${g.name} se transfirió a Clientes con ${g.visitsCount} visitas registradas.`);
+      setAdminTab('customers');
+    } catch(err) {
+      toast('Error al concretar', err.message, 'error');
+    }
+  }
+
+  async function deleteGroupedLead(encodedNormPhone, showToast = true) {
+    const normPhone = decodeURIComponent(encodedNormPhone);
+    let leads = state.admin.leads || getLocalLeads();
+    const removedCount = leads.filter(l => (customerPhoneNumber(l.phone) || String(l.phone).replace(/\D/g, '')) === normPhone).length;
+    leads = leads.filter(l => (customerPhoneNumber(l.phone) || String(l.phone).replace(/\D/g, '')) !== normPhone);
+    state.admin.leads = leads;
+    saveLocalLeads(leads);
+    updateLeadsBadge();
+    if (showToast) toast('Interesado descartado', `${removedCount} registros eliminados.`);
+    if (state.admin.tab === 'leads') renderAdminLeads();
+  }
+
 
   // Convertir interesado en cliente oficial tras cerrar la venta:
   async function convertLeadToCustomer(leadId) {
