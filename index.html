@@ -3964,6 +3964,53 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   }
 </style>
 
+
+<style id="white-text-shadows-v77">
+  /* ============================================================
+     SOMBREADO Y RELIEVE ÓPTICO PARA LETRAS Y NÚMEROS BLANCOS (v77)
+     ============================================================ */
+
+  /* 1. Grandes títulos y números blancos sobre fondo celeste (#B2DBF1) */
+  .tf-display,
+  .tf-what-title,
+  .tf-what-title span,
+  .tf-band strong,
+  [data-content="tchWhat1"],
+  [data-content="tchWhat2"],
+  [data-content="tchWhat3"],
+  [data-content="tchN1"],
+  [data-content="tchN2"],
+  [data-content="tchN3"] {
+    text-shadow: 0 2px 10px rgba(15, 23, 42, 0.22), 0 1px 3px rgba(15, 23, 42, 0.35) !important;
+  }
+
+  /* 2. Badges y contadores con números y letras blancas (Carrito, Notificaciones) */
+  #tfCartCount,
+  #cartCount,
+  .flying-cart-dot,
+  .product-badge.low,
+  .product-badge.sold,
+  .button-dark,
+  .tf-dock-add-btn,
+  .lead-badge.converted,
+  .lead-btn-convert,
+  .btn-primary,
+  .modal-add {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  /* 3. Textos blancos sobre imágenes, overlays, hero o botones */
+  .quick-view,
+  .tf-dock-quick-view,
+  .editorial-copy,
+  .editorial-copy h2,
+  .editorial-copy p,
+  .popups-badge,
+  .footer-bottom-left > span [data-brand] {
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+  }
+</style>
+
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
@@ -4452,7 +4499,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v76</span>
+          <span>v77</span>
         </div>
       </div>
     </footer>
