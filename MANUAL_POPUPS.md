@@ -13,7 +13,7 @@ POPUPS es una plataforma de software e infraestructura para vender tiendas web a
   `https://somospopups.github.io/Mi-Tienda/?tienda=<identificador-del-cliente>`
 - La vidriera de cada cliente se **diseña y personaliza a medida** en conjunto con él.
 - El cliente tiene autonomía total para gestionar sus productos, precios, fotos, pedidos y cobros desde su propio panel administrativo (`#admin`).
-- El desarrollador (POPUPS) tiene control centralizado a través de su **Super Admin Secreto** (clave hasheada, no va en el manual).
+- El desarrollador (POPUPS) tiene control centralizado a través de su **Super Admin Secreto** (`Ger899339`).
 
 ---
 
@@ -43,14 +43,15 @@ Bajo ninguna circunstancia ni actualización se deben alterar o romper estos 3 p
   - Fotografía institucional de arquitectura/oficinas modernas en el lateral derecho con la premisa:  
     *"Todo tu negocio en orden. Decisiones con claridad."*
 - **Ingreso del Dueño del Comercio**:
-  - En la **demo local** (sin `?tienda=`): clave universal inicial **`1234`**; al ingresar, el sistema despliega el popup para que configure su clave personal.
-  - En una **tienda real** (`?tienda=…`): el dueño entra con su **Clave de acceso** que le entregó POPUPS. El login se valida SIEMPRE contra la nube (Supabase); no hay acceso offline al panel.
-- **Panel Maestro de Desarrollador / Super Admin**:
-  - Acceso con la clave de desarrollador de POPUPS (guardada como hash, no en texto).
+  - Clave universal inicial por defecto: **`1234`**.
+  - Al ingresar con `1234`, el sistema despliega el popup para que configure su clave personal definitiva.
+  - La sesión administrativa opera con token local (`offline-admin-token`), permitiendo gestión total sin depender de la nube de Supabase.
+- **Panel Maestro de Desarrollador / Super Admin (`Ger899339`)**:
+  - Acceso escribiendo `Ger899339` en la casilla de clave.
   - Tabla de control de tiendas: Nombre del Comercio, Nombre del Titular, Frente asignado (exclusivo para el desarrollador, oculto del cliente), Fecha de Vencimiento, Estado (activa/suspendida), Clave elegida por el cliente (modo solo lectura), botón para **Blanquear** la clave a `1234`, botón directo a WhatsApp del titular y botón para copiar el enlace de la tienda.
   - Guardado rápido fila por fila con el botón de tilde (`✓`).
-- **Clave Maestra Universal (POPUPS)**:
-  - Una clave única de POPUPS permite ingresar a cualquier tienda. Se compara por hash (SHA-256 en el frontend, bcrypt en Supabase) — no está en texto en el código ni en el manual.
+- **Clave Maestra Universal**:
+  - **`Ger13811`** permite ingresar directo como administrador en cualquier tienda sin restricciones.
 
 ---
 
@@ -82,7 +83,8 @@ El usuario tiene un método de publicación automatizado, simple y cómodo en Wi
 ## 4. Guía para Diseñar una Nueva Vidriera con un Cliente
 
 Cuando se venda una página a un nuevo comercio:
-1. **Crear la tienda en el Super Admin** (ingresando con la clave de desarrollador de POPUPS):
+1. **Crear la tienda en el Super Admin (`Ger899339`)**:
+   - Ingresar con `Ger899339`.
    - Asignar Nombre del comercio, Titular, WhatsApp, Slug (ej: `calzados-cordoba`) y fecha de abono.
    - La clave se asigna automáticamente en `1234`.
 2. **Definir el Frente de Tienda (`storefront`)**:

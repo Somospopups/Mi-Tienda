@@ -91,14 +91,7 @@ sincronizar se preservan y reintentan al recargar. Desde v0.14.0 se cubre el **c
 página** ([`tests/page-builder.spec.js`](tests/page-builder.spec.js)): panel de bloques y
 complementos, home armado que reemplaza al clásico, catálogo a demanda, edición de propiedades,
 reordenar/duplicar/eliminar, compra desde la página y geometría de los cajones, más la
-sincronización del bloque con `api_save_cfg`. Los **frentes de tienda** se cubren en
-[`tests/fronts.spec.js`](tests/fronts.spec.js) (Boutique por defecto + visibilidad de los otros)
-y [`tests/tech-front.spec.js`](tests/tech-front.spec.js) (v0.17: selector de modos, elección de
-Tienda, Modo Tech en iframe con catálogo inyectado y compra desde ahí, detalle en el padre y
-regresión en luma; v0.18: FAB al lado de WhatsApp, edición de textos y fotos de la landing y
-"Terminar" al panel). El frente TECH y el motor de sync en tiempo real se cubren en
-[`tests/front-tech.spec.js`](tests/front-tech.spec.js). Desde v0.20 la **nube caída con `?tienda=`** se cubre en
-[`tests/cloud-down.spec.js`](tests/cloud-down.spec.js): se avisa y no se sirve la demo local.
+sincronización del bloque con `api_save_cfg`.
 CI en `.github/workflows/ci.yml`.
 
 ## Estado / límites conocidos
@@ -111,8 +104,6 @@ CI en `.github/workflows/ci.yml`.
 - `EventSource` está anulado a propósito (el "live pill" del panel es decorativo hasta conectar SSE/Realtime real).
 - **v0.14 · Página personalizada**: cuando el dueño arma bloques, su home reemplaza al clásico y al catálogo; el menú "Novedades" y "Manifiesto" siguen apuntando a secciones del hogar clásico, que quedan ocultas (el catálogo se abre bien desde el menú y desde los botones `#coleccion`). Borrar todos los bloques devuelve el home clásico. Pendiente para una versión siguiente: ofrecer esas dos secciones como complementos.
 - **v0.15 · Fotos de fondo y peso**: los fondos y las fotos de cabecera se comprimen a ~300 KB (son decorativos) y antes de guardar se revisa el peso: si la página pasa el tope de 3 MB del contenido se achican las fotos más grandes en lugar de guardar el JSON recortado. El límite real por página es de **2,6 MB**; con muchas fotos de fondo conviene usar imágenes de 1400 px o menos.
-- **v0.19 · Clave maestra**: en la demo (`/#admin`) la maestra ya funciona; en la nube falta **aplicar [`supabase/master-key.sql`](supabase/master-key.sql)** en el SQL Editor de Supabase (1 minuto). Hasta entonces, en una tienda cloud la maestra sigue respondiendo "Clave incorrecta".
-- **v0.20 · Nube caída**: con `?tienda=`, si Supabase no responde, la tienda ya **no cae en silencio a la demo local** — se corta con un aviso claro ("Sin conexión con la nube"), una pastilla fija y, en el panel, un banner de cambios sin sincronizar con "Reintentar ahora". La demo local sigue existiendo únicamente sin `?tienda=`. La pastilla no reemplaza un diagnóstico de red: si el dueño la ve seguido, el problema es la conexión de su equipo (o el proyecto de Supabase), no la tienda.
 
 ## Licencia / contacto
 
