@@ -5099,7 +5099,7 @@ img{display:block;max-width:100%}
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v79</span>
+          <span>v80</span>
         </div>
       </div>
     </footer>
@@ -7308,7 +7308,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   // ---- v0.9 · Frentes de tienda: mismo admin, distinta vidriera pública ----
-  const MT_FRONTS = { luma: 'Boutique · Editorial', ofertas: 'Ofertas · Consumo', gamer: 'Gamer · Hardware', libre: 'Libre · Constructor', tech: 'Tech · Accesorios y servicio' };
+  const MT_FRONTS = { luma: 'Boutique · Editorial', ofertas: 'Ofertas · Consumo', gamer: 'Gamer · Hardware', libre: 'Libre · Constructor', tech: 'Tech · Accesorios y servicio', actitud: 'Actitud · Retro Moderno' };
   function currentFront() {
     try {
       const params = new URLSearchParams(location.search);
@@ -7316,19 +7316,18 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       if (frontParam && MT_FRONTS[frontParam]) return frontParam;
       
       const slug = (params.get('tienda') || '').trim().toLowerCase();
-      if ((slug === 'ezepece' || slug === 'eze-pece')) return 'tech';
 
-      // Consultar registro de la consola
+      // Consultar registro de la consola (Super Admin)
       const rawConsole = localStorage.getItem('popups_console_v1');
       if (rawConsole) {
         const consoleData = JSON.parse(rawConsole);
         const list = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
-        const item = list.find((c) => c.id === slug);
+        const item = list.find((c) => c.id === slug || (slug === 'ezepece' && c.id === 'eze-pece') || (slug === 'eze-pece' && c.id === 'ezepece'));
         if (item && item.storefront && MT_FRONTS[item.storefront]) return item.storefront;
       }
     } catch (_) {}
     const value = state.settings.storefront;
-    return MT_FRONTS[value] ? value : (mtSlug() === 'ezepece' ? 'tech' : 'tech');
+    return MT_FRONTS[value] ? value : 'tech';
   }
   
   // ============================================================
@@ -7459,14 +7458,19 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   }
 
   function applyStorefront() {
-    document.body.dataset.front = currentFront();
-    $('frontOfertas')?.toggleAttribute('hidden', currentFront() !== 'ofertas');
-    $('frontGamer')?.toggleAttribute('hidden', currentFront() !== 'gamer');
-    $('frontTech')?.toggleAttribute('hidden', currentFront() !== 'tech');
-    $('frontTechTail')?.toggleAttribute('hidden', currentFront() !== 'tech');
-    $('frontActitud')?.toggleAttribute('hidden', currentFront() !== 'actitud');
+    const front = currentFront();
+    document.body.dataset.front = front;
+    document.documentElement.dataset.front = front;
+    $('frontOfertas')?.toggleAttribute('hidden', front !== 'ofertas');
+    $('frontGamer')?.toggleAttribute('hidden', front !== 'gamer');
+    $('frontTech')?.toggleAttribute('hidden', front !== 'tech');
+    $('frontTechTail')?.toggleAttribute('hidden', front !== 'tech');
+    $('frontActitud')?.toggleAttribute('hidden', front !== 'actitud');
     blApplyHome();
     renderFrontExtras();
+    if (front === 'actitud') {
+      setTimeout(initActitudInteractions, 50);
+    }
   }
   function frontCategoryIcon(category) {
     const key = (category || '').toLocaleLowerCase('es');
@@ -8939,7 +8943,18 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         if (item) {
           item.storefront = frontSel.value;
           saveConsoleData(data);
-          toast('Frente Actualizado', `Frente de ${item.name} cambiado a ${item.storefront}.`);
+
+          // Sincronizar también con la tienda activa
+          state.settings.storefront = frontSel.value;
+          try {
+            const st = readStore();
+            st.settings.storefront = frontSel.value;
+            writeStore(st);
+          } catch (_) {}
+
+          // Aplicar inmediatamente el cambio en pantalla
+          applyStorefront();
+          toast('Frente Actualizado', `¡Vidriera cambiada a ${frontSel.value.toUpperCase()} con éxito!`);
         }
         return;
       }
