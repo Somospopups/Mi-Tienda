@@ -2934,6 +2934,138 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     box-shadow: 0 0 10px #38bdf8;
   }
 </style>
+
+<style id="tf-slide-animation-engine">
+  /* ============================================================
+     ANIMACIÓN SLIDE IZQUIERDA + PRODUCTOS A LA DERECHA (v68)
+     ============================================================ */
+
+  .tf-split-view {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  .tf-card-docked-left {
+    flex: 0 0 clamp(280px, 30vw, 340px) !important;
+    position: sticky !important;
+    top: 80px !important;
+    animation: tfSlideToLeft 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    cursor: default !important;
+  }
+
+  @keyframes tfSlideToLeft {
+    from {
+      opacity: 0.4;
+      transform: translateX(45px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .tf-products-dock-right {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 20px;
+  }
+
+  .tf-dock-product {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 22px;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 12px 30px -8px rgba(2, 60, 100, 0.12);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    opacity: 0;
+    transform: translateX(40px);
+    animation: tfRevealProductRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .tf-dock-product:hover {
+    transform: translateY(-5px) scale(1.015);
+    box-shadow: 0 20px 45px -10px rgba(2, 60, 100, 0.22);
+  }
+
+  @keyframes tfRevealProductRight {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .tf-dock-product h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px;
+  }
+
+  .tf-dock-product .tf-dock-price {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0284c7;
+    margin-bottom: 14px;
+  }
+
+  .tf-dock-product .tf-dock-btn {
+    background: #1e293b;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .tf-dock-product .tf-dock-btn:hover {
+    background: #0284c7;
+    transform: translateY(-1px);
+  }
+
+  .tf-dock-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid #ffffff;
+    color: #0284c7;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 14px rgba(2, 60, 100, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .tf-dock-back-btn:hover {
+    background: #ffffff;
+    color: #0369a1;
+    transform: translateX(-3px);
+  }
+
+  @media (max-width: 768px) {
+    .tf-split-view { flex-direction: column; }
+    .tf-card-docked-left { flex: 0 0 100% !important; width: 100% !important; position: relative !important; top: 0 !important; }
+  }
+</style>
+
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
@@ -3190,25 +3322,25 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <span class="tf-ic"><svg viewBox="0 0 24 24"><rect x="7" y="2.2" width="10" height="19.6" rx="2.6"/><line x1="10.7" y1="18.6" x2="13.3" y2="18.6"/></svg></span>
           <h3 data-content="tchC1T"></h3>
           <p data-content="tchC1D"></p>
-          <span class="tf-more"><span data-content="tchCardCta"></span> &rarr;</span>
+          
         </button>
         <button class="tf-card tf-rv" type="button" data-tf-cat="audio">
           <span class="tf-ic"><svg viewBox="0 0 24 24"><path d="M4.2 14.6v-2.4a7.8 7.8 0 0 1 15.6 0v2.4"/><rect x="2" y="12.6" width="4.6" height="7.4" rx="2.3"/><rect x="17.4" y="12.6" width="4.6" height="7.4" rx="2.3"/></svg></span>
           <h3 data-content="tchC2T"></h3>
           <p data-content="tchC2D"></p>
-          <span class="tf-more"><span data-content="tchCardCta"></span> &rarr;</span>
+          
         </button>
         <button class="tf-card tf-rv" type="button" data-tf-cat="cargadores">
           <span class="tf-ic"><svg viewBox="0 0 24 24"><path d="M9 2.4v4.2M15 2.4v4.2"/><path d="M5.8 6.6h12.4v4.2a6.2 6.2 0 0 1-12.4 0Z"/><path d="M12 17v4.6"/></svg></span>
           <h3 data-content="tchC3T"></h3>
           <p data-content="tchC3D"></p>
-          <span class="tf-more"><span data-content="tchCardCta"></span> &rarr;</span>
+          
         </button>
         <button class="tf-card tf-rv" type="button" data-tf-cat="pcmac">
           <span class="tf-ic"><svg viewBox="0 0 24 24"><rect x="3.4" y="4.6" width="17.2" height="11.4" rx="1.8"/><path d="M1.6 19.4h20.8"/></svg></span>
           <h3 data-content="tchC4T"></h3>
           <p data-content="tchC4D"></p>
-          <span class="tf-more"><span data-content="tchCardCta"></span> &rarr;</span>
+          
         </button>
             </div>
           </div>
@@ -3422,7 +3554,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v67</span>
+          <span>v68</span>
         </div>
       </div>
     </footer>
@@ -5808,6 +5940,93 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     if (!target) return false;
     return state.products.some((p) => String(p.category || '').trim().toLocaleLowerCase('es') === target);
   }
+  
+  let tfOriginalCardsHtml = null;
+
+  function tfOpenCategorySlide(catKey, clickedCard) {
+    const container = document.getElementById('tfCards');
+    if (!container) return;
+    if (!tfOriginalCardsHtml) tfOriginalCardsHtml = container.innerHTML;
+
+    const title = clickedCard.querySelector('h3')?.textContent || tfLabel(catKey);
+    const desc = clickedCard.querySelector('p')?.textContent || '';
+    const iconHtml = clickedCard.querySelector('.tf-ic')?.outerHTML || '';
+
+    // Obtener productos de esta categoría desde el catálogo real
+    const targetLabel = tfLabel(catKey);
+    let items = (state && state.products) ? state.products.filter(p => {
+      if (!p || p.active === false) return false;
+      const c = String(p.category || '').toLowerCase();
+      return c.includes(catKey.toLowerCase()) || c.includes(targetLabel.toLowerCase());
+    }) : [];
+
+    // Fallback de demostración con productos limpios si todavía no cargaron productos de esta categoría
+    if (!items.length) {
+      if (catKey === 'fundas') {
+        items = [
+          { id: 'f-1', name: 'Funda Clear Case con MagSafe', price: 18500 },
+          { id: 'f-2', name: 'Vidrio Templado 9H Antiespía', price: 8900 },
+          { id: 'f-3', name: 'Funda Silicone Suave Antigolpe', price: 15200 }
+        ];
+      } else if (catKey === 'audio') {
+        items = [
+          { id: 'a-1', name: 'Auriculares In-Ear True Wireless', price: 34900 },
+          { id: 'a-2', name: 'Auriculares Vincha Cancelación de Ruido', price: 68000 },
+          { id: 'a-3', name: 'Parlante Bluetooth Portátil', price: 42000 }
+        ];
+      } else if (catKey === 'cargadores') {
+        items = [
+          { id: 'c-1', name: 'Fuente Carga Rápida USB-C 20 W', price: 16900 },
+          { id: 'c-2', name: 'Cable USB-C a Lightning Reforzado 2 m', price: 12500 },
+          { id: 'c-3', name: 'Cargador Rápido GaN 65 W Multi-puerto', price: 36000 }
+        ];
+      } else {
+        items = [
+          { id: 'p-1', name: 'Hub USB-C 7 en 1 con HDMI 4K', price: 32500 },
+          { id: 'p-2', name: 'Soporte Ergonómico para Notebook', price: 18000 },
+          { id: 'p-3', name: 'Mouse Inalámbrico Silencioso', price: 21500 }
+        ];
+      }
+    }
+
+    const itemsHtml = items.map((it, idx) => {
+      const delay = (idx * 0.07 + 0.05).toFixed(2);
+      return `
+        <div class="tf-dock-product" style="animation-delay: ${delay}s">
+          <div>
+            <h4>${it.name}</h4>
+            <div class="tf-dock-price">$ ${Number(it.price).toLocaleString('es-AR')}</div>
+          </div>
+          <button type="button" class="tf-dock-btn" onclick="addToCart('${it.id}')">Agregar al carrito</button>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div style="width: 100%;">
+        <button type="button" class="tf-dock-back-btn" id="tfDockBackBtn">
+          &larr; Volver a las categorías
+        </button>
+        <div class="tf-split-view">
+          <div class="tf-card tf-card-docked-left">
+            ${iconHtml}
+            <h3>${title}</h3>
+            <p>${desc}</p>
+          </div>
+          <div class="tf-products-dock-right">
+            ${itemsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('tfDockBackBtn')?.addEventListener('click', () => {
+      container.innerHTML = tfOriginalCardsHtml;
+      // Scroll suave a la sección
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+
   function tfShow(key) {
     if (!TF_SHOTS[key] && key !== 'todo') return;
     const shots = $('tfShots');
@@ -6142,7 +6361,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
           return;
         }
         const cat = event.target.closest('[data-tf-cat]');
-        if (cat) { event.preventDefault(); tfShow(cat.dataset.tfCat); }
+        if (cat) {
+          event.preventDefault();
+          tfShow(cat.dataset.tfCat);
+          if (cat.classList.contains('tf-card')) {
+            tfOpenCategorySlide(cat.dataset.tfCat, cat);
+          }
+        }
       });
       $('frontTechTail')?.addEventListener('click', (event) => {
         if (event.target.closest('[data-tf-wa]')) { event.preventDefault(); tfWhatsApp(); }
