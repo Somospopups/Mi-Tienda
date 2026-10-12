@@ -1849,7 +1849,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
 
 
   /* ==================================================== */
-  /* ESTILOS DEL PANEL SECRETO SUPER ADMIN (Ger899339)    */
+  /* ESTILOS DEL PANEL SECRETO SUPER ADMIN (clave hasheada)  */
   /* ==================================================== */
   .super-admin-card {
     width: min(96vw, 1080px) !important;
@@ -3126,7 +3126,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v64</span>
+          <span>v65</span>
         </div>
       </div>
     </footer>
@@ -3284,7 +3284,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
   
   <!-- ========================================== -->
   <!-- PANEL DE SUPER ADMIN / PROGRAMADOR POPUPS  -->
-  <!-- Acceso Secreto: Clave Ger899339            -->
+  <!-- Acceso Secreto: clave hasheada (no va en el código) -->
   <!-- ========================================== -->
   <div class="modal-backdrop" id="superAdminBackdrop" style="z-index:99999;" hidden>
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
@@ -3828,13 +3828,23 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   /* v0.19 · Clave maestra POPUPS: abre el panel de CUALQUIER demo/tienda (en la
      nube la valida supabase/master-key.sql). Se compara por SHA-256 para no
      dejar el texto a la vista en el código. */
-  const MT_MASTER_SHA256 = '5e204f2cba0f107574296041749173fcbfe5791c0735c10dcd0083a7cc1be9a5';
+  const MT_MASTER_SHA256 = '96267c2a75df89fc32304b48d05086d1ce3332f85784e65131bafeb09ffe137e';
   async function mtMasterKeyOk(value) {
     try {
       const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(value == null ? '' : value)));
       return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('') === MT_MASTER_SHA256;
     } catch (_) { return false; }
   }
+  /* Clave Super Admin / Desarrollador POPUPS (abre el Panel Secreto local). */
+  const MT_SUPER_SHA256 = 'f7796b2c18e2649e197e0eba2e1a66b91a95f40b5944f2b4156aaed4b29bd58d';
+  async function mtSuperKeyOk(value) {
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(value == null ? '' : value)));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('') === MT_SUPER_SHA256;
+    } catch (_) { return false; }
+  }
+  window.mtMasterKeyOk = mtMasterKeyOk;
+  window.mtSuperKeyOk = mtSuperKeyOk;
   const barcode = (value) => clean(value, 80).replace(/\s+/g, '');
   const phoneKey = (value) => {
     let digits = clean(value, 50).replace(/\D/g, '').replace(/^0+/, '');
@@ -3883,7 +3893,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         } else if ((slug === 'ezepece' || slug === 'eze-pece')) {
           initial.settings.brandName = 'Eze-pece';
           initial.settings.storefront = 'tech';
-          initial.security.adminPin = 'Ger13811';
+          initial.security.adminPin = '1234';
         } else {
           initial.settings.brandName = urlName || slug.charAt(0).toUpperCase() + slug.slice(1);
           if (urlFront && ['luma', 'ofertas', 'gamer', 'libre', 'tech'].indexOf(urlFront) > -1) {
@@ -4191,7 +4201,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     try {
       var tk = sessionStorage.getItem('luma_admin_token') || '';
       if (tk.indexOf('ck:') === 0) return tk.slice(3);
-      if (tk === 'offline-admin-token') return 'offline-admin-token';
+      // v0.20 · Las sesiones "offline-admin-token" ya no sirven para tiendas nube.
       return '';
     } catch (_) { return ''; }
   }
@@ -4313,35 +4323,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   async function mtOwnerLogin(body) {
     var slug = mtSlug(), key = clean(body.pin || body.key || '', 80);
     if (!key) return error('Ingresá tu Clave de acceso.', 401);
-    if (key === 'Ger13811') {
-      try { sessionStorage.setItem('luma_admin_token', 'ck:' + key); } catch (_) { }
-      var load = await mtAdmLoad();
-      if (!load.ok) {
-        // Si la nube falla con la clave maestra, inicializamos el panel con el estado actual
-        state.admin.token = 'ck:Ger13811';
-        return result({ token: 'ck:Ger13811', expiresIn: 31536000 });
-      }
-      return result({ token: 'ck:' + key, expiresIn: 31536000 });
-    }
-    // Si la tienda es administrada localmente desde el Panel Secreto de POPUPS:
-    var cData = typeof getConsoleData === 'function' ? getConsoleData() : null;
-    var cList = (cData && cData.clients && cData.clients['mi-tienda']) || [];
-    var cStore = cList.find(function(c) { return c.id === slug || (slug === 'eze-pece' && c.id === 'ezepece') || (slug === 'ezepece' && c.id === 'eze-pece'); });
-    if (key === '1234' || key === 'Ger13811' || key === '1905' || (cStore && key === cStore.pin)) {
-      if (cStore && cStore.status === 'suspendida') return error('Tu tienda está suspendida. Regularizá el pago con POPUPS para volver a entrar.', 403);
-      try { sessionStorage.setItem('luma_admin_token', 'offline-admin-token'); } catch (_) { }
-      return result({ token: 'offline-admin-token', expiresIn: 31536000 });
-    }
-
+    // v0.20 · Con ?tienda= el panel SIEMPRE se valida contra la nube. El bypass
+    // offline (1234 / clave maestra → panel local) era la causa raíz de la
+    // desincronización multi-dispositivo: el dueño veía datos locales y creía
+    // que no existían. Todo login de tienda nube pasa por api_panel.
     var d = await mtRpc('api_panel', { p_store: slug, p_key: key });
     if (!d || d.error === 'store_not_found') {
-      // Si no está en Supabase, verificar con el almacenamiento de la tienda
-      var curSt = readStore();
-      if (key === (curSt.security && curSt.security.adminPin) || key === 'Ger13811' || key === '1234') {
-        try { sessionStorage.setItem('luma_admin_token', 'offline-admin-token'); } catch (_) { }
-        return result({ token: 'offline-admin-token', expiresIn: 31536000 });
-      }
-      return error('Clave incorrecta.', 401);
+      return error('No encontramos tu tienda en la nube. Avisale a POPUPS o revisá el enlace.', 404);
     }
     if (d.ok !== true) {
       if (d.error === 'store_suspendida' || d.error === 'store_baja') return error('Tu tienda está suspendida. Regularizá el pago con POPUPS para volver a entrar.', 403);
@@ -4349,6 +4337,9 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         window.__mtCloudDown = true;
         try { mtModePill(); } catch (_) {}
         return error('No pudimos conectar con la nube de POPUPS para validar tu clave. Revisá tu conexión e intentá de nuevo.', 503);
+      }
+      if (d.error === 'bad_key' && await mtMasterKeyOk(key)) {
+        return error('La clave maestra necesita que POPUPS aplique el permiso en la nube de esta tienda (master-key.sql).', 403);
       }
       return error(d.error === 'bad_key' ? 'Clave incorrecta. Revisala o pedí una nueva en POPUPS.' : 'No pudimos validar tu acceso. Revisá tu conexión.', 401);
     }
@@ -4375,8 +4366,11 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     var key = mtAdmKey();
     if (!key) return error('Tu sesión venció. Volvé a entrar con tu Clave de acceso.', 401);
     if (key === 'offline-admin-token') {
-      // Dejar pasar a las rutas locales sin consultar a Supabase cloud
-      return null;
+      // v0.20 · Una tienda nube nunca debe operar con datos locales. Si quedó una
+      // sesión offline (de la demo o de una versión vieja), cortamos y pedimos
+      // volver a entrar con la Clave de acceso para revalidar contra la nube.
+      try { sessionStorage.removeItem('luma_admin_token'); localStorage.removeItem('luma_admin_token'); } catch (_) { }
+      return error('Tu sesión era local. Volvé a entrar con tu Clave de acceso para conectar con la nube.', 401);
     }
     if (path === '/api/admin/security/pin' && method === 'PUT') {
       // v0.7.3 · El dueño cambia su propia Clave de acceso (rpc api_key_change).
@@ -4725,13 +4719,13 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     try {
       const path = url.pathname;
       const cloudSlug = mtSlug();
-      const authHdr = String((options && options.headers && (options.headers.Authorization || options.headers.authorization)) || '');
-      const isOffTk = authHdr.includes('offline-admin-token') || authHdr.includes('Ger13811') || (sessionStorage.getItem('luma_admin_token') === 'offline-admin-token');
 
-      // Rutas de administración offline: procesar de inmediato con el almacenamiento local sin demoras
-      if (path.startsWith('/api/admin/') && isOffTk) {
-        // Pasa directo a las rutas locales abajo
-      } else if (cloudSlug && MT_SU) {
+      // v0.20 · Con ?tienda= (tienda nube) las rutas de administración SIEMPRE
+      // pasan por la nube. El atajo "offline-admin-token → rutas locales" era la
+      // segunda capa de la desincronización: el dueño veía datos locales creyendo
+      // que eran los de la nube. En la demo (sin ?tienda=) se sigue usando el
+      // almacenamiento local de siempre.
+      if (cloudSlug && MT_SU) {
         try { if (!window.__mtRetDone && /[?&](collection_status|status)=/.test(location.search)) { window.__mtRetDone = 1; mtCheckMpReturn(); } } catch (_) {}
         if (path.startsWith('/api/admin/')) {
           const admRes = await mtAdminRoutes(path, method, body);
@@ -4830,7 +4824,7 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
 
       if (path === '/api/admin/login' && method === 'POST') {
         const p = clean(body.pin, 30);
-        const ok = (p === '1234' || p === 'Ger13811' || p === store.security.adminPin);
+        const ok = (p === '1234' || p === store.security.adminPin || await mtMasterKeyOk(p));
         return ok
           ? result({ token: 'offline-admin-token', expiresIn: 31536000 })
           : error('PIN incorrecto.', 401);
@@ -6566,9 +6560,8 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
   
   // ==========================================================
   // LOGICA DEL PANEL SECRETO SUPER ADMIN / PROGRAMADOR
-  // Clave maestra de acceso: Ger899339
+  // La clave se compara por SHA-256 (mtSuperKeyOk); no va en texto.
   // ==========================================================
-  const SUPER_ADMIN_KEY = 'Ger899339';
   const CONSOLE_STORAGE = 'popups_console_v1';
 
   function getConsoleData() {
@@ -6852,170 +6845,141 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
 
   
   // Acceso directo a prueba de fallos para el panel
-  window.directAdminLogin = function(ev) {
+  let mtLoginInFlight = false;
+  window.directAdminLogin = async function(ev) {
     if (ev) {
       try { ev.preventDefault(); ev.stopPropagation(); } catch (_) {}
     }
+    if (mtLoginInFlight) return;
     const form = document.getElementById('loginForm');
     const pinInput = form ? form.elements.pin : document.querySelector('input[name="pin"]');
     const pinVal = String((pinInput && pinInput.value) || '').trim();
     const errEl = document.getElementById('loginError');
     if (errEl) errEl.textContent = '';
+    if (!pinVal) { if (errEl) errEl.textContent = 'Ingresá tu clave.'; if (pinInput) pinInput.select(); return; }
 
-    // 1. Clave de Super Admin / Desarrollador POPUPS
-    if (pinVal === 'Ger899339') {
-      if (form) form.reset();
-      closeAdmin();
-      openSuperAdmin();
-      return;
-    }
-
-    // 2. Clave del Dueño de la Tienda (1234, Ger13811 o clave guardada)
-    let isAccepted = (pinVal === '1234' || pinVal === 'Ger13811' || pinVal === '1905');
+    mtLoginInFlight = true;
     try {
-      const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
-      const sPin = localStorage.getItem('popups_pin_' + slug);
-      if (sPin && pinVal === sPin) isAccepted = true;
-    } catch (_) {}
-
-    if (!isAccepted) {
-      try {
-        const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
-        const cData = (typeof getConsoleData === 'function') ? getConsoleData() : JSON.parse(localStorage.getItem('popups_console_v1') || '{}');
-        const cList = (cData && cData.clients && cData.clients['mi-tienda']) || [];
-        const cStore = cList.find(function(c) {
-          return c.id === slug || (slug === 'eze-pece' && c.id === 'ezepece') || (slug === 'ezepece' && c.id === 'eze-pece');
-        });
-        if (cStore && cStore.pin && pinVal === cStore.pin) isAccepted = true;
-      } catch (_) {}
-    }
-
-    if (isAccepted) {
-      const token = 'offline-admin-token';
-      state.admin.token = token;
-      try {
-        sessionStorage.setItem('luma_admin_token', token);
-        localStorage.setItem('luma_admin_token', token);
-      } catch (_) {}
-      if (form) form.reset();
-
-      // Cambiar visibilidad de pantalla de forma forzada e inmediata
-      const loginDiv = document.getElementById('adminLogin');
-      const shellDiv = document.getElementById('adminShell');
-      const adminApp = document.getElementById('adminApp');
-      const shopApp = document.getElementById('shopApp');
-
-      if (shopApp) shopApp.hidden = true;
-      if (adminApp) {
-        adminApp.hidden = false;
-        adminApp.style.display = 'block';
-      }
-      if (loginDiv) {
-        loginDiv.hidden = true;
-        loginDiv.style.display = 'none';
-      }
-      if (shellDiv) {
-        shellDiv.hidden = false;
-        shellDiv.style.display = 'block';
-      }
-
-      // Renderizar el contenido del panel inmediatamente
-      try {
-        showAdminShell();
-      } catch (err) {
-        console.warn('showAdminShell fallback:', err);
-        try {
-          const storeData = (typeof readStore === 'function') ? readStore() : INITIAL_STORE;
-          const activeOrders = (storeData.orders || []).filter(function(o) { return o.status !== 'cancelled'; });
-          const lowStock = (storeData.products || []).filter(function(p) { return p.active && p.stock <= (p.lowStockAt || 3); });
-          renderAdminDashboard({
-            stats: {
-              products: (storeData.products || []).filter(function(p) { return p.active; }).length,
-              units: (storeData.products || []).reduce(function(sum, p) { return sum + (p.stock || 0); }, 0),
-              lowStock: lowStock.length,
-              orders: activeOrders.length,
-              revenue: 0
-            },
-            lowStock: lowStock,
-            recentOrders: (storeData.orders || []).slice(0, 6)
-          });
-        } catch (_) {}
-      }
-
-      // Si ingresó con la clave inicial 1234, desplegar obligatoriamente el popup para configurar su clave personal
-      if (pinVal === '1234') {
-        const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
-        setTimeout(function() {
-          showFirstLoginPinPrompt(slug);
-        }, 120);
+      // 1. Clave de Super Admin / Desarrollador POPUPS (Panel Secreto local)
+      if (await window.mtSuperKeyOk(pinVal)) {
+        if (form) form.reset();
+        closeAdmin();
+        openSuperAdmin();
         return;
       }
 
-      toast('¡Bienvenido a tu panel!', 'Sesión iniciada correctamente.', 'success');
-      return;
-    }
+      const slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
 
-    if (errEl) errEl.textContent = 'Clave incorrecta. Usá 1234 para ingresar.';
-    if (pinInput) pinInput.select();
+      // 2. Tienda en la nube (?tienda=): el login SIEMPRE se valida contra la nube.
+      //    El bypass offline (1234 → panel local) era la causa raíz de la
+      //    desincronización multi-dispositivo. Todo pasa por /api/admin/login.
+      if (slug) {
+        try {
+          const result = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ pin: pinVal }) });
+          state.admin.token = result.token;
+          try { sessionStorage.setItem('luma_admin_token', result.token); } catch (_) {}
+          if (form) form.reset();
+          showAdminShell();
+          toast('¡Bienvenido a tu panel!', 'Sesión iniciada correctamente.', 'success');
+        } catch (error) {
+          if (errEl) errEl.textContent = error.message || 'No pudimos validar tu acceso. Revisá tu conexión.';
+          if (pinInput) pinInput.select();
+        }
+        return;
+      }
+
+      // 3. Demo local (sin ?tienda=): lógica offline de siempre.
+      let isAccepted = (pinVal === '1234' || await window.mtMasterKeyOk(pinVal));
+      try {
+        const sPin = localStorage.getItem('popups_pin_' + slug);
+        if (sPin && pinVal === sPin) isAccepted = true;
+      } catch (_) {}
+
+      if (!isAccepted) {
+        try {
+          const cData = (typeof getConsoleData === 'function') ? getConsoleData() : JSON.parse(localStorage.getItem('popups_console_v1') || '{}');
+          const cList = (cData && cData.clients && cData.clients['mi-tienda']) || [];
+          const cStore = cList.find(function(c) {
+            return c.id === slug || (slug === 'eze-pece' && c.id === 'ezepece') || (slug === 'ezepece' && c.id === 'eze-pece');
+          });
+          if (cStore && cStore.pin && pinVal === cStore.pin) isAccepted = true;
+        } catch (_) {}
+      }
+
+      if (isAccepted) {
+        const token = 'offline-admin-token';
+        state.admin.token = token;
+        try {
+          sessionStorage.setItem('luma_admin_token', token);
+          localStorage.setItem('luma_admin_token', token);
+        } catch (_) {}
+        if (form) form.reset();
+
+        // Cambiar visibilidad de pantalla de forma forzada e inmediata
+        const loginDiv = document.getElementById('adminLogin');
+        const shellDiv = document.getElementById('adminShell');
+        const adminApp = document.getElementById('adminApp');
+        const shopApp = document.getElementById('shopApp');
+
+        if (shopApp) shopApp.hidden = true;
+        if (adminApp) {
+          adminApp.hidden = false;
+          adminApp.style.display = 'block';
+        }
+        if (loginDiv) {
+          loginDiv.hidden = true;
+          loginDiv.style.display = 'none';
+        }
+        if (shellDiv) {
+          shellDiv.hidden = false;
+          shellDiv.style.display = 'block';
+        }
+
+        // Renderizar el contenido del panel inmediatamente
+        try {
+          showAdminShell();
+        } catch (err) {
+          console.warn('showAdminShell fallback:', err);
+          try {
+            const storeData = (typeof readStore === 'function') ? readStore() : INITIAL_STORE;
+            const activeOrders = (storeData.orders || []).filter(function(o) { return o.status !== 'cancelled'; });
+            const lowStock = (storeData.products || []).filter(function(p) { return p.active && p.stock <= (p.lowStockAt || 3); });
+            renderAdminDashboard({
+              stats: {
+                products: (storeData.products || []).filter(function(p) { return p.active; }).length,
+                units: (storeData.products || []).reduce(function(sum, p) { return sum + (p.stock || 0); }, 0),
+                lowStock: lowStock.length,
+                orders: activeOrders.length,
+                revenue: 0
+              },
+              lowStock: lowStock,
+              recentOrders: (storeData.orders || []).slice(0, 6)
+            });
+          } catch (_) {}
+        }
+
+        // Si ingresó con la clave inicial 1234, desplegar obligatoriamente el popup para configurar su clave personal
+        if (pinVal === '1234') {
+          setTimeout(function() {
+            showFirstLoginPinPrompt(slug);
+          }, 120);
+          return;
+        }
+
+        toast('¡Bienvenido a tu panel!', 'Sesión iniciada correctamente.', 'success');
+        return;
+      }
+
+      if (errEl) errEl.textContent = 'Clave incorrecta. Usá 1234 para ingresar.';
+      if (pinInput) pinInput.select();
+    } finally {
+      mtLoginInFlight = false;
+    }
   };
 
   async function adminLogin(event) {
     if (event) event.preventDefault();
-    const form = $('loginForm');
-    const pinVal = String((form && form.elements.pin && form.elements.pin.value) || '').trim();
-    if ($('loginError')) $('loginError').textContent = '';
-
-    // 1. Clave de Super Admin / Desarrollador (Ger899339)
-    if (pinVal === 'Ger899339') {
-      if (form) form.reset();
-      closeAdmin();
-      openSuperAdmin();
-      return;
-    }
-
-    let slug = '';
-    try {
-      slug = (new URLSearchParams(window.location.search).get('tienda') || '').trim().toLowerCase();
-    } catch (_) {}
-
-    const consoleData = typeof getConsoleData === 'function' ? getConsoleData() : null;
-    const clientList = (consoleData && consoleData.clients && consoleData.clients['mi-tienda']) || [];
-    const clientStore = clientList.find((c) => c.id === slug || (slug === 'eze-pece' && c.id === 'ezepece') || (slug === 'ezepece' && c.id === 'eze-pece'));
-    const localPin = (readStore().security && readStore().security.adminPin);
-    const validStorePin = (clientStore && clientStore.pin) ? clientStore.pin : localPin;
-
-    const isMasterKey = (pinVal === 'Ger13811');
-    const isDefaultInitialPin = (pinVal === '1234');
-    let cloudSyncedPin = null;
-    try { cloudSyncedPin = localStorage.getItem('popups_pin_' + slug) || localStorage.getItem('popups_pin_eze-pece'); } catch(_) {}
-    
-    // Soporte multi-dispositivo y compatibilidad directa para la clave del cliente:
-    const isClientCustomPin = (pinVal === '1905') || (cloudSyncedPin && pinVal === cloudSyncedPin);
-    const isValidStorePin = !!((validStorePin && pinVal === validStorePin) || isClientCustomPin);
-
-    // Entrada directa garantizada al panel del dueño
-    if (isMasterKey || isDefaultInitialPin || isValidStorePin) {
-      const token = 'offline-admin-token';
-      state.admin.token = token;
-      try {
-        sessionStorage.setItem('luma_admin_token', token);
-        localStorage.setItem('luma_admin_token', token);
-      } catch (_) {}
-      if (form) form.reset();
-
-      // Desplegar el panel del dueño de la tienda de forma inmediata
-      const loginDiv = $('adminLogin');
-      const shellDiv = $('adminShell');
-      if (loginDiv) loginDiv.hidden = true;
-      if (shellDiv) shellDiv.hidden = false;
-
-      showAdminShell();
-      toast('¡Bienvenido a tu panel!', 'Sesión iniciada correctamente.', 'success');
-      return;
-    }
-
-    if ($('loginError')) $('loginError').textContent = 'Clave incorrecta. Usá 1234 para ingresar.';
-    if (form && form.elements.pin) form.elements.pin.select();
+    return window.directAdminLogin(event);
   }
 
   function setAdminTab(tab) {

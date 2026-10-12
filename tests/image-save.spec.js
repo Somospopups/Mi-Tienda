@@ -91,7 +91,7 @@ async function enterEditModeCloud(page) {
   await page.goto('/index.html?tienda=prueba#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
   await page.locator('#loginForm input[name="pin"]').fill('clave-dueño-2026');
-  await page.locator('#loginForm button[type="submit"]').click();
+  await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
   await page.locator('#viewStore').click();
   await expect(page.locator('#modeChooserBackdrop')).toBeVisible();

@@ -52,7 +52,7 @@ async function openLogin(page) {
 
 async function tryLogin(page, key) {
   await page.locator('#loginForm input[name="pin"]').fill(key);
-  await page.locator('#loginForm button[type="submit"]').click();
+  await page.locator('#loginForm #btnSubmitLogin').click();
 }
 
 test.describe('Clave maestra POPUPS (v0.19)', () => {

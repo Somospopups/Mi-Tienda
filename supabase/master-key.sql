@@ -37,7 +37,7 @@ returns text
 language sql
 immutable
 as $$
-  select '$2b$12$kRSSMtNJT4XdCqWk7h9gr.V73rbGBf/F0N5Lpn9j0c2rESnP3unT6'::text
+  select '$2a$12$5ogs9UoVp9htqZMIXi0fBu9F1W9mobanAU6rp1FQa0E1JpWTiFw/.'::text
 $$;
 
 -- 2) ¿La clave es válida? (maestra o clave real de la tienda, igual que siempre)

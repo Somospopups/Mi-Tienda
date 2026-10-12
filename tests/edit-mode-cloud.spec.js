@@ -109,7 +109,7 @@ async function enterEditModeCloud(page) {
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('#loginForm').getByText('Clave de acceso (te la dio POPUPS)')).toBeVisible();
   await page.locator('#loginForm input[name="pin"]').fill('clave-dueño-2026');
-  await page.locator('#loginForm button[type="submit"]').click();
+  await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
 
   await page.locator('#viewStore').click();
@@ -233,7 +233,7 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
     });
 
     await page.locator('#loginForm input[name="pin"]').fill('clave-dueño-2026');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
 
     // mtAdmLoad NO pisó el cambio local: se reenvió a la nube (api_save_cfg con el contenido local).
@@ -274,7 +274,7 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
     await page.goto('/index.html?tienda=prueba#admin');
     await expect(page.locator('#loginForm input[name="pin"]')).toBeVisible({ timeout: 20_000 });
     await page.locator('#loginForm input[name="pin"]').fill(key);
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
 
     await page.locator('#viewStore').click();

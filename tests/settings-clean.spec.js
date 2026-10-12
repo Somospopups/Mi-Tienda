@@ -30,7 +30,7 @@ async function loginAdmin(page) {
   await page.goto('/index.html#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
   await page.locator('#loginForm input[name="pin"]').fill('1234');
-  await page.locator('#loginForm button[type="submit"]').click();
+  await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
 

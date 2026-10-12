@@ -23,6 +23,10 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     try { localStorage.clear(); sessionStorage.clear(); } catch (_) { }
   });
+  // Backends de sincronización secundaria (kvdb.io / restful-api.dev): son un
+  // reintento de respaldo no fatal. Los abortamos para que los tests sean
+  // deterministas y no ensucien la consola (abort → net::ERR, ya filtrado).
+  await page.route(/kvdb\.io|restful-api\.dev/, (route) => route.abort('failed'));
   const errors = [];
   page.on('pageerror', (err) => errors.push(String(err)));
   page.on('console', (msg) => {
@@ -93,7 +97,7 @@ test.describe('Nube caída con ?tienda= (v0.20)', () => {
     await page.goto('/index.html?tienda=eze-pece#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
     await page.locator('#loginForm input[name="pin"]').fill('1234');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#loginError')).not.toHaveText('', { timeout: 30_000 });
     await expect(page.locator('#adminShell')).toBeHidden();
     await expectNoPageErrors(page);
@@ -116,7 +120,7 @@ test.describe('Nube caída con ?tienda= (v0.20)', () => {
     await page.goto('/index.html?tienda=eze-pece#admin');
     await expect(page.locator('#loginForm').getByText('Clave de acceso (te la dio POPUPS)')).toBeVisible({ timeout: 20_000 });
     await page.locator('#loginForm input[name="pin"]').fill('clave-eze-2026');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
     await expectNoPageErrors(page);
   });
@@ -126,7 +130,7 @@ test.describe('Nube caída con ?tienda= (v0.20)', () => {
     await page.goto('/index.html?tienda=eze-pece#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
     await page.locator('#loginForm input[name="pin"]').fill('clave-eze-2026');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
 
     // Un cambio quedó en el equipo sin subir (lo que deja el panel cuando una

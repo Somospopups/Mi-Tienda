@@ -118,7 +118,7 @@ async function loginCloud(page, key) {
   // El login se adapta a clave alfanumérica (eso siempre funcionó; lo que estaba roto era el cambio)
   await expect(page.locator('#loginForm').getByText('Clave de acceso (te la dio POPUPS)')).toBeVisible();
   await page.locator('#loginForm input[name="pin"]').fill(key);
-  await page.locator('#loginForm button[type="submit"]').click();
+  await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
   await page.locator('[data-admin-tab="settings"]').click();
   await expect(page.locator('#adminContent .admin-loader')).toHaveCount(0, { timeout: 20_000 });
@@ -243,7 +243,7 @@ test.describe('PIN de la demo offline (sin ?tienda=)', () => {
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
     await page.locator('#loginForm input[name="pin"]').fill('1234');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
     await page.locator('[data-admin-tab="settings"]').click();
     await expect(page.locator('#adminContent .admin-loader')).toHaveCount(0, { timeout: 20_000 });
@@ -266,7 +266,7 @@ test.describe('PIN de la demo offline (sin ?tienda=)', () => {
     await page.locator('#logoutButton').click();
     await expect(page.locator('#adminLogin')).toBeVisible();
     await page.locator('#loginForm input[name="pin"]').fill('4321');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
     await expectNoPageErrors(page);
   });
@@ -282,7 +282,7 @@ test.describe('PIN de la demo offline (sin ?tienda=)', () => {
 
     await page.locator('#logoutButton').click();
     await page.locator('#loginForm input[name="pin"]').fill('1234');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
     await expectNoPageErrors(page);
   });

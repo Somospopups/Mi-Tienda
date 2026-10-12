@@ -111,7 +111,7 @@ test.describe('Panel de administración (demo offline)', () => {
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
     await page.locator('#loginForm input[name="pin"]').fill('1234');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
   }
 
@@ -126,7 +126,7 @@ test.describe('Panel de administración (demo offline)', () => {
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
     await page.locator('#loginForm input[name="pin"]').fill('9999');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#loginError')).not.toHaveText('');
     await expect(page.locator('#adminShell')).toBeHidden();
   });
@@ -171,7 +171,7 @@ test.describe('Panel de administración (demo offline)', () => {
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
     await page.locator('#loginForm input[name="pin"]').fill('1234');
-    await page.locator('#loginForm button[type="submit"]').click();
+    await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible();
     await page.locator('[data-admin-tab="orders"]').click();
     await expect(page.locator('#adminContent').getByText('LU-1001')).toBeVisible({ timeout: 15_000 });
