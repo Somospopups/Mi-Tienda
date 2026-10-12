@@ -2815,6 +2815,125 @@ body.mt-edit-mode #shopApp .mt-edit-active {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px #fff !important;
   }
 </style>
+<style id="all-sky-blue-theme">
+  /* ============================================================
+     FONDO CELESTE INTEGRAL · IDENTIDAD EZE-PECE (#B2DBF1)
+     Permite que el cristal óptico refracte el color real de la marca
+     y que las fotos del Hero se fusionen sin ninguna costura.
+     ============================================================ */
+
+  :root {
+    --tf-sky: #B2DBF1;
+    --tf-bg-deep: #a1d1eb;
+  }
+
+  /* Fondo global del cuerpo y secciones */
+  body, 
+  #shopApp,
+  .tf-front,
+  .tf-sec.tf-white,
+  #tfSecBens,
+  .tf-sec-quotes,
+  .tf-catsec,
+  section[data-tf-sec="service"],
+  section[data-tf-sec="community"],
+  section[data-tf-sec="benefits"] {
+    background: #B2DBF1 !important;
+  }
+
+  /* El Hero flat-lay se funde en 1 sola pieza perfecta con el fondo */
+  .tf-hero {
+    background: #B2DBF1 !important;
+  }
+  .tf-shots-box {
+    background: #B2DBF1 !important;
+    border: none !important;
+    box-shadow: 0 20px 45px -10px rgba(2, 60, 100, 0.15) !important;
+  }
+
+  /* ------------------------------------------------------------
+     LAS 4 TARJETAS DE CATEGORÍAS SOBRE FONDO CELESTE
+     (Ahora el cristal óptico refracta el celeste y el blanco resalta al máximo)
+     ------------------------------------------------------------ */
+  .tf-card {
+    background: rgba(255, 255, 255, 0.58) !important;
+    backdrop-filter: blur(32px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(190%) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    border-top: 2.5px solid #ffffff !important;
+    box-shadow: 
+      0 20px 45px -10px rgba(2, 60, 100, 0.18),
+      0 6px 16px -2px rgba(2, 60, 100, 0.08),
+      inset 0 2px 2px 0 rgba(255, 255, 255, 1),
+      inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .tf-card:hover {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border-color: #ffffff !important;
+    box-shadow: 
+      0 30px 65px -12px rgba(2, 60, 100, 0.28),
+      inset 0 2px 3px 0 #ffffff !important;
+  }
+
+  /* ------------------------------------------------------------
+     LAS 3 TARJETAS DE RESEÑAS SOBRE FONDO CELESTE
+     ------------------------------------------------------------ */
+  .tf-quote {
+    background: rgba(255, 255, 255, 0.62) !important;
+    backdrop-filter: blur(32px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(190%) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    border-top: 2.5px solid #ffffff !important;
+    box-shadow: 
+      0 20px 45px -10px rgba(2, 60, 100, 0.18),
+      0 6px 16px -2px rgba(2, 60, 100, 0.08),
+      inset 0 2px 2px 0 rgba(255, 255, 255, 1),
+      inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .tf-quote:hover {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border-color: #ffffff !important;
+    box-shadow: 
+      0 30px 65px -12px rgba(2, 60, 100, 0.28),
+      inset 0 2px 3px 0 #ffffff !important;
+  }
+
+  /* Las tarjetas de productos del catálogo se adaptan suavemente */
+  .product-card {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 10px 30px -8px rgba(2, 60, 100, 0.12) !important;
+  }
+
+  /* Indicador sutil de previsualización */
+  .all-sky-badge {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 99999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  }
+  .all-sky-badge span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 10px #38bdf8;
+  }
+</style>
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
@@ -3303,7 +3422,7 @@ body.mt-edit-mode #shopApp .mt-edit-active {
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v66</span>
+          <span>v67</span>
         </div>
       </div>
     </footer>
