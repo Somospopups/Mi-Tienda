@@ -15,9 +15,27 @@
         var s = (q.get('tienda') || '').trim().toLowerCase();
         if (f && ['luma','ofertas','gamer','libre','tech','actitud'].indexOf(f) > -1) {
           document.documentElement.dataset.front = f;
-        } else {
-          document.documentElement.dataset.front = 'tech';
+          return;
         }
+        var rawConsole = localStorage.getItem('popups_console_v1');
+        if (rawConsole) {
+          var cData = JSON.parse(rawConsole);
+          var list = (cData && cData.clients && cData.clients['mi-tienda']) || [];
+          var item = list.find(function(c) { return c.id === s || (s === 'ezepece' && c.id === 'eze-pece') || (s === 'eze-pece' && c.id === 'ezepece'); });
+          if (item && item.storefront) {
+            document.documentElement.dataset.front = item.storefront;
+            return;
+          }
+        }
+        var rawStore = localStorage.getItem('luma_offline_store_v1');
+        if (rawStore) {
+          var store = JSON.parse(rawStore);
+          if (store && store.settings && store.settings.storefront) {
+            document.documentElement.dataset.front = store.settings.storefront;
+            return;
+          }
+        }
+        document.documentElement.dataset.front = 'tech';
       } catch(_) {
         document.documentElement.dataset.front = 'tech';
       }
@@ -34,10 +52,15 @@
       display: none !important;
     }
     html[data-front="tech"] #frontTech,
-    html[data-front="tech"] #frontTechTail,
-    html:not([data-front="luma"]) #frontTech,
-    html:not([data-front="luma"]) #frontTechTail {
+    html[data-front="tech"] #frontTechTail {
       display: contents !important;
+    }
+    html[data-front="actitud"] #frontActitud {
+      display: block !important;
+    }
+    html[data-front="actitud"] #frontTech,
+    html[data-front="actitud"] #frontTechTail {
+      display: none !important;
     }
   </style>
 
@@ -1662,7 +1685,9 @@ body.mt-edit-mode #shopApp .mt-edit-active {
      v0.9 · FRENTES DE TIENDA — Boutique (luma) · Ofertas · Gamer
      Mismo motor, mismo panel: solo cambia la vidriera pública.
      ============================================================ */
-  #frontOfertas, #frontGamer, #frontTech, #frontTechTail { display: none; }
+  #frontOfertas, #frontGamer, #frontTech, #frontTechTail, #frontActitud { display: none; }
+  body[data-front="actitud"] #frontActitud { display: block !important; }
+  body[data-front="actitud"] #frontTech, body[data-front="actitud"] #frontTechTail { display: none !important; }
   body[data-front="ofertas"] #frontOfertas { display: block; }
   body[data-front="gamer"] #frontGamer { display: block; }
   body[data-front="libre"] #frontBuilder { display: block; }
@@ -4426,6 +4451,17 @@ img{display:block;max-width:100%}
   }
 </style>
 
+
+  /* BARRA SUPERIOR COMPARTIDA PARA TODOS LOS FRENTES (v81) */
+  body[data-front="actitud"] #tfHead,
+  body[data-front="tech"] #tfHead {
+    display: block !important;
+  }
+  body[data-front="actitud"] .tf-head {
+    background: #e3a898 !important;
+    border-bottom: 2px solid #2d2a26;
+  }
+
 </head>
 <body data-front="tech">
   <svg class="svg-sprite" aria-hidden="true">
@@ -4590,29 +4626,7 @@ img{display:block;max-width:100%}
       <span>ENVÍO GRATIS DESDE $100</span><i>✳</i><span>TECNOLOGÍA CON ACTITUD</span><i>✳</i><span>COMPRA SEGURA · GARANTÍA REAL</span><i>✳</i><span>ENVÍO GRATIS DESDE $100</span><i>✳</i><span>TECNOLOGÍA CON ACTITUD</span><i>✳</i><span>COMPRA SEGURA · GARANTÍA REAL</span><i>✳</i>
     </div>
   </div>
-    <header class="site-header" id="top">
-    <div class="header-inner">
-      <button class="menu-toggle icon-button" id="menuToggle" type="button" aria-label="Abrir menú" aria-expanded="false">
-        <span class="burger-lines"><i></i><i></i><i></i></span><span class="menu-word">MENÚ</span>
-      </button>
-      <nav class="desktop-nav" aria-label="Navegación principal">
-        <a class="nav-link active" href="#top">INICIO</a><span class="nav-divider"></span>
-        <a class="nav-link" href="#shop">TIENDA</a><span class="nav-divider"></span>
-        <a class="nav-link" href="#beneficios">POR QUÉ EZE-PECE</a>
-      </nav>
-      <a class="brand" href="#top" aria-label="EZE-PECE, inicio"><span class="brand-mark"><svg viewBox="0 0 26 36" aria-hidden="true"><path d="M15.8 1 2 20.1h10l-2 14.9L24 13H14z"/></svg></span><span>EZE-PECE</span><b>®</b></a>
-      <div class="header-actions">
-        <a class="nav-link contact-link" href="#admin" onclick="openAdmin();return false;">PANEL ADMIN</a><a class="nav-link contact-link" href="#contacto">CONTACTO</a>
-        <button class="icon-button search-toggle" type="button" id="searchToggle" aria-label="Buscar productos" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.7"></circle><path d="m16 16 5 5"></path></svg></button>
-        <button class="cart-button" type="button" id="actitudCartToggle" onclick="openCart()" aria-label="Abrir carrito"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 11.1a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 1.9-1.4L22 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg><span>CARRITO</span><b id="actitudCartCount">0</b></button>
-      </div>
-    </div>
-    <div class="search-panel" id="searchPanel" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.7"></circle><path d="m16 16 5 5"></path></svg><input id="searchInput" type="search" placeholder="¿Qué estás buscando?" autocomplete="off"><button type="button" id="searchClose" aria-label="Cerrar búsqueda">ESC</button></div>
-    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-      <a href="#shop">TIENDA <span>↗</span></a><a href="#beneficios">POR QUÉ EZE-PECE <span>↗</span></a><a href="#opiniones">OPINIONES <span>↗</span></a><a href="#bitacora">BITÁCORA <span>↗</span></a><a href="#contacto">CONTACTO <span>↗</span></a>
-      <p>BUEN HARDWARE. CERO DRAMA.</p>
-    </div>
-  </header>
+
     <main>
       
     <section class="hero" aria-labelledby="heroTitle">
@@ -5099,7 +5113,7 @@ img{display:block;max-width:100%}
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v80</span>
+          <span>v81</span>
         </div>
       </div>
     </footer>
@@ -7461,15 +7475,34 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     const front = currentFront();
     document.body.dataset.front = front;
     document.documentElement.dataset.front = front;
-    $('frontOfertas')?.toggleAttribute('hidden', front !== 'ofertas');
-    $('frontGamer')?.toggleAttribute('hidden', front !== 'gamer');
-    $('frontTech')?.toggleAttribute('hidden', front !== 'tech');
-    $('frontTechTail')?.toggleAttribute('hidden', front !== 'tech');
-    $('frontActitud')?.toggleAttribute('hidden', front !== 'actitud');
+    
+    const isActitud = front === 'actitud';
+    const isTech = front === 'tech';
+
+    // Ocultar / Mostrar frentes de forma infalible
+    const fTech = $('frontTech');
+    const fTechTail = $('frontTechTail');
+    const fAct = $('frontActitud');
+    const fGamer = $('frontGamer');
+    const fOfertas = $('frontOfertas');
+
+    if (fTech) fTech.hidden = !isTech;
+    if (fTechTail) fTechTail.hidden = !isTech;
+    if (fAct) fAct.hidden = !isActitud;
+    if (fGamer) fGamer.hidden = front !== 'gamer';
+    if (fOfertas) fOfertas.hidden = front !== 'ofertas';
+
+    // Barra superior común #tfHead: siempre visible para tech y actitud
+    const tfHead = $('tfHead');
+    if (tfHead) {
+      tfHead.style.display = (isTech || isActitud) ? 'block' : '';
+    }
+
     blApplyHome();
     renderFrontExtras();
-    if (front === 'actitud') {
-      setTimeout(initActitudInteractions, 50);
+
+    if (isActitud) {
+      setTimeout(initActitudInteractions, 30);
     }
   }
   function frontCategoryIcon(category) {
@@ -8981,8 +9014,32 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
         const data = getConsoleData();
         const item = data.clients['mi-tienda'][idx];
         if (item) {
+          // Leer el valor seleccionado en el dropdown de esa fila
+          const frontSel = document.querySelector(`select[data-sa-front="${idx}"]`);
+          if (frontSel) {
+            item.storefront = frontSel.value;
+          }
           saveConsoleData(data);
-          toast('Cambios Guardados', `Todos los datos de "${item.name}" quedaron guardados correctamente.`, 'success');
+
+          // Actualizar estado activo
+          state.settings.storefront = item.storefront;
+          try {
+            const st = readStore();
+            st.settings.storefront = item.storefront;
+            writeStore(st);
+          } catch (_) {}
+
+          // Aplicar inmediatamente sin demoras
+          applyStorefront();
+
+          // Gran cartel de confirmación visible
+          alert(`¡CAMBIOS REALIZADOS CON ÉXITO!
+
+La tienda "${item.name}" ahora tiene activa la vidriera: ${item.storefront.toUpperCase()}.
+
+Los cambios se aplicaron al instante en la pantalla.`);
+          toast('Cambios Guardados', `¡Vidriera cambiada a ${item.storefront.toUpperCase()} con éxito!`, 'success');
+          renderSuperAdminTable();
         }
         return;
       }
