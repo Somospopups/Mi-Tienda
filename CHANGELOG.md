@@ -1,5 +1,12 @@
 # Changelog — Mi-Tienda
 
+## v0.24.0 (v78) · 2026-10-12 · Se volvieron a aplicar la clave maestra por hash y el arreglo de jsPDF
+- Los commits `9db3587` (v76/CRM) y `fe2832d` (v77/tipografía) habían revertido lo publicado en v76: borraron `MT_MASTER_SHA256` / `mtMasterKeyOk` / `MT_SUPER_SHA256` / `mtSuperKeyOk`, volvieron a meter las claves `Ger13811` y `Ger899339` en texto plano (18 apariciones, con el repo público) y reintrodujeron la corrupción del blob de jsPDF. Todo se re-aplica sobre v77 conservando el módulo de Interesados CRM y los cambios tipográficos.
+- `directAdminLogin`, `adminLogin` y `mtOwnerLogin` comparan por SHA-256 de nuevo; sin claves en texto en todo el archivo y sin `SUPER_ADMIN_KEY` (código muerto).
+- **jsPDF**: de nuevo un salto de línea literal dentro de un string de JS rompía el bloque en cada carga (`SyntaxError: Invalid or unexpected token`). Los 7 bloques pasan `node --check`.
+
+
+
 ## v0.23.0 (v76) · 2026-10-12 · Se restauró la clave maestra por hash y se reparó el bloque jsPDF
 - **Restaurada la verificación de la clave maestra POPUPS por SHA-256** (`MT_MASTER_SHA256` / `mtMasterKeyOk` y `MT_SUPER_SHA256` / `mtSuperKeyOk`), que el rebase a v74 había revertido a comparaciones en texto plano. `directAdminLogin`, `adminLogin` y `mtOwnerLogin` vuelven a comparar por hash; las claves `Ger13811` y `Ger899339` se eliminaron de todo el archivo (incluidos comentarios de CSS y HTML que las filtraban), y `SUPER_ADMIN_KEY`, que ya no se usaba, se quitó. Corrige los 3 tests de `master-key` (19, 20 y 21).
 - **Reparado el bloque embebido de jsPDF**: un formateador había metido un salto de línea literal (`\r\n  \r\n\r\n`) dentro de un string de JavaScript en la línea 4603, lo que rompía el parseo del bloque completo y tiraba `SyntaxError: Invalid or unexpected token` en cada carga de la página. Los 7 bloques de `index.html` vuelven a pasar `node --check` y el SyntaxError desaparece de la consola.
