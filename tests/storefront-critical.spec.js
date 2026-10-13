@@ -7,6 +7,12 @@ async function expectNoPageErrors(page, errors) {
   expect(errors, `Errores JavaScript: ${errors.join(', ')}`).toEqual([]);
 }
 
+/** v99: el panel superior se oculta al bajar; para usarlo hay que volver a subir. */
+async function revealHeader(page) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.locator('body')).not.toHaveClass(/mt-head-hidden/);
+}
+
 test('la vidriera TECH coincide antes y después del arranque y muestra el catálogo', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.name));
@@ -36,6 +42,7 @@ test('agregar al carrito y completar el checkout demo funciona en TECH', async (
 
   await expect(page.locator('#leadCaptureBackdrop')).toBeHidden();
   await expect(page.locator('#cartCount')).toHaveText('1');
+  await revealHeader(page);
   await page.locator('#tfCart').click();
   await expect(page.locator('#cartDrawer')).toHaveClass(/open/);
   await expect(page.locator('#cartContent')).toContainText(productName || '');
@@ -75,6 +82,7 @@ test('Actitud es independiente de TECH y su carrito usa los productos cargados',
   await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(6, { timeout: 15_000 });
   await page.locator('#actitudOwnerProducts [data-add]').first().click();
   await expect(page.locator('#actitudCartCount')).toHaveText('1');
+  await revealHeader(page);
   await page.locator('#cartToggle').click();
   await expect(page.locator('#actitudCartDrawer')).toHaveClass(/open/);
   await expectNoPageErrors(page, errors);

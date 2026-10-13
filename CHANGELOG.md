@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.99.0 (v99) · 2026-10-13 · Panel superior que se oculta al bajar
+
+- El panel superior de la tienda **se oculta al bajar la página y vuelve a aparecer al subir**, en todas las vidrieras (Luma, Ofertas, Gamer, Libre, Tech y Actitud).
+- Se mantiene visible siempre: al inicio de la página, en modo edición, en el panel del dueño y con el menú móvil abierto.
+
 ## v0.98.0 (v98) · 2026-10-13 · Arranque estable de tiendas con vidriera en la nube
 
 - Corregido el arranque intermitente de las tiendas con `?tienda=`: settings, productos y legales pedían el documento público **tres veces en paralelo** con timeout de 3,5 s y sin reintento. Si Supabase tardaba unos milisegundos de más, la tienda quedaba trabada en la vidriera por defecto (Tech) aunque la guardada fuera otra (Actitud). Ahora las tres rutas comparten **una sola llamada**, con 6 s y reintento automático.
