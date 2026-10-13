@@ -4804,7 +4804,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span id="appVersion">v97</span>
+          <span id="appVersion">v98</span>
         </div>
       </div>
     </footer>
@@ -5005,7 +5005,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
       <header class="super-admin-header">
         <div>
-          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v97</span></span>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v98</span></span>
           <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
           <p>Administrá tiendas mediante la RPC segura. Las claves nunca se recuperan ni se muestran; las nuevas se entregan una sola vez.</p>
         </div>
@@ -5098,7 +5098,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   <div class="modal-backdrop" id="superAdminLoginBackdrop" style="z-index:100000;" hidden>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="superAdminLoginTitle" style="width:min(460px,calc(100% - 28px));padding:28px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf855;border-radius:16px">
       <button class="round-close" id="closeSuperAdminLogin" type="button" aria-label="Cerrar acceso POPUPS" style="float:right">×</button>
-      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v97</span></span>
+      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v98</span></span>
       <h2 id="superAdminLoginTitle" style="margin:10px 0">Administración POPUPS</h2>
       <p style="color:#cbd5e1">Este acceso se valida en Supabase; no uses la clave del dueño de una tienda.</p>
       <form id="superAdminLoginForm">
@@ -5756,32 +5756,43 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
     }
     return last;
   }
-  const mtPub = { t: 0, doc: null };
+  const mtPub = { t: 0, doc: null, inflight: null };
   async function mtPublicDoc() {
     const slug = mtSlug();
     if (!slug || !MT_SU) return null;
     if (mtPub.doc && Date.now() - mtPub.t < 20000) return mtPub.doc;
-    const data = await mtRpc('api_public', { p_store: slug }, { timeoutMs: 3500, noRetry: true });
-    if (data && data.ok === true) {
-      const publicSettingsData = (data.cfg && data.cfg.settings) || {};
-      const settings = { ...clone(INITIAL_STORE.settings), ...publicSettingsData };
-      if (!publicSettingsData.storefront) {
-        const requestedFront = (new URLSearchParams(location.search).get('front') || '').trim().toLowerCase();
-        if (['luma', 'ofertas', 'gamer', 'libre', 'tech', 'actitud'].includes(requestedFront)) settings.storefront = requestedFront;
-      }
-      if (!publicSettingsData.brandName && data.biz) settings.brandName = String(data.biz).slice(0, 30);
-      const content = { ...clone(INITIAL_STORE.content), ...((data.cfg && data.cfg.content) || {}) };
-      const legal = { ...clone(INITIAL_STORE.legal), ...((data.cfg && data.cfg.legal) || {}) };
-      const products = (data.products || []).filter((item) => item.active)
-        .map(({ wholesalePrice, costPrice, barcode, ...product }) => product);
-      mtPub.doc = { settings, content, legal, products, mp: data.mp_ok === true };
-      mtPub.t = Date.now();
-      return mtPub.doc;
-    }
-    if (data && data.error === 'store_not_found') return { notFound: true };
-    if (data && ['sin_conexion', 'sin_nube'].includes(data.error)) return null;
-    if (data && data.error) return { blocked: data.error };
-    return null;
+    if (mtPub.inflight) return mtPub.inflight;
+    // v0.98 · Arranque con ?tienda=: settings, products y legal pedían el documento
+    // público tres veces en paralelo, con timeout de 3,5 s y sin reintento. Si
+    // Supabase tardaba, la tienda quedaba trabada en la vidriera por defecto
+    // (Tech) aunque la vidriera guardada fuera otra (ej: Actitud). Ahora las tres
+    // rutas comparten UNA sola llamada, con 6 s y reintento automático.
+    mtPub.inflight = (async () => {
+      try {
+        const data = await mtRpc('api_public', { p_store: slug }, { timeoutMs: 6000 });
+        if (data && data.ok === true) {
+          const publicSettingsData = (data.cfg && data.cfg.settings) || {};
+          const settings = { ...clone(INITIAL_STORE.settings), ...publicSettingsData };
+          if (!publicSettingsData.storefront) {
+            const requestedFront = (new URLSearchParams(location.search).get('front') || '').trim().toLowerCase();
+            if (['luma', 'ofertas', 'gamer', 'libre', 'tech', 'actitud'].includes(requestedFront)) settings.storefront = requestedFront;
+          }
+          if (!publicSettingsData.brandName && data.biz) settings.brandName = String(data.biz).slice(0, 30);
+          const content = { ...clone(INITIAL_STORE.content), ...((data.cfg && data.cfg.content) || {}) };
+          const legal = { ...clone(INITIAL_STORE.legal), ...((data.cfg && data.cfg.legal) || {}) };
+          const products = (data.products || []).filter((item) => item.active)
+            .map(({ wholesalePrice, costPrice, barcode, ...product }) => product);
+          mtPub.doc = { settings, content, legal, products, mp: data.mp_ok === true };
+          mtPub.t = Date.now();
+          return mtPub.doc;
+        }
+        if (data && data.error === 'store_not_found') return { notFound: true };
+        if (data && ['sin_conexion', 'sin_nube'].includes(data.error)) return null;
+        if (data && data.error) return { blocked: data.error };
+        return null;
+      } finally { mtPub.inflight = null; }
+    })();
+    return mtPub.inflight;
   }
   async function mtCheckMpReturn() {
     try {

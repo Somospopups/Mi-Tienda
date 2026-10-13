@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.98.0 (v98) · 2026-10-13 · Arranque estable de tiendas con vidriera en la nube
+
+- Corregido el arranque intermitente de las tiendas con `?tienda=`: settings, productos y legales pedían el documento público **tres veces en paralelo** con timeout de 3,5 s y sin reintento. Si Supabase tardaba unos milisegundos de más, la tienda quedaba trabada en la vidriera por defecto (Tech) aunque la guardada fuera otra (Actitud). Ahora las tres rutas comparten **una sola llamada**, con 6 s y reintento automático.
+- Verificado en producción con la tienda `ezepece` ya guardada en Actitud: la vidriera pública se aplica de forma consistente.
+
 ## v0.97.0 (v97) · 2026-10-13 · Causa real del fallo de vidriera: SQL de producción desactualizado
 
 - **Causa raíz encontrada probando contra Supabase producción**: la función `api_admin` instalada en la base es una versión vieja que no conoce la acción `set_storefront` (responde `accion_desconocida`) ni devuelve la vidriera en el listado. Por eso cambiar la vidriera desde la consola nunca llegaba a guardarse, aunque la consola mostrara "Guardando…".
