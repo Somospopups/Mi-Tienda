@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.101.0 (v101) · 2026-10-13 · Newsletter de Actitud sin recuadro gris
+
+- El bloque **CLUB EZE-PECE** (newsletter) de Actitud ya no muestra el recuadro gris heredado de la plantilla: queda directamente sobre el fondo rojo de la sección de contacto, como en la referencia original.
+
 ## v0.100.0 (v100) · 2026-10-13 · Acceso al panel desde la barra de Actitud
 
 - La barra superior de la vidriera **Actitud** ahora tiene un botón **PANEL** (junto a CONTACTO) para entrar al panel de administrador, igual que el resto de las vidrieras.
