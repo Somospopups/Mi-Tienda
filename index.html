@@ -4604,7 +4604,7 @@ body[data-front="actitud"] .toast.show{opacity:1;transform:translate(-50%,0)}
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v92</span>
+          <span>v93</span>
         </div>
       </div>
     </footer>
@@ -4844,11 +4844,7 @@ body[data-front="actitud"] .toast.show{opacity:1;transform:translate(-50%,0)}
               <span>Frente (Exclusivo Desarrollador)</span>
               <select name="storefront">
                 <option value="tech" selected>Tech (Vidriera tecnológica)</option>
-                <option value="actitud">Actitud (Eze-pece retro moderno)</option>
                 <option value="luma">Luma (Boutique / Diseño esencial)</option>
-                <option value="ofertas">Ofertas (Supermercado / Descuentos)</option>
-                <option value="gamer">Gamer (Hardware / Neón oscuro)</option>
-                <option value="libre">Libre (Constructor de bloques modular)</option>
               </select>
             </label>
             <label>
@@ -8217,7 +8213,7 @@ function applyStorefront() {
       contact: String(store.contact || ''), status: String(store.status || 'activa'),
       paid_until: String(store.paid_until || ''), plan_id: String(store.plan_id || 'p25'),
       products: Number(store.products) || 0,
-      storefront: ['luma', 'ofertas', 'gamer', 'libre', 'tech', 'actitud'].includes(store.storefront) ? store.storefront : 'tech'
+      storefront: ['luma', 'tech'].includes(store.storefront) ? store.storefront : 'tech'
     })) : [];
     renderSuperAdminTable();
     return popupsAdminStores;
@@ -8294,7 +8290,7 @@ function applyStorefront() {
     const origin = window.location.origin + window.location.pathname;
     tbody.innerHTML = list.map((item, idx) => {
       const status = ['activa', 'suspendida', 'baja'].includes(item.status) ? item.status : 'suspendida';
-      const front = ['luma', 'ofertas', 'gamer', 'libre', 'tech', 'actitud'].includes(item.storefront) ? item.storefront : 'tech';
+      const front = ['luma', 'tech'].includes(item.storefront) ? item.storefront : 'tech';
       const storeUrl = `${origin}?tienda=${encodeURIComponent(item.id)}&front=${encodeURIComponent(front)}`;
       const cleanWa = String(item.contact || '').replace(/\D/g, '');
       const waLink = cleanWa ? `https://wa.me/${cleanWa}?text=${encodeURIComponent('Hola ' + (item.owner || item.biz) + ', te contacto desde el soporte de tu tienda web.')}` : '';
@@ -8307,12 +8303,8 @@ function applyStorefront() {
             <button class="super-admin-btn btn-reset-pin" type="button" data-sa-reset-key="${idx}" title="Rotar la clave; la nueva se muestra una sola vez">Rotar clave</button>
           </div></td>
           <td><select data-sa-front="${idx}" style="background:#090d16;color:#e2e8f0;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 6px;font-size:.78rem">
-            <option value="actitud" ${front === 'actitud' ? 'selected' : ''}>Actitud</option>
             <option value="tech" ${front === 'tech' ? 'selected' : ''}>Tech</option>
             <option value="luma" ${front === 'luma' ? 'selected' : ''}>Luma</option>
-            <option value="ofertas" ${front === 'ofertas' ? 'selected' : ''}>Ofertas</option>
-            <option value="gamer" ${front === 'gamer' ? 'selected' : ''}>Gamer</option>
-            <option value="libre" ${front === 'libre' ? 'selected' : ''}>Libre</option>
           </select></td>
           <td><button class="super-admin-btn" style="background:#1e293b;color:#fcd34d;border:1px solid #fcd34d44" type="button" data-sa-date="${idx}" title="Modificar fecha de vencimiento">📅 ${esc(item.paid_until || 'Sin fecha')} ✎</button></td>
           <td><select data-sa-status="${idx}" style="background:#090d16;color:#e2e8f0;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:4px 8px;font-size:.78rem;font-weight:700">
@@ -8362,7 +8354,7 @@ function applyStorefront() {
           contact: String(store.contact || ''), status: String(store.status || 'activa'),
           paid_until: String(store.paid_until || ''), plan_id: String(store.plan_id || 'p25'),
           products: Number(store.products) || 0,
-          storefront: ['luma', 'ofertas', 'gamer', 'libre', 'tech', 'actitud'].includes(store.storefront) ? store.storefront : 'tech'
+          storefront: ['luma', 'tech'].includes(store.storefront) ? store.storefront : 'tech'
         })) : [];
         closeSuperAdminLogin();
         openSuperAdmin();

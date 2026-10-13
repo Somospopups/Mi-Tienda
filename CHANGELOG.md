@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.93.0 (v93) · 2026-10-13 · Consola POPUPS: solo Tech y Luma
+
+- El selector de vidriera de la consola (tanto al crear una tienda como al editarla en la tabla) ofrece únicamente **Tech** y **Luma**; se retiraron de las opciones Actitud, Ofertas, Gamer y Libre.
+- El mapeo de vidriera de la consola normaliza cualquier valor externo a Tech, de modo que la tabla y el desplegable siempre coinciden.
+- El renderizado público de las demás vidrieras se conserva por compatibilidad; Actitud se rehace desde cero en una versión futura y volverá a sumarse al selector.
+
 ## v0.92.0 (v92) · 2026-10-13 · Carga de imágenes y edición TECH
 
 - Reparada la carga de imágenes en modo edición cloud: `/api/admin/upload` estaba ausente en la ruta autenticada y devolvía 404 tras comprimir; ahora entrega la imagen optimizada para sincronizarla con `api_save_cfg`.
