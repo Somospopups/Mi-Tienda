@@ -20,15 +20,33 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function loginYModoEdicion(page) {
+  // La app de este comercio arranca en TECH; esta regresión edita imágenes de Luma,
+  // por eso el fixture selecciona explícitamente esa vidriera antes de autenticarse.
+  await page.goto('/index.html');
+  await expect(page.locator('#productGrid .product-card').first()).toBeVisible({ timeout: 15_000 });
+  await page.evaluate(() => {
+    const key = 'luma_offline_store_v1';
+    const store = JSON.parse(localStorage.getItem(key) || '{}');
+    store.settings.storefront = 'luma';
+    localStorage.setItem(key, JSON.stringify(store));
+    localStorage.setItem('luma_active_front', 'luma');
+  });
+  await page.goto('/index.html');
+  await expect(page.locator('body')).toHaveAttribute('data-front', 'luma');
+
   await page.goto('/index.html#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-  await page.locator('#loginForm input[name="pin"]').fill('1234');
+  const hint = await page.locator('#loginCloudHint').textContent();
+  const demoPin = hint?.match(/\b\d{4}\b/)?.[0];
+  expect(demoPin).toBeTruthy();
+  await page.locator('#loginForm input[name="pin"]').fill(demoPin);
   await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
-  await page.goto('/index.html'); // misma sesión, tienda visible
-  await expect(page.locator('.mt-edit-float')).toBeVisible({ timeout: 15_000 });
-  await page.locator('.mt-edit-float').click();
+  await page.locator('#viewStore').click();
+  await expect(page.locator('.mt-edit-bar')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
 }
+
 
 test('La imagen editorial del final abre el editor con un clic en el centro (velo ::after) y se reemplaza', async ({ page }) => {
   await loginYModoEdicion(page);

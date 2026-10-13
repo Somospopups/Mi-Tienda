@@ -16,7 +16,12 @@ const { test, expect } = require('@playwright/test');
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
-    try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
+    try {
+      if (!sessionStorage.getItem('__mt_uber_clean')) {
+        localStorage.clear(); sessionStorage.clear();
+        sessionStorage.setItem('__mt_uber_clean', '1');
+      }
+    } catch (_) {}
   });
   const errors = [];
   page.on('pageerror', (err) => errors.push(String(err)));
@@ -33,11 +38,37 @@ async function expectNoPageErrors(page) {
   expect(errors, `Errores JS en consola:\n${errors.join('\n')}`).toEqual([]);
 }
 
+async function demoPin(page) {
+  const hint = await page.locator('#loginCloudHint').textContent();
+  const value = hint?.match(/\b\d{4}\b/)?.[0];
+  expect(value).toBeTruthy();
+  return value;
+}
+
+async function addFirstProduct(page) {
+  const button = page.locator('#productGrid [data-add-product]').first();
+  await expect(button).toBeVisible({ timeout: 15_000 });
+  await button.click();
+  const lead = page.locator('#leadCaptureBackdrop');
+  if (await lead.isVisible()) {
+    await page.locator('#leadNameInput').fill('Persona de prueba');
+    await page.locator('#leadPhoneInput').fill('2065550100');
+    await page.locator('#leadCaptureForm button[type="submit"]').click();
+    await expect(lead).toBeHidden();
+  }
+}
+
+async function openStoreCart(page) {
+  const techCart = page.locator('#tfCart');
+  if (await techCart.isVisible()) await techCart.click();
+  else await page.locator('#cartButton').click();
+}
+
 async function firstProductToCheckout(page) {
   await page.goto('/index.html');
   await expect(page.locator('#productGrid [data-add-product]').first()).toBeVisible({ timeout: 15_000 });
-  await page.locator('#productGrid [data-add-product]').first().click();
-  await page.locator('#cartButton').click();
+  await addFirstProduct(page);
+  await openStoreCart(page);
   await page.locator('#checkoutButton').click();
   await expect(page.locator('#checkoutForm')).toBeVisible();
 }
@@ -79,7 +110,7 @@ test.describe('Uber Direct (modo demo)', () => {
     await expect(page.locator('#successBackdrop')).toBeHidden();
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-    await page.locator('#loginForm input[name="pin"]').fill('1234');
+    await page.locator('#loginForm input[name="pin"]').fill(await demoPin(page));
     await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible();
     await page.locator('[data-admin-tab="orders"]').click();
@@ -107,7 +138,7 @@ test.describe('Uber Direct (modo demo)', () => {
     // deshabilitar desde el panel (sin recargar; el hash no relanza el initScript)
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-    await page.locator('#loginForm input[name="pin"]').fill('1234');
+    await page.locator('#loginForm input[name="pin"]').fill(await demoPin(page));
     await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible();
 
@@ -135,8 +166,8 @@ test.describe('Uber Direct (modo demo)', () => {
 
     await page.goto('/index.html');
     await expect(page.locator('#productGrid .product-card').first()).toBeVisible({ timeout: 15_000 });
-    await page.locator('#productGrid [data-add-product]').first().click();
-    await page.locator('#cartButton').click();
+    await addFirstProduct(page);
+    await openStoreCart(page);
     await page.locator('#checkoutButton').click();
     await expect(page.locator('#uberChoiceCard')).toBeHidden({ timeout: 10_000 });
     await expectNoPageErrors(page);

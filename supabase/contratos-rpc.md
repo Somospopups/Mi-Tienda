@@ -1,14 +1,10 @@
-# Contratos RPC verificados en vivo (15-sep-2026)
+# Contratos RPC · Mi-Tienda
 
-> 11 RPC verificadas contra producción + `api_key_change` (v0.7.3, DDL en
-> `api_key_change.sql`; todavía no desplegada en el proyecto).
+Contratos documentados desde los SQL del repositorio. No incluyen claves, cuentas de prueba ni identificadores de proyecto. Antes de depender de un contrato, compararlo con la definición desplegada en Supabase.
 
-Formas de respuesta **reales**, obtenidas sondendo el proyecto `zfnlcfnutnuatrhgbbci`
-con la clave publishable del cliente (mismas llamadas que hace la web publicada).
+> Una respuesta cloud inválida o una RPC caída no activa la demo. La demo local existe únicamente sin `?tienda=`.
 
-> Estos contratos son la fuente de verdad de lo que el frontend espera.
-> Cualquier cambio en las funciones SQL de Supabase DEBE respetarlos o romperá la tienda.
-
+---
 ---
 
 ## `api_public(p_store text)`
@@ -41,7 +37,7 @@ y `mtPublicDoc()` (caché cliente de 20 s).
   ]
 }
 
-// tienda inexistente → el cliente cae al modo demo/offline
+// tienda inexistente → error visible; no se sirve la demo local
 { "ok": false, "error": "store_not_found" }
 
 // suspendida / dada de baja → el cliente muestra la puerta
@@ -145,14 +141,14 @@ El dueño cambia **su** Clave de acceso desde Ajustes → Seguridad.
 // rechazos (el frontend traduce cada código a un mensaje en español)
 { "ok": false, "error": "store_not_found" }  // slug inexistente
 { "ok": false, "error": "bad_key" }           // la clave actual no coincide con stores.key_hash
-{ "ok": false, "error": "clave_corta" }       // nueva clave < 6 caracteres
+{ "ok": false, "error": "clave_corta" }       // nueva clave < 12 caracteres
 { "ok": false, "error": "key_equal" }         // la nueva es igual a la actual
 { "ok": false, "error": "clave_invalida" }    // tiene \r, \n o \t
 ```
 
 `p_key` es la clave actual y se verifica con `crypt(p_key, key_hash) = key_hash`, la misma
 comparación bcrypt que usan las otras RPC privadas. La nueva se guarda con
-`crypt(gen_salt('bf'))`; **no existe ninguna RPC que devuelva una clave en texto**.
+`crypt(gen_salt('bf'))` y la longitud mínima vigente es de 12 caracteres. **no existe ninguna RPC que devuelva una clave en texto**.
 Escribe además `cfg.security.changedAt`, que `api_panel` trae en el snapshot y el panel
 muestra como "Último cambio".
 
@@ -165,10 +161,6 @@ frontend degrada a la tarjeta *"Tu clave la cambia POPUPS"* con mail de pedido. 
 
 ---
 
-## Claves de acceso demo (públicas, sembradas por POPUPS)
-
-| Tienda | slug | clave | plan |
-|---|---|---|---|
 | Juan Pérez · Panadería La Espiga | `juan` | `juan-demo` | p50 |
 | Mariela | `mariela` | `mariela-demo` | — |
 
@@ -195,3 +187,18 @@ entre lo que el cliente consume y lo que el backend realmente hace:
    (`paid_until < current_date` → `suspendida` automática).
 7. **`api_panel` no rechaza tiendas suspendidas/baja** (el chequeo de estado está en las
    RPC de escritura y en `api_public`) → ver hallazgo F2 de la auditoría.
+
+## `api_admin(p_pin, p_action, p)` · consola POPUPS
+
+La clave central se valida únicamente contra el hash guardado en `config.admin_pin`. La función no devuelve la clave ni el hash y aplica una ventana de rate limit a intentos fallidos.
+
+Acciones cubiertas por `supabase/super-admin-secure.sql`:
+
+- `list`: tiendas, estado, vencimiento, conteo de productos y frente actual.
+- `create_store`: alta con una clave del dueño de 12–64 caracteres; el backend guarda únicamente su hash.
+- `rotate_key`: invalida la clave anterior y reemplaza su hash. La nueva clave solo se conoce en el cliente que la generó.
+- `set`, `set_plan`, `reactivate`, `set_cfg`, `import_products` y `set_storefront`.
+
+Errores relevantes: `bad_pin`, `rate_limited`, `store_not_found`, `ya_existe`, `clave_invalida`, `storefront_invalida` y `accion_desconocida`. La consola muestra los secretos nuevos una sola vez y nunca vuelve a solicitarlos desde la API.
+
+La migración está pendiente de revisión y aplicación por una persona autorizada; esta documentación no afirma que el proyecto de producción ya la tenga instalada.

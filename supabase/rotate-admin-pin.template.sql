@@ -1,0 +1,17 @@
+-- TEMPLATE / CHECKLIST ONLY — intentionally not executable.
+-- Never paste a real secret into this tracked file or commit a completed query.
+--
+-- To rotate the central POPUPS credential, create a private, temporary query in
+-- an authorized Supabase SQL Editor session and set public.config.value for key
+-- 'admin_pin' to a bcrypt hash of a newly generated high-entropy secret, e.g.:
+--
+--   UPDATE public.config
+--   SET value = to_jsonb(crypt('<NEW_RANDOM_SECRET>', gen_salt('bf', 12)))
+--   WHERE key = 'admin_pin';
+--
+-- Verify exactly one row was updated without selecting or printing the hash.
+-- Remove the temporary query from the dashboard history where possible. Keep
+-- the new secret only in an approved password manager; it must not enter Git,
+-- screenshots, browser storage, logs, or this repository.
+--
+-- No SQL statement is active in this file by design.

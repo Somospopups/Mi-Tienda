@@ -36,7 +36,10 @@ function expectNoPageErrors(page) {
 async function loginAdmin(page) {
   await page.goto('/index.html#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-  await page.locator('#loginForm input[name="pin"]').fill('1234');
+  const hint = await page.locator('#loginCloudHint').textContent();
+  const demoPin = hint?.match(/\b\d{4}\b/)?.[0];
+  expect(demoPin).toBeTruthy();
+  await page.locator('#loginForm input[name="pin"]').fill(demoPin);
   await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
@@ -45,73 +48,79 @@ async function loginAdmin(page) {
 async function enterEditMode(page) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
-  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('#shopApp')).toBeVisible();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
+  await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
+}
+
+async function saveAndFinishEditMode(page) {
+  await page.locator('[data-mt-done]').click();
+  await expect(page.locator('#confirmPopover')).toBeVisible();
+  await page.locator('#confirmAccept').click();
+  await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
 
 test.describe('Modo edición visual (demo offline)', () => {
 
   test('1 · El botón flotante sigue a la sesión y "Ver tienda / Editar" entra directo al modo edición', async ({ page }) => {
     await page.goto('/index.html');
-    // sin sesión no aparece
     await expect(page.locator('.mt-edit-float')).toBeHidden({ timeout: 15_000 });
 
     await loginAdmin(page);
-    // dentro del panel queda oculto
     await expect(page.locator('.mt-edit-float')).toBeHidden();
-    // "Ver tienda / Editar" abre el selector de modos y elegir Tienda entra al modo edición
     await page.locator('#viewStore').click();
-    await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-    await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
-    await expect(page.locator('.mt-edit-float')).toBeHidden();
-    // al terminar vuelve al panel de administración
-    await page.locator('[data-mt-done]').click();
+    await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
+    await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
+
+    await saveAndFinishEditMode(page);
     await expect(page.locator('#adminShell')).toBeVisible();
-    await expect(page.locator('.mt-edit-float')).toBeHidden();
     await expect(page.locator('body')).not.toHaveClass(/mt-edit-mode/);
+    await expect(page.locator('.mt-edit-float')).toBeHidden();
     await expectNoPageErrors(page);
   });
 
-  test('2 · Editar un texto del hero guarda y persiste en el store offline', async ({ page }) => {
+  test('2 · Editar un texto visible de TECH guarda y persiste en el store offline', async ({ page }) => {
     await enterEditMode(page);
-    const nameNode = page.locator('[data-content="heroCardName"]');
-    await expect(nameNode).toHaveText('Lámpara Aura');
+    const titleNode = page.locator('#frontTech [data-content="tchCatsTitle"]');
+    await expect(titleNode).toBeVisible();
+    const original = (await titleNode.textContent())?.trim() || '';
+    const updated = 'Accesorios para tus dispositivos';
 
-    await nameNode.click();
+    await titleNode.click();
     const pop = page.locator('.mt-edit-popover');
     await expect(pop).toBeVisible();
-    const input = pop.locator('input');
-    await expect(input).toHaveValue('Lámpara Aura');
-    await input.fill('Lámpara Nova');
+    const input = pop.locator('input, textarea').first();
+    await expect(input).toHaveValue(original);
+    await input.fill(updated);
     await pop.locator('[data-mt-save]').click();
 
-    await expect(nameNode).toHaveText('Lámpara Nova');
-    const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('luma_offline_store_v1')).content.heroCardName);
-    expect(persisted).toBe('Lámpara Nova');
+    await expect(titleNode).toHaveText(updated);
+    const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('luma_offline_store_v1')).content.tchCatsTitle);
+    expect(persisted).toBe(updated);
 
-    await page.locator('.mt-edit-popover [data-mt-cancel]').click();
+    if (await pop.isVisible()) await pop.locator('[data-mt-cancel]').click();
     await expect(pop).toBeHidden();
-    await page.locator('[data-mt-done]').click();
+    await saveAndFinishEditMode(page);
     await expectNoPageErrors(page);
   });
 
-  test('3 · Clic en una tarjeta de producto abre el editor del panel', async ({ page }) => {
+  test('3 · Los productos se editan desde el Panel, no al comprar en la vidriera', async ({ page }) => {
     await enterEditMode(page);
-    const firstCard = page.locator('#productGrid .product-card').first();
-    const expectedName = (await firstCard.locator('.product-name').textContent()).trim();
-    await firstCard.click();
-    await expect(page.locator('#productEditorBackdrop')).toBeVisible();
-    await expect(page.locator('#productForm input[name="name"]')).toHaveValue(expectedName);
+    await page.locator('#productGrid .product-card').first().click();
+    await expect(page.locator('#toastRegion')).toContainText('Gestión de productos');
+    await expect(page.locator('#productEditorBackdrop')).toBeHidden();
 
+    await saveAndFinishEditMode(page);
+    await page.locator('[data-admin-tab="products"]').click();
+    const editButton = page.locator('#adminProductTableBody [data-edit-product]').first();
+    await expect(editButton).toBeVisible({ timeout: 15_000 });
+    await editButton.click();
+    await expect(page.locator('#productEditorBackdrop')).toBeVisible();
+    await expect(page.locator('#productForm input[name="name"]')).not.toHaveValue('');
     await page.locator('#closeProductEditor').click();
     await expect(page.locator('#productEditorBackdrop')).toBeHidden();
-    await page.locator('[data-mt-done]').click();
-    await expect(page.locator('body')).not.toHaveClass(/mt-edit-mode/);
-    await expect(page.locator('#adminShell')).toBeVisible();
     await expectNoPageErrors(page);
   });
 
@@ -133,23 +142,26 @@ test.describe('Modo edición visual (demo offline)', () => {
     const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('luma_offline_store_v1')).settings.accentColor);
     expect(persisted.toLowerCase()).toBe('#123456');
     await expect(page.locator('#shopApp')).toBeVisible();
-    await page.locator('[data-mt-done]').click();
+    if (await pop.isVisible()) await pop.locator('[data-mt-close]').click();
+    await saveAndFinishEditMode(page);
     await expectNoPageErrors(page);
   });
 
-  test('5 · Cerrar sesión oculta el botón flotante', async ({ page }) => {
+  test('5 · Cerrar sesión oculta el botón flotante y permite volver a iniciar sesión', async ({ page }) => {
     await loginAdmin(page);
     await page.locator('#viewStore').click();
-    await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-    await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
-
-    // volver al panel (navegación por hash, sin recargar) y salir
-    await page.goto('/index.html#admin');
+    await saveAndFinishEditMode(page);
     await expect(page.locator('#adminShell')).toBeVisible();
+
     await page.locator('#logoutButton').click();
+    const confirmPopover = page.locator('#confirmPopover');
+    if (await confirmPopover.isVisible()) await page.locator('#confirmAccept').click();
+    await expect(page.locator('#adminApp')).toBeHidden();
+    await expect(page.locator('.mt-edit-float')).toBeHidden();
+
+    await page.locator('#tfAdmin').click();
     await expect(page.locator('#adminLogin')).toBeVisible();
-    // sin sesión el botón queda oculto aunque la tienda esté detrás
     await expect(page.locator('.mt-edit-float')).toBeHidden();
     await expectNoPageErrors(page);
   });

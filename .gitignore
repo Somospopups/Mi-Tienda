@@ -4,6 +4,7 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+PUBLICACION-*.zip
 
 # Sistema / editor
 .DS_Store

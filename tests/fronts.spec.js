@@ -37,14 +37,30 @@ async function expectNoPageErrors(page) {
 
 test.describe('Frentes de tienda (v0.9)', () => {
 
-  test('F1 · El frente por defecto es Boutique (luma) y oculta los otros', async ({ page }) => {
+  test('F1 · Se muestra el frente configurado y los demás quedan ocultos', async ({ page }) => {
     await page.goto('/index.html');
     await expect(page.locator('#productGrid .product-card').first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('body')).toHaveAttribute('data-front', 'luma');
-    await expect(page.locator('#lumaHeadBlock .hero')).toBeVisible();
+    await expect(page.locator('body')).toHaveAttribute('data-front', 'tech');
+    await expect(page.locator('#frontTech')).toBeVisible();
     await expect(page.locator('#frontOfertas')).toBeHidden();
     await expect(page.locator('#frontGamer')).toBeHidden();
+    await expect(page.locator('.luma-front').first()).toBeHidden();
+
+    // Los demás frentes se activan mediante el storefront guardado por tienda,
+    // no por un selector retirado del panel.
+    await page.evaluate(() => {
+      const key = 'luma_offline_store_v1';
+      const store = JSON.parse(localStorage.getItem(key) || '{}');
+      store.settings.storefront = 'luma';
+      localStorage.setItem(key, JSON.stringify(store));
+      localStorage.setItem('luma_active_front', 'luma');
+    });
+    await page.goto('/index.html');
+    await expect(page.locator('body')).toHaveAttribute('data-front', 'luma');
+    await expect(page.locator('#lumaHeadBlock .hero')).toBeVisible();
     await expect(page.locator('#frontTech')).toBeHidden();
+    await expect(page.locator('#frontOfertas')).toBeHidden();
+    await expect(page.locator('#frontGamer')).toBeHidden();
     await expectNoPageErrors(page);
   });
 

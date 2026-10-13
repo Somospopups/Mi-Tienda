@@ -13,6 +13,9 @@ const { test, expect } = require('@playwright/test');
  *     de que la nube lo aceptó. Ahora la escritura del espejo es best-effort.
  *  3. Las imágenes del modo edición se comprimen con tope estricto (escalera
  *     1400→600 px) para que el payload viaje bien por conexiones lentas.
+ *  4. La ruta autenticada /api/admin/upload no existía en el flujo cloud y
+ *     devolvía 404 después de completar la compresión; ahora acepta la imagen
+ *     optimizada para que el guardado posterior la sincronice con api_save_cfg.
  *
  * Las RPC de Supabase se stubean con page.route (sin red real).
  */
@@ -88,14 +91,13 @@ function fakeCloudHandlers() {
 }
 
 async function enterEditModeCloud(page) {
-  await page.goto('/index.html?tienda=prueba#admin');
+  await page.goto('/index.html?tienda=prueba&front=luma#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
   await page.locator('#loginForm input[name="pin"]').fill('clave-dueño-2026');
   await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
   await page.locator('#viewStore').click();
-  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
+  await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
   await expect(page.locator('#shopApp')).toBeVisible();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
@@ -132,7 +134,7 @@ test.describe('v0.9.2 · Imágenes y resiliencia de guardado cloud', () => {
       input.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    // La zona confirma la actualización (antes: acá aparecía el error)
+    // La zona confirma la actualización y el guardado en la nube.
     await expect(page.locator('#mtEditBody')).toContainText('Imagen actualizada ✓', { timeout: 30_000 });
 
     // La nube recibió el contenido con la imagen, comprimida bajo el tope

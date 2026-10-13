@@ -49,6 +49,7 @@ async function killCloud(page) {
 
 /** Nube viva y determinística (mismo stub que edit-mode-cloud). `__abort` simula corte de red. */
 async function stubCloud(page, handlers) {
+  const calls = [];
   await page.route('**/rest/v1/rpc/**', async (route) => {
     if (!route.request().url().includes(SUPA_HOST)) return route.fallback();
     const req = route.request();
@@ -56,12 +57,14 @@ async function stubCloud(page, handlers) {
     const name = req.url().split('/rpc/')[1];
     let body = {};
     try { body = JSON.parse(req.postData() || '{}'); } catch (_) { }
+    calls.push({ name, body });
     const handler = handlers[name];
     if (!handler) return route.fulfill({ status: 500, headers: CORS, body: JSON.stringify({ ok: false, error: 'unstubbed_' + name }) });
     const out = typeof handler === 'function' ? await handler(body) : handler;
     if (out && out.__abort) return route.abort('connectionrefused');
     return route.fulfill({ status: 200, headers: CORS, body: JSON.stringify(out) });
   });
+  return calls;
 }
 
 function liveHandlers(key = 'clave-eze-2026') {
@@ -81,14 +84,13 @@ test.describe('Nube caída con ?tienda= (v0.20)', () => {
     await page.goto('/index.html?tienda=eze-pece');
     await expect(page.locator('#emptyState')).toBeVisible({ timeout: 25_000 });
     await expect(page.locator('#emptyState h3')).toHaveText('Sin conexión con la nube');
-    await expect(page.locator('#emptyState p')).toContainText('no mostramos una tienda de relleno');
+    await expect(page.locator('#emptyState p')).toContainText(/no mostramos una tienda de relleno/i);
     await expect(page.locator('#emptyReset')).toHaveText('Reintentar');
     await expect(page.locator('.product-card')).toHaveCount(0);
     // El cartel de suspensión (puerta) NO corresponde: la red falló, no la tienda.
     await expect(page.locator('#mt-gate')).toHaveCount(0);
-    // Y la pastilla de estado queda visible para que nadie la confunda.
-    await expect(page.locator('#mtModePill')).toBeVisible();
-    await expect(page.locator('#mtModePill')).toContainText('no es la tienda real');
+    // El estado de error se comunica desde el panel vacío con acción explícita para reintentar;
+    // no se renderiza la pastilla antigua de modos que esta versión ya retiró.
     await expectNoPageErrors(page);
   });
 
@@ -125,26 +127,42 @@ test.describe('Nube caída con ?tienda= (v0.20)', () => {
     await expectNoPageErrors(page);
   });
 
-  test('5 · Cambios sin sincronizar: banner en el panel y "Reintentar ahora" los sube', async ({ page }) => {
-    await stubCloud(page, liveHandlers('clave-eze-2026'));
-    await page.goto('/index.html?tienda=eze-pece#admin');
+  test('5 · Una edición cloud fallida muestra el error y permite reintentar cuando vuelve la red', async ({ page }) => {
+    let online = false;
+    let attempts = 0;
+    const handlers = liveHandlers();
+    handlers.api_save_cfg = () => {
+      attempts++;
+      return online ? { ok: true } : { ok: false, error: 'sin_conexion' };
+    };
+    const calls = await stubCloud(page, handlers);
+    await page.goto('/index.html?tienda=eze-pece&front=luma#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
-    await page.locator('#loginForm input[name="pin"]').fill('clave-eze-2026');
+    await page.locator('#loginForm input[name="pin"]').fill('test-owner-key');
     await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
+    await page.locator('#viewStore').click();
+    await expect(page.locator('.mt-edit-bar')).toBeVisible();
+    await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
 
-    // Un cambio quedó en el equipo sin subir (lo que deja el panel cuando una
-    // escritura falla a medias). El banner lo avisa y ofrece reintentar.
-    await page.evaluate(() => {
-      sessionStorage.setItem('luma_sync_dirty', '1');
-      window.mtCloudGlue.syncBar();
-    });
-    await expect(page.locator('#mtSyncBar')).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('#mtSyncBar')).toContainText('Sin conexión con la nube');
+    const target = page.locator('[data-content="heroCardName"]');
+    const original = (await target.textContent())?.trim() || '';
+    await target.click();
+    const pop = page.locator('.mt-edit-popover');
+    await expect(pop).toBeVisible();
+    await pop.locator('input').fill('Cambio pendiente en la nube');
+    await pop.locator('[data-mt-save]').click();
+    await expect(pop.locator('.mt-err')).toBeVisible({ timeout: 15_000 });
+    await expect(pop.locator('.mt-err')).toContainText(/nube|conexión/i);
+    await expect(target).toHaveText(original);
+    expect(attempts).toBe(1);
 
-    // Vuelve la nube: "Reintentar ahora" sube lo pendiente y el banner se va.
-    await page.locator('#mtSyncRetry').click();
-    await expect(page.locator('#mtSyncBar')).toHaveCount(0, { timeout: 30_000 });
+    // Al volver la conexión, el dueño puede volver a pulsar Guardar en el mismo editor.
+    online = true;
+    await pop.locator('[data-mt-save]').click();
+    await expect(pop.locator('.mt-saved')).toBeVisible({ timeout: 15_000 });
+    await expect(target).toHaveText('Cambio pendiente en la nube');
+    await expect.poll(() => calls.filter((c) => c.name === 'api_save_cfg').length).toBe(2);
     await expectNoPageErrors(page);
   });
 

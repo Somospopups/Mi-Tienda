@@ -155,7 +155,7 @@ test.describe('Cambio de Clave de acceso en la nube (panel del dueño)', () => {
     expect(change.body.p_new_key).toBe('pan-esperanza-2026');
 
     // La sesión sigue viva con la clave nueva (si no, el panel se cortaría al minuto)
-    expect(await page.evaluate(() => sessionStorage.getItem('luma_admin_token'))).toBe('ck:pan-esperanza-2026');
+    expect(await page.evaluate(() => sessionStorage.getItem('luma_admin_token'))).toBeNull();
     expect(state.key).toBe('pan-esperanza-2026');
 
     // El panel sigue operando: guardar ajustes sincroniza con la clave nueva
@@ -264,6 +264,10 @@ test.describe('PIN de la demo offline (sin ?tienda=)', () => {
 
     // el Pin nuevo rige de inmediato: salir y volver a entrar
     await page.locator('#logoutButton').click();
+    const confirmPopover = page.locator('#confirmPopover');
+    if (await confirmPopover.isVisible()) await page.locator('#confirmAccept').click();
+    await expect(page.locator('#adminApp')).toBeHidden();
+    await page.locator('#tfAdmin').click();
     await expect(page.locator('#adminLogin')).toBeVisible();
     await page.locator('#loginForm input[name="pin"]').fill('4321');
     await page.locator('#loginForm #btnSubmitLogin').click();
@@ -281,6 +285,11 @@ test.describe('PIN de la demo offline (sin ?tienda=)', () => {
     await expect(page.locator('#toastRegion')).toContainText('El PIN actual no es correcto', { timeout: 20_000 });
 
     await page.locator('#logoutButton').click();
+    const confirmPopover = page.locator('#confirmPopover');
+    if (await confirmPopover.isVisible()) await page.locator('#confirmAccept').click();
+    await expect(page.locator('#adminApp')).toBeHidden();
+    await page.locator('#tfAdmin').click();
+    await expect(page.locator('#adminLogin')).toBeVisible();
     await page.locator('#loginForm input[name="pin"]').fill('1234');
     await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });

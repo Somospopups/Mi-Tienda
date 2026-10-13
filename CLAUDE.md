@@ -1,11 +1,10 @@
-# CLAUDE.md
+# Guía para asistentes de código
 
-**Leé y seguí [`AGENTS.md`](AGENTS.md) antes de tocar cualquier archivo.** Contiene las reglas completas de este repo.
-
-Resumen de las tres que ya causaron problemas (rompen la app si las incumplís):
-
-1. **`git fetch` + `git rebase origin/main` antes de cada commit.** Este repo lo editan dos AIs en paralelo sobre el mismo monolito `index.html`; empujar desde un árbol viejo o regenerar `index.html` completo desde una copia propia **borra el trabajo del otro**. Ediciones puntuales sobre el archivo actual, siempre.
-2. **No corras ningún formatter sobre `index.html`** (Prettier/Beautify/js-beautify). Inserta saltos de línea dentro del string de jsPDF y rompe la carga de todas las páginas con `SyntaxError`.
-3. **Cero secretos en texto plano.** Validar solo por hash vía `mtMasterKeyOk()` / `mtSuperKeyOk()` (`MT_MASTER_SHA256` / `MT_SUPER_SHA256`), incluidos los comentarios.
-
-Antes de empujar: 7/7 bloques `node --check` + `npx playwright test master-key login-hint smoke`.
+1. Leer `AGENTS.md` antes de editar.
+2. Tratar `index.html` como monolito: cambios puntuales, sin formateadores, y validar todos los scripts inline.
+3. No copiar credenciales, PIN, hashes o tokens a la respuesta, comandos visibles, logs ni archivos. Si se detecta una exposición, retirarla y recomendar rotación; no afirmar que se rotó sin acceso confirmado.
+4. No reintroducir bypass de cliente, autenticación compartida, persistencia de claves cloud ni relays externos.
+5. Una URL `?tienda=` nunca cae a datos de demo/local si Supabase falla.
+6. No aplicar SQL a producción sin autorización explícita. Mantener las migraciones revisables y sin secretos.
+7. Antes de commit, `git fetch origin` y `git rebase origin/main`; nunca `push --force`.
+8. Sincronizar el número del footer, `package.json` y `CHANGELOG.md`; ejecutar `npm run check:syntax` y las pruebas de Playwright.

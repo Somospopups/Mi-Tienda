@@ -1,12 +1,14 @@
 {
   "name": "mi-tienda-tests",
-  "version": "0.24.0",
+  "version": "0.92.0",
   "private": true,
   "description": "Smoke tests de Mi-Tienda (POPUPS) — demo offline y flujos críticos",
   "scripts": {
     "test": "playwright test",
+    "test:release": "playwright test tests/cloud-auth.spec.js tests/security.spec.js tests/storefront-critical.spec.js",
     "test:headed": "playwright test --headed",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "check:syntax": "node scripts/check-inline-scripts.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.47.0"

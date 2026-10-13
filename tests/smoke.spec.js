@@ -12,7 +12,12 @@ const { test, expect } = require('@playwright/test');
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
-    try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
+    try {
+      if (!sessionStorage.getItem('__mt_smoke_clean')) {
+        localStorage.clear(); sessionStorage.clear();
+        sessionStorage.setItem('__mt_smoke_clean', '1');
+      }
+    } catch (_) {}
   });
   const errors = [];
   page.on('pageerror', (err) => errors.push(String(err)));
@@ -27,6 +32,48 @@ async function expectNoPageErrors(page) {
   // @ts-ignore
   const errors = page.__jsErrors || [];
   expect(errors, `Errores JS en consola:\n${errors.join('\n')}`).toEqual([]);
+}
+
+const STORE_KEY = 'luma_offline_store_v1';
+
+async function setLocalFront(page, front) {
+  await page.goto('/index.html');
+  await expect(page.locator('#productGrid .product-card').first()).toBeVisible({ timeout: 15_000 });
+  await page.evaluate(([key, value]) => {
+    const store = JSON.parse(localStorage.getItem(key) || '{}');
+    if (!store.settings) throw new Error('La tienda demo no inicializó sus ajustes.');
+    store.settings.storefront = value;
+    localStorage.setItem(key, JSON.stringify(store));
+    localStorage.setItem('luma_active_front', value);
+  }, [STORE_KEY, front]);
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-front', front);
+}
+
+async function addFirstProduct(page) {
+  const button = page.locator('#productGrid [data-add-product]').first();
+  await expect(button).toBeVisible({ timeout: 15_000 });
+  await button.click();
+  const lead = page.locator('#leadCaptureBackdrop');
+  if (await lead.isVisible()) {
+    await page.locator('#leadNameInput').fill('Persona de prueba');
+    await page.locator('#leadPhoneInput').fill('2065550100');
+    await page.locator('#leadCaptureForm button[type="submit"]').click();
+    await expect(lead).toBeHidden();
+  }
+}
+
+async function openStoreCart(page) {
+  const techCart = page.locator('#tfCart');
+  if (await techCart.isVisible()) await techCart.click();
+  else await page.locator('#cartButton').click();
+}
+
+async function demoPin(page) {
+  const hint = await page.locator('#loginCloudHint').textContent();
+  const value = hint?.match(/\b\d{4}\b/)?.[0];
+  expect(value).toBeTruthy();
+  return value;
 }
 
 test.describe('Tienda pública (demo offline)', () => {
@@ -50,8 +97,13 @@ test.describe('Tienda pública (demo offline)', () => {
     const label = await addBtn.getAttribute('aria-label') || '';
     const name = label.replace(/^Agregar\s+|\s+al carrito$/g, '');
     await addBtn.click();
+    await expect(page.locator('#leadCaptureBackdrop')).toBeVisible();
+    await page.locator('#leadNameInput').fill('Persona de prueba');
+    await page.locator('#leadPhoneInput').fill('2065550100');
+    await page.locator('#leadCaptureForm button[type="submit"]').click();
+    await expect(page.locator('#leadCaptureBackdrop')).toBeHidden();
     await expect(page.locator('#cartCount')).toHaveText('1');
-    await page.locator('#cartButton').click();
+    await openStoreCart(page);
     await expect(page.locator('#cartDrawer')).toBeVisible();
     await expect(page.locator('#cartContent')).toContainText(name);
     await expectNoPageErrors(page);
@@ -60,8 +112,8 @@ test.describe('Tienda pública (demo offline)', () => {
   test('3 · Checkout demo de punta a punta (Mercado Pago simulado)', async ({ page }) => {
     await page.goto('/index.html');
     await expect(page.locator('#productGrid [data-add-product]').first()).toBeVisible({ timeout: 15_000 });
-    await page.locator('#productGrid [data-add-product]').first().click();
-    await page.locator('#cartButton').click();
+    await addFirstProduct(page);
+    await openStoreCart(page);
     await page.locator('#checkoutButton').click();
     await expect(page.locator('#checkoutForm')).toBeVisible();
 
@@ -83,7 +135,7 @@ test.describe('Tienda pública (demo offline)', () => {
   });
 
   test('4 · Newsletter exige consentimiento y confirma por toast', async ({ page }) => {
-    await page.goto('/index.html');
+    await setLocalFront(page, 'luma');
     await expect(page.locator('#newsletterForm')).toBeVisible({ timeout: 15_000 });
 
     // sin consentimiento el input required bloquea el submit (validación nativa);
@@ -110,7 +162,7 @@ test.describe('Panel de administración (demo offline)', () => {
   async function loginAdmin(page) {
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-    await page.locator('#loginForm input[name="pin"]').fill('1234');
+    await page.locator('#loginForm input[name="pin"]').fill(await demoPin(page));
     await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
   }
@@ -155,8 +207,8 @@ test.describe('Panel de administración (demo offline)', () => {
     // compra
     await page.goto('/index.html');
     await expect(page.locator('#productGrid [data-add-product]').first()).toBeVisible({ timeout: 15_000 });
-    await page.locator('#productGrid [data-add-product]').first().click();
-    await page.locator('#cartButton').click();
+    await addFirstProduct(page);
+    await openStoreCart(page);
     await page.locator('#checkoutButton').click();
     await page.locator('#checkoutForm input[name="name"]').fill('Ana Test');
     await page.locator('#checkoutForm input[name="phone"]').fill('3515550000');
@@ -170,7 +222,7 @@ test.describe('Panel de administración (demo offline)', () => {
     await expect(page.locator('#successBackdrop')).toBeHidden();
     await page.goto('/index.html#admin');
     await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-    await page.locator('#loginForm input[name="pin"]').fill('1234');
+    await page.locator('#loginForm input[name="pin"]').fill(await demoPin(page));
     await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible();
     await page.locator('[data-admin-tab="orders"]').click();

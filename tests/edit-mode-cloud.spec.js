@@ -105,7 +105,7 @@ function fakeCloudStore(seed = { slug: 'prueba', key: 'clave-dueño-2026', biz: 
 
 /** Login cloud (dueño) → "Ver tienda / Editar" → el modo edición queda activo. */
 async function enterEditModeCloud(page) {
-  await page.goto('/index.html?tienda=prueba#admin');
+  await page.goto('/index.html?tienda=prueba&front=luma#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('#loginForm').getByText('Clave de acceso (te la dio POPUPS)')).toBeVisible();
   await page.locator('#loginForm input[name="pin"]').fill('clave-dueño-2026');
@@ -113,8 +113,7 @@ async function enterEditModeCloud(page) {
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
 
   await page.locator('#viewStore').click();
-  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
+  await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
   await expect(page.locator('#shopApp')).toBeVisible();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
@@ -218,7 +217,7 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
 
     // Simular una sesión con un fallo de sync previo: espejo local con un cambio
     // que la nube todavía no tiene, y el flag "dirty" activo (como deja mtAdmWrite).
-    await page.goto('/index.html?tienda=prueba#admin');
+    await page.goto('/index.html?tienda=prueba&front=luma#admin');
     await page.evaluate(() => {
       sessionStorage.setItem('luma_mirror_slug', 'prueba');
       sessionStorage.setItem('luma_sync_dirty', '1');
@@ -227,9 +226,9 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
         settings: { brandName: 'Panadería Test' },
         content: { heroCardName: 'Mi Panadería Local' },
         legal: {}, products: [], orders: [], customers: [], subscribers: [],
-        finance: { movements: [], accounts: [] }, security: { adminPin: 'cloud' }
+        finance: { movements: [], accounts: [] }, security: { adminPin: '' }
       };
-      localStorage.setItem('luma_offline_store_v1', JSON.stringify(local));
+      localStorage.setItem('popups_store_prueba', JSON.stringify(local));
     });
 
     await page.locator('#loginForm input[name="pin"]').fill('clave-dueño-2026');
@@ -271,15 +270,14 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
 
     // Escenario real: api_admin → 'create_store' solo con id/key/biz. La tienda
     // arranca sin cfg: el login del dueño usa la clave recién generada.
-    await page.goto('/index.html?tienda=prueba#admin');
+    await page.goto('/index.html?tienda=prueba&front=luma#admin');
     await expect(page.locator('#loginForm input[name="pin"]')).toBeVisible({ timeout: 20_000 });
     await page.locator('#loginForm input[name="pin"]').fill(key);
     await page.locator('#loginForm #btnSubmitLogin').click();
     await expect(page.locator('#adminShell')).toBeVisible({ timeout: 20_000 });
 
     await page.locator('#viewStore').click();
-    await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-    await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
+    await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
     await expect(page.locator('.mt-edit-bar')).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
 
@@ -302,7 +300,7 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
 
     // Recargar como VISITANTE (sin token ni espejo local): el cambio persiste en la nube.
     await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
-    await page.goto('/index.html?tienda=prueba');
+    await page.goto('/index.html?tienda=prueba&front=luma');
     await expect(page.locator('[data-content="heroCardName"]')).toHaveText('Lámpara Norteña', { timeout: 20_000 });
     await expectNoPageErrors(page);
   });
@@ -330,8 +328,10 @@ test.describe('Modo edición visual en la nube (dueño cloud)', () => {
 
     // Terminar vuelve al panel; el visitante sin sesión ve el home armado.
     await page.locator('[data-mt-done]').click();
+    await expect(page.locator('#confirmPopover')).toBeVisible();
+    await page.locator('#confirmAccept').click();
     await expect(page.locator('#adminShell')).toBeVisible();
-    await page.goto('/index.html?tienda=prueba');
+    await page.goto('/index.html?tienda=prueba&front=luma');
     await expect(page.locator('body')).toHaveClass(/mt-page/);
     await expect(page.locator('.bl-hero h2')).toHaveText('Bienvenido a la prueba');
     await expect(page.locator('#frontOfertas')).toBeHidden();

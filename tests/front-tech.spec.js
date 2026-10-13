@@ -57,9 +57,13 @@ test.describe('Frente TECH (v0.16)', () => {
 
   test('T2 · La cabecera fusionada reemplaza al header y conserva las acciones', async ({ page }) => {
     await openTech(page);
-    await expect(page.locator('.site-header')).toBeHidden();
+    await expect(page.locator('#siteHeader')).toBeHidden();
     await expect(page.locator('#tfHead')).toBeVisible();
-    await expect(page.locator('#tfCats .tf-cat')).toHaveCount(5);
+    await expect(page.locator('#tfCats [data-tf-home]')).toHaveCount(1);
+    await expect(page.locator('#tfCats [data-tf-cat]')).toHaveCount(6);
+    await expect(page.locator('#tfCats .tf-cat')).toHaveCount(7);
+    expect(await page.locator('#tfCats [data-tf-cat]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-tf-cat'))))
+      .toEqual(['todo', 'fundas', 'audio', 'cargadores', 'pcmac', 'tecnico']);
     await expect(page.locator('#tfSearch')).toBeVisible();
     await expect(page.locator('#tfAdmin')).toBeVisible();
     await expect(page.locator('#tfCart')).toBeVisible();
@@ -104,6 +108,11 @@ test.describe('Frente TECH (v0.16)', () => {
     await openTech(page);
     await expect(page.locator('#tfCartCount')).toHaveText('0');
     await page.locator('#productGrid .product-card .product-add').first().click();
+    await expect(page.locator('#leadCaptureBackdrop')).toBeVisible();
+    await page.locator('#leadNameInput').fill('Persona de prueba');
+    await page.locator('#leadPhoneInput').fill('2065550100');
+    await page.locator('#leadCaptureForm button[type="submit"]').click();
+    await expect(page.locator('#leadCaptureBackdrop')).toBeHidden();
     await expect(page.locator('#cartCount')).toHaveText('1');
     await expect(page.locator('#tfCartCount')).toHaveText('1');
     await expectNoPageErrors(page);
@@ -155,17 +164,29 @@ test.describe('Frente TECH (v0.16)', () => {
   test('T10 · Los otros frentes siguen intactos', async ({ page }) => {
     await page.goto('/index.html');
     await expect(page.locator('#productGrid .product-card').first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('body')).toHaveAttribute('data-front', 'luma');
+    await expect(page.locator('body')).toHaveAttribute('data-front', 'tech');
+
+    const selectFront = async (front) => {
+      await page.evaluate((value) => {
+        const key = 'luma_offline_store_v1';
+        const store = JSON.parse(localStorage.getItem(key) || '{}');
+        store.settings.storefront = value;
+        localStorage.setItem(key, JSON.stringify(store));
+        localStorage.setItem('luma_active_front', value);
+      }, front);
+      await page.goto('/index.html');
+      await expect(page.locator('body')).toHaveAttribute('data-front', front);
+    };
+
+    await selectFront('luma');
     await expect(page.locator('#frontTech')).toBeHidden();
     await expect(page.locator('#lumaHeadBlock .hero')).toBeVisible();
 
-    await page.goto('/index.html?front=gamer');
-    await expect(page.locator('body')).toHaveAttribute('data-front', 'gamer');
+    await selectFront('gamer');
     await expect(page.locator('#frontGamer')).toBeVisible();
     await expect(page.locator('#frontTech')).toBeHidden();
 
-    await page.goto('/index.html?front=ofertas');
-    await expect(page.locator('body')).toHaveAttribute('data-front', 'ofertas');
+    await selectFront('ofertas');
     await expect(page.locator('#frontOfertas')).toBeVisible();
     await expect(page.locator('#frontTech')).toBeHidden();
     await expectNoPageErrors(page);

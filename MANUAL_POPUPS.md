@@ -1,101 +1,45 @@
-# POPUPS Business Platform · Manual Maestro de Arquitectura y Operaciones
+# Manual de operación · Mi-Tienda / POPUPS
 
-> **IMPORTANTE PARA CUALQUIER AGENTE / MODELO DE INTELIGENCIA ARTIFICIAL:**  
-> Este documento define las reglas de negocio, la arquitectura inviolable del sistema, el flujo de desarrollo para nuevos clientes y el protocolo estricto de entrega mediante `PUBLICAR.bat`. Cualquier modificación en este repositorio DEBE respetar estas directivas.
+## 1. Abrir una tienda
 
----
+- Una URL sin `?tienda=` abre la demo local; úsala para explorar la interfaz, no para operar datos de un cliente.
+- `?tienda=<slug>` abre una tienda cloud. El slug, el catálogo y el estado del servicio se consultan en Supabase.
+- Si la nube no responde, la página muestra un error y permite reintentar. No uses ni aceptes datos de la demo como reemplazo de una tienda cloud.
+- El dueño entra desde `?tienda=<slug>#admin` con la clave propia de su comercio.
 
-## 1. El Modelo de Negocio de POPUPS
+## 2. Acceso del dueño
 
-POPUPS es una plataforma de software e infraestructura para vender tiendas web autogestionables a diversos comercios (tecnología, indumentaria, gastronomía, ferretería, servicios, etc.).
+La clave del dueño se valida en la RPC `api_panel`. En cloud, el navegador conserva la clave solo en memoria durante esa sesión; al recargar se solicita otra vez. No la compartas por comentarios, capturas, documentos públicos o correo sin protección.
 
-- Cada cliente recibe su enlace personalizado con su propio identificador:  
-  `https://somospopups.github.io/Mi-Tienda/?tienda=<identificador-del-cliente>`
-- La vidriera de cada cliente se **diseña y personaliza a medida** en conjunto con él.
-- El cliente tiene autonomía total para gestionar sus productos, precios, fotos, pedidos y cobros desde su propio panel administrativo (`#admin`).
-- El desarrollador (POPUPS) tiene control centralizado a través de su **Super Admin Secreto** (`Ger899339`).
+La consola no puede recuperar una clave existente. Si se pierde, la persona autorizada debe rotarla desde POPUPS y entregar la nueva clave una sola vez por un canal acordado con el cliente. La guía PDF de bienvenida no incluye claves.
 
----
+## 3. Consola POPUPS
 
-## 2. Los 3 Pilares Sagrados e Intocables (Core Inviolable)
+1. En la pantalla de acceso, abrir **Acceso POPUPS · administración**.
+2. Ingresar la clave central. La valida Supabase mediante `api_admin`; no es la clave de un dueño.
+3. Revisar el listado, cambiar fecha/estado/frente y guardar.
+4. Para crear una tienda, completar comercio, slug, titular, WhatsApp y vencimiento. Se puede ingresar una clave de dueño de 12–64 caracteres o dejarla vacía para generarla con el generador criptográfico del navegador.
+5. La clave inicial aparece en un diálogo de entrega única. Copiarla y entregarla al dueño antes de cerrar el diálogo.
+6. Para rotar, usar **Rotar clave** y guardar la nueva clave mostrada una sola vez. La anterior deja de funcionar.
+7. Para cambiar la vidriera, seleccionar el frente y usar **Guardar**. El nuevo valor se guarda en la configuración cloud.
 
-Bajo ninguna circunstancia ni actualización se deben alterar o romper estos 3 pilares estructurales:
+Si la consola informa que falta la acción de vidriera, significa que la migración aún no está instalada. No intentes evitarlo con almacenamiento local.
 
-### Pilar 1: La Cabecera Superior de la Vidriera (`#siteHeader` / `.tf-head`)
-- **Navegación fluida y rápida**: Categorías dinámicas clickeables con desplazamiento táctil suave.
-- **Acciones directas fijas**:
-  - Acceso directo al Carrito de compras con contador en tiempo real (`#cartButton` / `#tfCart`).
-  - Buscador predictivo en vivo (`#tfSearch` / `#searchInput`).
-  - Botón de acceso al Panel de Administración (`#tfAdmin` / `#adminButton`).
-- **Comportamiento**: Sticky responsivo al hacer scroll, sin oscilaciones ni temblores (`jitter`), optimizado para no ocupar espacio excesivo en celulares.
+## 4. Supabase y seguridad
 
-### Pilar 2: El Pie de Página Oficial POPUPS (`.footer-bottom`)
-- **Firma de autoría no invasiva**:
-  - Sello en cápsula moderna con motion graphics: **Aurora Glow Glass**.
-  - Texto exacto en mayúsculas: `DESARROLLADO POR` seguido del **Isotipo oficial de POPUPS** (contorno blanco nítido, letra P blanca y punto verde lima fluorescente brillante `#bbf426`).
-  - Enlace oficial externo clickeable: `https://somospopups.netlify.app/` (abre en pestaña nueva con `target="_blank" rel="noopener"`).
-  - Centrado simétrico y armónico en celulares junto con el copyright de la tienda y la versión del sistema.
+- `supabase/super-admin-secure.sql`: restaura las ocho RPC de tienda desde el snapshot del repo, quita el antiguo helper de clave global, endurece `api_admin`, aplica límites de intentos y añade `set_storefront`.
+- `supabase/rotate-admin-pin.template.sql`: instrucciones de rotación sin una clave real. Generar una nueva fuera del repo y actualizar el hash de `config.admin_pin` desde un entorno autorizado.
+- Revisar primero `supabase/schema-real.sql` y comparar las definiciones actuales de producción con la migración.
+- La migración no debe ejecutarse desde `PUBLICAR.bat` ni desde el navegador. Este paquete solo la entrega para revisión y aplicación explícita.
+- Los archivos y commits históricos pueden conservar referencias ya retiradas. No reescribir la historia compartida; rotar cualquier secreto que haya podido quedar expuesto.
 
-### Pilar 3: El Panel de Administración Universal (`#adminApp`)
-- **Acceso Privado Neutro (`#adminLogin`)**:
-  - Encabezado corporativo universal: `🔒 ACCESO PRIVADO · ADMINISTRACIÓN`.
-  - **Sin logos de tiendas específicas ni marcas particulares**: es exactamente la misma pantalla ejecutiva para todos los clientes del mundo.
-  - Fotografía institucional de arquitectura/oficinas modernas en el lateral derecho con la premisa:  
-    *"Todo tu negocio en orden. Decisiones con claridad."*
-- **Ingreso del Dueño del Comercio**:
-  - Clave universal inicial por defecto: **`1234`**.
-  - Al ingresar con `1234`, el sistema despliega el popup para que configure su clave personal definitiva.
-  - La sesión administrativa opera con token local (`offline-admin-token`), permitiendo gestión total sin depender de la nube de Supabase.
-- **Panel Maestro de Desarrollador / Super Admin (`Ger899339`)**:
-  - Acceso escribiendo `Ger899339` en la casilla de clave.
-  - Tabla de control de tiendas: Nombre del Comercio, Nombre del Titular, Frente asignado (exclusivo para el desarrollador, oculto del cliente), Fecha de Vencimiento, Estado (activa/suspendida), Clave elegida por el cliente (modo solo lectura), botón para **Blanquear** la clave a `1234`, botón directo a WhatsApp del titular y botón para copiar el enlace de la tienda.
-  - Guardado rápido fila por fila con el botón de tilde (`✓`).
-- **Clave Maestra Universal**:
-  - **`Ger13811`** permite ingresar directo como administrador en cualquier tienda sin restricciones.
+## 5. Desarrollo y publicación
 
----
+Usa `AGENTS.md` como reglas de contribución. Antes de publicar:
 
-## 3. Protocolo Estricto de Entrega con `PUBLICAR.bat` (Flujo de Trabajo del Usuario)
+```bash
+npm run check:syntax
+npm run test:release -- --reporter=line
+```
 
-El usuario tiene un método de publicación automatizado, simple y cómodo en Windows basado en un archivo `.bat`:
-
-### ¿Cómo funciona el paquete de actualización?
-1. Cada entrega se empaqueta en un archivo ZIP descargable:  
-   `/home/user/actualizacion-mi-tienda-v0.16.0.zip`
-2. El ZIP contiene una carpeta con:
-   - `PUBLICAR.bat`: Script batch para Windows de 1 solo clic.
-   - `cambio-v0.16.0.bundle`: Git bundle autocontenido con los commits generados sobre el último commit remoto de `origin/main`.
-   - `LEEME.txt`: Breve instrucción explicativa.
-3. El usuario simplemente:
-   - Descarga el ZIP.
-   - Descomprime la carpeta.
-   - Hace **doble clic en `PUBLICAR.bat`**.
-   - El script clona en `%TEMP%`, aplica los cambios automáticamente y ejecuta `git push origin main`.
-   - En 1 minuto, GitHub Pages publica la nueva versión en la web.
-
-### Reglas críticas para la IA al preparar actualizaciones:
-- **Siempre sincronizar contra el último commit de `origin/main`** antes de generar el bundle (`git fetch origin main`), para evitar conflictos de cherry-pick.
-- **Incrementar correlativamente la versión** (v55 -> v56 -> v57 -> v58 -> v59...) en el pie de página (`<span>vXX</span>`).
-- **Verificar sintaxis con `node --check`** en todos los scripts antes de empaquetar para evitar roturas silenciosas en el navegador del cliente.
-
----
-
-## 4. Guía para Diseñar una Nueva Vidriera con un Cliente
-
-Cuando se venda una página a un nuevo comercio:
-1. **Crear la tienda en el Super Admin (`Ger899339`)**:
-   - Ingresar con `Ger899339`.
-   - Asignar Nombre del comercio, Titular, WhatsApp, Slug (ej: `calzados-cordoba`) y fecha de abono.
-   - La clave se asigna automáticamente en `1234`.
-2. **Definir el Frente de Tienda (`storefront`)**:
-   - `tech`: Vidriera tecnológica (como Eze-pece), flat-lay con cambio de categorías y servicio técnico.
-   - `luma`: Tienda boutique minimalista con diseño esencial.
-   - `ofertas`: Diseño tipo supermercado enfocado en promociones masivas.
-   - `gamer`: Estética oscura con alto impacto visual y acentos neón.
-   - `libre`: Catálogo abierto y flexible para propósitos generales.
-3. **Personalizar el Catálogo y Secciones Intermedias**:
-   - El cliente o vos pueden cargar los productos, precios, fotos y descripciones desde el panel de administración.
-   - La cabecera superior y el pie de página oficial de POPUPS se mantienen automáticamente intactos.
-
----
-*Documento mantenido y actualizado por POPUPS · Todos los derechos reservados.*
+En Windows, `PUBLICAR.bat` hace `git fetch`, guarda/restaura los cambios locales alrededor del rebase de `origin/main`, valida los flujos vigentes, y pide confirmación antes del commit y el push normal. Si hay conflictos o fallan esas pruebas, se detiene; no fuerza el push ni aplica SQL. `npm test -- --reporter=line` ejecuta además specs históricos que todavía requieren migración.

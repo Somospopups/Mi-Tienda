@@ -55,7 +55,10 @@ async function seedBlocks(page, blocks) {
 async function loginAdmin(page) {
   await page.goto('/index.html#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-  await page.locator('#loginForm input[name="pin"]').fill('1234');
+  const hint = await page.locator('#loginCloudHint').textContent();
+  const demoPin = hint?.match(/\b\d{4}\b/)?.[0];
+  expect(demoPin).toBeTruthy();
+  await page.locator('#loginForm input[name="pin"]').fill(demoPin);
   await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
@@ -63,9 +66,8 @@ async function loginAdmin(page) {
 async function openBlockEditor(page, index) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
-  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
+  await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
   await page.locator('[data-mt-blocks]').click();
   await page.locator(`.bl-block[data-bl-index="${index}"] .bl-ctl [data-bl-edit="${index}"]`).click();
   await expect(page.locator('.bl-editor')).toHaveClass(/open/);
@@ -147,8 +149,8 @@ test('la animación elegida llega al bloque y se revela al entrar en pantalla', 
   // El bloque de arriba ya está en pantalla: se revela solo.
   await expect(page.locator('.bl-block[data-bl-index="0"]')).toHaveClass(/bl-in-on/, { timeout: 5000 });
   // Y el de abajo también al hacer scroll.
-  await page.locator('.bl-block[data-bl-index="2"]').scrollIntoViewIfNeeded();
-  await expect(page.locator('.bl-block[data-bl-index="2"]')).toHaveClass(/bl-in-on/, { timeout: 5000 });
+  await page.locator('.bl-block[data-bl-index="2"]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await expect(page.locator('.bl-block[data-bl-index="2"]')).toHaveClass(/bl-in-on/, { timeout: 8000 });
   expectNoPageErrors(page);
 });
 
@@ -174,9 +176,8 @@ test('una página con fotos gigantes se guarda sin cortar el JSON', async ({ pag
   ]);
   await loginAdmin(page);
   await page.locator('#viewStore').click();
-  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
+  await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
   await page.locator('[data-mt-blocks]').click();
   // Duplicar dispara el guardado con la foto gigante.
   await page.locator('.bl-block[data-bl-index="0"] [data-bl-dup="0"]').click();

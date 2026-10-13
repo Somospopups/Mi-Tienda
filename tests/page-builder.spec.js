@@ -58,7 +58,10 @@ async function seedBlocks(page, blocks) {
 async function loginAdmin(page) {
   await page.goto('/index.html#admin');
   await expect(page.locator('#adminLogin')).toBeVisible({ timeout: 15_000 });
-  await page.locator('#loginForm input[name="pin"]').fill('1234');
+  const hint = await page.locator('#loginCloudHint').textContent();
+  const demoPin = hint?.match(/\b\d{4}\b/)?.[0];
+  expect(demoPin).toBeTruthy();
+  await page.locator('#loginForm input[name="pin"]').fill(demoPin);
   await page.locator('#loginForm #btnSubmitLogin').click();
   await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
@@ -102,11 +105,17 @@ async function openBlockEditor(page, index) {
 async function enterEditMode(page) {
   await loginAdmin(page);
   await page.locator('#viewStore').click();
-  await expect(page.locator('#modeChooserBackdrop')).toBeVisible();
-  await page.locator('#modeChooserGrid [data-mode-id="luma"]').click();
   await expect(page.locator('#shopApp')).toBeVisible();
   await expect(page.locator('.mt-edit-bar')).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
+  await expect(page.locator('#modeChooserBackdrop')).toHaveCount(0);
+}
+
+async function saveAndFinishEditMode(page) {
+  await page.locator('[data-mt-done]').click();
+  await expect(page.locator('#confirmPopover')).toBeVisible();
+  await page.locator('#confirmAccept').click();
+  await expect(page.locator('#adminShell')).toBeVisible({ timeout: 15_000 });
 }
 
 test('1 · El botón "Bloques" abre el panel lateral y los complementos se agregan y se guardan', async ({ page }) => {
@@ -140,7 +149,7 @@ test('1 · El botón "Bloques" abre el panel lateral y los complementos se agreg
   expect(stored[0].id).toMatch(/^bl-/);
 
   // "Terminar" sale del modo edición y vuelve al panel…
-  await page.locator('[data-mt-done]').click();
+  await saveAndFinishEditMode(page);
   await expect(page.locator('#adminShell')).toBeVisible();
   await expect(page.locator('body')).not.toHaveClass(/bl-editing/);
   await expect(page.locator('.bl-panel')).toBeHidden();
@@ -230,7 +239,7 @@ test('4 · Reordenar, duplicar y eliminar bloques persiste el resultado', async 
   expect(stored.map((b) => b.id)).toEqual(['bl-a', 'bl-b']);
   expect(new Set(stored.map((b) => b.id)).size).toBe(2);
 
-  await page.locator('[data-mt-done]').click();
+  await saveAndFinishEditMode(page);
   expectNoPageErrors(page);
 });
 
@@ -249,12 +258,17 @@ test('5 · Tocar un bloque en modo edición abre su editor, y el catálogo públ
   await page.locator('[data-bl-editor-save]').click();
 
   // Terminar vuelve al panel; publicada, la página sigue comprando para el público.
-  await page.locator('[data-mt-done]').click();
+  await saveAndFinishEditMode(page);
   await expect(page.locator('#adminShell')).toBeVisible();
   await page.goto('/index.html');
   const addBtn = page.locator('#frontBuilder [data-add-product]').first();
   await expect(addBtn).toBeVisible();
   await addBtn.click();
+  await expect(page.locator('#leadCaptureBackdrop')).toBeVisible();
+  await page.locator('#leadNameInput').fill('Persona de prueba');
+  await page.locator('#leadPhoneInput').fill('2065550100');
+  await page.locator('#leadCaptureForm button[type="submit"]').click();
+  await expect(page.locator('#leadCaptureBackdrop')).toBeHidden();
   await expect(page.locator('#cartCount')).toHaveText('1');
   expectNoPageErrors(page);
 });
@@ -315,7 +329,7 @@ test('6 · El panel y el editor se abren sin taparse ni tapar la barra de edici�
 
   // Y con panel + editor abiertos tampoco hay scroll horizontal.
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-  await page.locator('[data-mt-done]').click();
+  await saveAndFinishEditMode(page);
   await expect(page.locator('.bl-panel')).toBeHidden();
   await expect(page.locator('body')).not.toHaveClass(/bl-editing/);
   expectNoPageErrors(page);
@@ -367,7 +381,7 @@ test('con página personalizada, "Explorar la tienda" del carrito muestra el cat
   await seedBlocks(page, bugBlocks());
   await expect(page.locator('body')).toHaveClass(/mt-page/);
   await expect(page.locator('#coleccion')).toBeHidden();
-  await page.locator('#cartButton').click();
+  await page.locator('#tfCart').click();
   await expect(page.locator('[data-close-and-shop]')).toBeVisible();
   await page.locator('[data-close-and-shop]').click();
   // Sin catálogo a la vista, el scroll se quedaba en la nada.
@@ -395,10 +409,13 @@ test('arrastrar un bloque lo reordena y persiste el orden', async ({ page }) => 
   // Con el panel de bloques abierto los bloques se pueden arrastrar.
   await expect(page.locator('#frontBuilder .bl-block[data-bl-index="0"]')).toHaveAttribute('draggable', 'true');
 
+  const source = page.locator('#frontBuilder .bl-block[data-bl-index="0"]');
   const target = page.locator('#frontBuilder .bl-block[data-bl-index="2"]');
+  await source.scrollIntoViewIfNeeded();
+  await target.scrollIntoViewIfNeeded();
   const box = await target.boundingBox();
   // Soltar en la mitad inferior = "dejarlo después" de ese bloque.
-  await page.locator('#frontBuilder .bl-block[data-bl-index="0"]').dragTo(target, {
+  await source.dragTo(target, {
     targetPosition: { x: Math.round(box.width / 2), y: Math.round(box.height - 8) },
   });
 

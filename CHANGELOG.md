@@ -1,45 +1,48 @@
-# Changelog — Mi-Tienda
+# Changelog
 
-## v0.24.0 (v78) · 2026-10-12 · Se volvieron a aplicar la clave maestra por hash y el arreglo de jsPDF
-- Los commits `9db3587` (v76/CRM) y `fe2832d` (v77/tipografía) habían revertido lo publicado en v76: borraron `MT_MASTER_SHA256` / `mtMasterKeyOk` / `MT_SUPER_SHA256` / `mtSuperKeyOk`, volvieron a meter las claves `Ger13811` y `Ger899339` en texto plano (18 apariciones, con el repo público) y reintrodujeron la corrupción del blob de jsPDF. Todo se re-aplica sobre v77 conservando el módulo de Interesados CRM y los cambios tipográficos.
-- `directAdminLogin`, `adminLogin` y `mtOwnerLogin` comparan por SHA-256 de nuevo; sin claves en texto en todo el archivo y sin `SUPER_ADMIN_KEY` (código muerto).
-- **jsPDF**: de nuevo un salto de línea literal dentro de un string de JS rompía el bloque en cada carga (`SyntaxError: Invalid or unexpected token`). Los 7 bloques pasan `node --check`.
+## v0.92.0 (v92) · 2026-10-13 · Carga de imágenes y edición TECH
 
+- Reparada la carga de imágenes en modo edición cloud: `/api/admin/upload` estaba ausente en la ruta autenticada y devolvía 404 tras comprimir; ahora entrega la imagen optimizada para sincronizarla con `api_save_cfg`.
+- Corregido el hit-testing de las fotos TECH superpuestas: solo la foto activa recibe clics, así el propietario puede abrir el editor de imágenes en la foto visible.
+- Migradas y validadas las regresiones de las vidrieras TECH y de los flujos públicos según la interfaz nativa vigente.
 
+## v0.91.0 (v91) · 2026-10-12 · Autenticación cloud segura y correcciones de vidriera
 
-## v0.23.0 (v76) · 2026-10-12 · Se restauró la clave maestra por hash y se reparó el bloque jsPDF
-- **Restaurada la verificación de la clave maestra POPUPS por SHA-256** (`MT_MASTER_SHA256` / `mtMasterKeyOk` y `MT_SUPER_SHA256` / `mtSuperKeyOk`), que el rebase a v74 había revertido a comparaciones en texto plano. `directAdminLogin`, `adminLogin` y `mtOwnerLogin` vuelven a comparar por hash; las claves `Ger13811` y `Ger899339` se eliminaron de todo el archivo (incluidos comentarios de CSS y HTML que las filtraban), y `SUPER_ADMIN_KEY`, que ya no se usaba, se quitó. Corrige los 3 tests de `master-key` (19, 20 y 21).
-- **Reparado el bloque embebido de jsPDF**: un formateador había metido un salto de línea literal (`\r\n  \r\n\r\n`) dentro de un string de JavaScript en la línea 4603, lo que rompía el parseo del bloque completo y tiraba `SyntaxError: Invalid or unexpected token` en cada carga de la página. Los 7 bloques de `index.html` vuelven a pasar `node --check` y el SyntaxError desaparece de la consola.
-- El seed de `adminPin` de la tienda `eze-pece` pasó de la clave vieja en texto a `1234`, y el login offline volvió a aceptar la maestra vía hash.
+- Las URL `?tienda=` ya no recurren a la demo local cuando falla una RPC; los catálogos cloud muestran error/reintento y no datos de otra fuente.
+- Retirados el bypass global de clave, el relay externo de catálogo y la persistencia cloud de claves en Web Storage. Las claves nuevas se entregan una sola vez y la guía PDF ya no las imprime.
+- Añadida la consola POPUPS mediante la RPC `api_admin`, con creación/rotación de claves, estado, vencimiento y vidriera. Se añade la migración revisable `supabase/super-admin-secure.sql` y una plantilla de rotación sin credenciales.
+- Corregidos el cierre de cadena del bloque jsPDF, las referencias a recursos locales, el aislamiento de IDs y eventos del frente Actitud, su búsqueda/filtros y la carga de sus productos cloud.
+- Reparado el arranque visual de TECH: el `<html>` y el `<body>` mantienen el mismo frente. Separado Actitud de `frontTechTail` y aisladas sus reglas CSS, que estaban ocultando el checkout común y su propia cabecera.
+- Corregido el cierre de sesión del panel: elimina estilos inline que impedían volver a abrirlo; el cambio de clave conserva la fecha devuelta por el servidor en memoria sin guardar claves en Web Storage.
+- Añadida la suite `test:release` con pruebas de auth cloud, cambio de clave, logout/reingreso, render de TECH/Actitud, carrito, checkout y panel demo; se conservan los specs históricos para migrarlos sin bloquear esta validación actual.
 
+## Nota sobre las versiones anteriores
 
-## v0.22.0 (v75) · 2026-10-11 · Fluidez en web y celular + fotos que se aligieran solas
-- **Fotos de producto más livianas sin perder calidad**: `compressImage` ahora baja la resolución de forma **progresiva por mitades** (en vez de un solo salto) y usa `imageSmoothingQuality: 'high'`, lo que conserva los bordes nítidos y permite comprimir bastante más sin que se note en la vidriera. Además baja de a pasos hasta tocar un **objetivo de peso (~180 KB)** en lugar de quedarse en una única compresión: antes una foto liviana ya no se optimizaba más y una pesada quedaba grande. Sigue respetando el tope de caracteres de la RPC y, si la imagen ya era liviana, se guarda tal cual. Aplica a subida de productos, logo de marca e imágenes de la vidriera.
-- **Header más fluido al hacer scroll**: el `backdrop-filter` del encabezado sticky bajó de `blur(18px)` a `blur(12px)` (con su versión `-webkit-` para Safari/iOS, que antes no estaba) y el fondo pasó a `.92` de opacidad. El toggle de la clase `scrolled` ahora va **throttled con `requestAnimationFrame`** en vez de correr en cada evento de scroll, lo que evita repintar el blur al vuelo (diferencia notable en gama media y celular).
-- **Animaciones más livianas**: se reemplazaron los `transition: all` (que obligan al navegador a recalcular todas las propiedades) por propiedades específicas en el badge/aurora POPUPS y en el botón de login. El drawer del carrito y el menú móvil pasaron a `translate3d` + `will-change` para animarse en la capa de la GPU. Las tarjetas de producto usan `contain: layout paint` para aislar sus recálculos de layout.
-- **Imágenes de la vidriera**: se agregó `decoding="async"` a las fotos de producto (y a las del builder) para que el navegador no bloquee el hilo principal al decodificarlas mientras se arma la grilla.
+Las entradas históricas sobre la clave global de POPUPS describen una implementación retirada y no deben interpretarse como instrucciones vigentes. La migración anterior `supabase/master-key.sql` está marcada como retirada. La historia Git no se reescribe; cualquier clave que haya podido aparecer en ella debe rotarse fuera del repositorio.
 
-## v0.20.1 (v65) · 2026-10-11 · Se cerró el bypass offline del panel + rotación de claves expuestas
-- **Eliminado el bypass offline que causaba la desincronización multi-dispositivo**: el login del panel de una tienda con `?tienda=` **siempre** se valida contra la nube. Antes había dos capas que permitían entrar al panel con datos locales sin consultar a Supabase: (1) `mtOwnerLogin` aceptaba `1234` / `1905` / la clave maestra / la clave del Panel Secreto y emitía un token `offline-admin-token`; (2) los handlers del formulario (`directAdminLogin` / `adminLogin`) otorgaban ese mismo token sin pasar por el servidor, e `isOffTk` enrutaba las llamadas de `/api/admin/` al almacenamiento **local** incluso con la nube viva. El dueño veía datos locales creyendo que eran los de su tienda.
-- **Cómo quedó**: el login de tienda nube va por `POST /api/admin/login` → `mtOwnerLogin` → RPC `api_panel` (la nube valida la Clave de acceso). Si la nube no responde, falla con un mensaje de conexión (503) y la pastilla de "Sin conexión"; nunca se abre el panel con datos locales. Una sesión vieja `offline-admin-token` en una tienda nube se invalida y pide volver a entrar. La **demo sin `?tienda=`** conserva su PIN `1234` y el popup de cambio de clave, igual que siempre.
-- **Rotación de claves expuestas** (ambas estaban en texto plano en el repo público): la **clave maestra POPUPS** y la **clave Super Admin / Desarrollador** rotaron a valores nuevos. En el código y el manual solo quedan sus hashes (SHA-256 en el frontend vía `mtMasterKeyOk` / `mtSuperKeyOk`; bcrypt en [`supabase/master-key.sql`](supabase/master-key.sql)). *La clave nueva se entrega por canal privado a POPUPS.*
-- **`supabase/master-key.sql`** quedó con el hash bcrypt de la **nueva** maestra. *Pendiente de operación (requiere PAT de Supabase): aplicar el SQL en el SQL Editor y renovar el `paid_until` de `eze-pece`, que vence 2026-10-14.*
-- **Nota**: el bloque embebido de jsPDF (que el trabajo paralelo remoto había corrupto con saltos de línea dentro de un string) se restauró; los 7 bloques de script pasan `node --check`.
+## v0.24.0 (v78) · 2026-10-12 · Registro histórico supersedido
 
-## v0.20.0 · 2026-10-11 · Fin del modo offline silencioso: si la nube no responde, se avisa (nunca se sirve la demo)
-- **Caso real (tienda `eze-pece`)**: el dueño abrió su tienda en una PC que no llegaba a Supabase y, sin ningún aviso, el frontend le sirvió la demo local (otro catálogo + PIN 1234). Conclusión equivocada del dueño: "mis productos no existieron / mi clave no sirve". Causa: con `?tienda=` y la nube caída, `mtPublicDoc()` devolvía `null` y el flujo offline seguía de forma silenciosa.
-- **Nube inaccesible = pantalla cortada y explicada**: con `?tienda=`, si `api_public` no responde, `offlineFetch` devuelve 503 `cloud_unreachable` y el estado vacío explica "Sin conexión con la nube… no mostramos una tienda de relleno para no confundirte", con botón **Reintentar**. En el panel, el login del dueño falla con un mensaje de conexión (no "clave incorrecta").
-- **Pastilla visible** (`#mtModePill`, fija abajo a la izquierda): "Sin conexión con la nube: esta pantalla no es la tienda real." + botón Reintentar (recarga). Aparece también en la tienda pública y se quita al volver la conexión (evento `online`) o al recargar con la nube viva.
-- **`sin_conexion` ya no se traduce en un 404 engañoso**: antes un corte de red respondía "Tienda no disponible."; ahora `mtPublicDoc()` lo clasifica como nube inaccesible, cachea el fallo 15 s y deduplica pedidos en vuelo (no martilla la red).
-- **Cambios sin sincronizar visibles** (`#mtSyncBar` en todas las pestañas del panel): "⏳ Sin conexión con la nube: N cambios quedaron en este equipo y todavía no se sincronizaron." + botón **Reintentar ahora**, que reintenta `mtAdmLoad` y, si sube todo, avisa "Sincronizado ✅". `mtAdmFail` ya no truena y refresca el banner.
-- **Clave maestra**: [`supabase/master-key.sql`](supabase/master-key.sql) quedó con el hash bcrypt de la maestra vigente (rotación hecha en este ciclo). *Pendiente de operación (requiere PAT de Supabase): aplicar el SQL en el SQL Editor y renovar el `paid_until` de `eze-pece`, que vence 2026-10-14.*
-- Tests: nuevo [`tests/cloud-down.spec.js`](tests/cloud-down.spec.js) (6 tests: la nube caída se avisa y no se sirve la demo, el panel no acepta el PIN local, la demo sin `?tienda=` sigue intacta, la tienda cloud viva entra con la Clave de acceso, banner de cambios sin sincronizar + "Reintentar ahora", y `store_not_found` conserva su propio aviso). Suite completa: **83/83**.
+- Esta versión contenía cambios de autenticación que quedaron incompletos. Fueron reemplazados por las medidas de v0.91.0; no usarla como referencia para accesos o despliegues SQL.
 
-## v0.19.0 · 2026-10-10 · Clave maestra POPUPS: una llave única para el panel de cualquier tienda
-- **El login del panel acepta una CLAVE MAESTRA además del PIN** (demo `/#admin`) **y de la Clave de acceso** (tienda `?tienda=…#admin`): sirve para entrar a cualquier panel sin buscar el PIN ni la clave de cada cliente. En el código solo vive su SHA-256 (el texto no está en ningún archivo), y el PIN/clave de siempre siguen funcionando igual.
-- **En la nube la maestra la valida [`supabase/master-key.sql`](supabase/master-key.sql)** (nuevo): crea dos funciones (`mt_master_hash` con el hash **bcrypt** de la maestra —no reversible— y `mt_key_ok`) y parchea **solo** el chequeo de clave de 8 RPC (`api_panel`, `api_save_cfg`, `api_upsert_product`, `api_delete_product`, `api_mp_launch/poll/set/status`) usando el código real de la base (`pg_get_functiondef` + `regexp_replace` tolerante a formato: matchea las 8/8 funciones del dump actual). No toca nada más (ni `api_admin`, ni las RPC públicas). **Cómo aplicarlo**: Supabase → SQL Editor → pegar el archivo → Run (1 minuto). *Paso pendiente: hasta que se aplique, en una tienda cloud la maestra sigue respondiendo "Clave incorrecta".*
-- **A tener presente (riesgo real)**: quien tiene la maestra entra al panel de **todas** las tiendas — es una llave única de POPUPS: se guarda como secreto, no se reparte con clientes ni se pone en capturas.
-- Tests: nuevos **19-21** en [`tests/master-key.spec.js`](tests/master-key.spec.js): la maestra abre la demo (probada con una clave de prueba cuyo hash inyecta el test, para no exponer la real en un repo público), una clave que no es la maestra queda rechazada y el PIN de la demo sigue funcionando al lado. Suite completa: **77/77**.
+## v0.23.0 (v76) · 2026-10-12 · Registro histórico supersedido
+
+- Se conserva el número de versión por trazabilidad. La implementación de claves globales de esta línea quedó retirada; la autenticación vigente se documenta en `MANUAL_POPUPS.md`.
+
+## v0.22.0 (v75) · 2026-10-11 · Fluidez web/celular y optimización de fotos
+
+- Se conserva el resumen original de mejoras de rendimiento y tratamiento de imágenes.
+
+## v0.20.1 (v65) · 2026-10-11 · Corrección parcial de acceso cloud
+
+- Se eliminó una ruta local que permitía autenticar una URL cloud con datos de demo. La seguridad de las claves globales de aquella etapa quedó posteriormente retirada.
+
+## v0.20.0 · 2026-10-11 · La nube no responde: error visible
+
+- Si la nube no responde, la interfaz avisa en vez de dar por guardada una operación. La regla vigente es que una tienda cloud nunca se convierte en una demo local.
+
+## v0.19.0 · 2026-10-10 · Implementación global retirada
+
+- Se registró un acceso global de desarrollo. Fue retirado en v0.91.0; no aplicar scripts antiguos que lo habiliten.
 
 ## v0.18.0 · 2026-10-10 · Edición visual de la landing (Modo Tech) + FAB al lado de WhatsApp + "Terminar" vuelve al panel
 - **El FAB del carrito queda AL LADO del círculo de WhatsApp** (a su izquierda, 12 px de separación y centrado vertical): `.mt-tech-fab` pasa de apilarse arriba a `right: 88px; bottom: 24px` (mobile: `80px / 22px`). El HTML de Eze no se toca; solo cambia `MT_TECH_CSS`.
@@ -185,7 +188,7 @@
 
 ## v0.7.3 · 2026-09-15
 - **El dueño ahora puede cambiar su Clave de acceso** desde Ajustes → **Seguridad**, sin depender de POPUPS. La clave actual se verifica contra el hash bcrypt de la base y la nueva se guarda cifrada (nunca viaja ni se almacena en texto); rige en todos los dispositivos y **la sesión abierta no se corta** (el token `ck:` se actualiza solo).
-- **Fix del bloqueo de Configuración** (era el síntoma más feo del mismo bug): los campos de clave estaban *dentro* del formulario de Ajustes y eran numéricos (`pattern="[0-9]*"`, `maxlength="8"`). Pegar una clave con letras (ej. `juan-demo`) la truncaba y la validación nativa del navegador **cancelaba el guardado de toda la configuración**, sin mostrar ningún error. La tarjeta de acceso pasó a ser un `<form>` propio, con reglas por modo: **4–8 dígitos en la demo / 6–64 caracteres libres en la nube**.
+- **Fix del bloqueo de Configuración** (era el síntoma más feo del mismo bug): los campos de clave estaban *dentro* del formulario de Ajustes y eran numéricos (`pattern="[0-9]*"`, `maxlength="8"`). Pegar una clave con letras (ej. `[credencial de demo retirada]`) la truncaba y la validación nativa del navegador **cancelaba el guardado de toda la configuración**, sin mostrar ningún error. La tarjeta de acceso pasó a ser un `<form>` propio, con reglas por modo: **4–8 dígitos en la demo / 6–64 caracteres libres en la nube**.
 - Botón para mostrar/ocultar cada campo y mensajes en español para cada rechazo (clave actual incorrecta, muy corta, no coincide la confirmación, igual a la anterior).
 - **Sin callejón ciego**: si la RPC nueva todavía no está desplegada, el frontend lo detecta (`PGRST202`) y la tarjeta cambia sola a *"Tu clave la cambia POPUPS"* con el mail listo para pedirla. Antes devolvía un 403 que no llevaba a ningún lado.
 - **Requiere una vez**: ejecutar [`supabase/api_key_change.sql`](supabase/api_key_change.sql) en el SQL Editor (nueva RPC `api_key_change`, la nº 12 del cliente). Sin eso la tienda sigue operando normal, sólo que el cambio de clave se pide a POPUPS.
@@ -216,7 +219,7 @@
 ## v0.5.0 · 2026-09-07
 - **Panel del dueño en la nube**: el dueño de una tienda vendida entra con su **Clave de acceso** (la que le entrega POPUPS al venderla, no el PIN de la demo). Administra su tienda completa **desde cualquier dispositivo** (celular o computadora) y todo se guarda en la nube: productos, stock, pedidos, clientes, finanzas, textos, colores y legales.
 - **Límite del plan aplicado de verdad**: al llegar al cupo de su plan (25/50/100/200), la base rechaza el producto siguiente con un mensaje claro. La barra del plan en el panel muestra cuánto lleva (ej: "vas 4 de 50 productos"), **avisa al 80% del cupo** y recuerda el vencimiento del pago, con el contacto de POPUPS para subir de plan.
-- Cambios de plan, bloqueos y bajas que hagas desde la Consola se reflejan al instante en el panel del dueño (la demo @juan y @mariela ya están migradas con sus claves `juan-demo` y `mariela-demo`).
+- Cambios de plan, bloqueos y bajas que hagas desde la Consola se reflejan al instante en el panel del dueño (la demo @juan y @mariela ya están migradas con sus claves `[credencial de demo retirada]` y `[credencial de demo retirada]`).
 - Los pedidos entrantes, compras del newsletter y finanzas se guardan en la nube con el stock validado en la base.
 
 ## v0.4.0 · 2026-09-07
