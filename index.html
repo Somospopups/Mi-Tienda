@@ -4804,7 +4804,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v94</span>
+          <span>v95</span>
         </div>
       </div>
     </footer>
@@ -8366,6 +8366,7 @@ function applyStorefront() {
   // ==========================================================
   // POPUPS central administration. Credentials and client keys stay in memory only.
   let popupsAdminPin = '';
+  let popupsAdminBusy = 0;
   let popupsAdminStores = [];
 
   function superAdminMessage(error) {
@@ -8385,12 +8386,18 @@ function applyStorefront() {
   }
 
   async function popupsAdminCall(action, payload = {}) {
-    if (!popupsAdminPin) throw new Error('La sesión de POPUPS venció. Volvé a validar el acceso.');
+    if (!popupsAdminPin) {
+      openSuperAdminLogin();
+      throw new Error('La sesión de POPUPS se cerró. Ingresá la clave central de nuevo y volvé a intentar.');
+    }
     const api = window.mtCloudGlue && window.mtCloudGlue.admin;
     if (typeof api !== 'function') throw new Error('La API central no está disponible. Revisá la conexión con Supabase.');
-    const result = await api(popupsAdminPin, action, payload);
-    if (!result || result.ok !== true) throw new Error(superAdminMessage(result && result.error));
-    return result;
+    popupsAdminBusy++;
+    try {
+      const result = await api(popupsAdminPin, action, payload);
+      if (!result || result.ok !== true) throw new Error(superAdminMessage(result && result.error));
+      return result;
+    } finally { popupsAdminBusy--; }
   }
 
   function secureOwnerKey() {
@@ -8468,6 +8475,10 @@ function applyStorefront() {
   }
 
   function closeSuperAdmin() {
+    if (popupsAdminBusy > 0) {
+      toast('Esperá un momento', 'Todavía se está guardando el cambio. Cerrá la consola cuando termine.', 'error');
+      return;
+    }
     closeSuperAdminSecret();
     closeSuperAdminLogin();
     const backdrop = $('superAdminBackdrop');
@@ -8672,13 +8683,31 @@ function applyStorefront() {
         const status = row.querySelector('select[data-sa-status]')?.value || item.status;
         const storefront = row.querySelector('select[data-sa-front]')?.value || item.storefront;
         if (paidUntil && !validCalendarDate(paidUntil)) { toast('Fecha inválida', 'Usá una fecha real con formato AAAA-MM-DD.', 'error'); return; }
+        const saveLabel = saveButton.textContent;
+        saveButton.disabled = true;
+        saveButton.style.opacity = '.6';
+        saveButton.textContent = 'Guardando…';
         try {
           await popupsAdminCall('set', { id: item.id, status, ...(paidUntil ? { paid_until: paidUntil } : {}) });
           if (storefront !== item.storefront) await popupsAdminCall('set_storefront', { id: item.id, storefront });
           await refreshSuperAdminStores();
           toast('Cambios guardados', `Estado, fecha y vidriera de ${item.biz} actualizados.`, 'success');
         } catch (err) { toast('No se pudieron guardar los cambios', (err && err.message) || 'Intentá de nuevo.', 'error'); }
+        finally {
+          saveButton.disabled = false;
+          saveButton.style.opacity = '';
+          saveButton.textContent = saveLabel;
+        }
       }
+    });
+
+    $('superAdminTableBody')?.addEventListener('change', (event) => {
+      const select = event.target.closest?.('select[data-sa-front]');
+      if (!select) return;
+      const button = select.closest('tr')?.querySelector('[data-sa-save]');
+      if (!button) return;
+      button.style.outline = '2px solid #fcd34d';
+      setTimeout(() => { button.style.outline = ''; }, 1800);
     });
   }
 

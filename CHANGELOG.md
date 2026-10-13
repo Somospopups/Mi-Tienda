@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.95.0 (v95) · 2026-10-13 · Consola POPUPS: guardado de vidriera sin sesión falsa
+
+- Corregido el error *"No se pudieron guardar los cambios / La sesión de POPUPS venció…"* al elegir Actitud: si se cerraba la consola mientras el guardado seguía en vuelo, el PIN en memoria se borraba y la siguiente llamada fallaba. Ahora la consola no se cierra mientras hay una operación en curso y se avisa con un toast.
+- El botón **Guardar** ahora muestra *"Guardando…"* y se deshabilita durante la operación, para que se vea que el cambio se está procesando.
+- Al cambiar la vidriera en la tabla se resalta brevemente el botón Guardar de esa fila, para que sepan los usuarios que falta confirmar.
+- Si la sesión de la consola falta, se reabre automáticamente el login de la consola con un mensaje claro para volver a ingresar la clave central.
+
 ## v0.94.0 (v94) · 2026-10-13 · Vidriera Actitud rehecha (EZE-PECE)
 
 - La vidriera **Actitud** se rehace desde cero sobre la landing nueva de EZE-PECE: tipografías Sink y Dodger (incluidas en `assets/fonts`), variables de color propias, secciones de hero, catálogo, beneficios, manifiesto, opiniones, bitácora, contacto, newsletter y pie.
