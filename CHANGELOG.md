@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.94.0 (v94) · 2026-10-13 · Vidriera Actitud rehecha (EZE-PECE)
+
+- La vidriera **Actitud** se rehace desde cero sobre la landing nueva de EZE-PECE: tipografías Sink y Dodger (incluidas en `assets/fonts`), variables de color propias, secciones de hero, catálogo, beneficios, manifiesto, opiniones, bitácora, contacto, newsletter y pie.
+- Corregido el problema de fondo de v89: las reglas de Actitud usaban variables y tipografías que nunca se definían; ahora el bloque aísla colores y fuentes dentro de `body[data-front="actitud"]` sin afectar a las demás vidrieras ni al panel.
+- **Textos editables desde el panel**: 165 claves nuevas (`act*`) con etiquetas en el editor (modificar texto) y 6 imágenes editables (hero, manifiesto, 3 de bitácora y contacto) con restauración de originales.
+- **Actitud vuelve al selector de la consola**: se ofrece en el alta de tiendas y en la tabla del super-admin, y el normalizador ya no la degrada a Tech.
+- Carrito propio en USD con envío umbral, buscador, filtros por categoría y checkout por WhatsApp/copia; se conservan los ids compartidos que usan las pruebas críticas.
+
 ## v0.93.0 (v93) · 2026-10-13 · Consola POPUPS: solo Tech y Luma
 
 - El selector de vidriera de la consola (tanto al crear una tienda como al editarla en la tabla) ofrece únicamente **Tech** y **Luma**; se retiraron de las opciones Actitud, Ofertas, Gamer y Libre.
