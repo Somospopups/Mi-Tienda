@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.103.0 (v103) · 2026-10-13 · Manifiesto de Actitud sin rectángulos ni desplazamiento
+
+- El título **MEJOR TECNOLOGÍA. MENOS COMPLICACIÓN.** ya no tiene los rectángulos grises: una regla genérica de LUMA pintaba `--line` sobre cada `<span>` del manifiesto (mismo patrón del bug del eyebrow corregido en v102).
+- El link "ENCONTRÁ TU PRÓXIMO FAVORITO" ya no queda aplastado en una columna vertical (la misma regla le forzaba 34×1px).
+- La sección manifiesto ahora ocupa el ancho completo alineada con el resto (antes heredaba `max-width:1120px` centrado de LUMA y todo el contenido quedaba corrido a la derecha).
+
 ## v0.102.0 (v102) · 2026-10-13 · Hero móvil de Actitud + pie limpio
 
 - **Hero en móvil (≤760px)**: título más proporcionado (clamp 56–84px en vez de 79–126), contenido alineado arriba (ya no queda centrado encima del celular), más aire entre eyebrow/título/copy/CTAs, celular más chico y más abajo a la derecha, y el hero ya no se desborda 5px del ancho de pantalla.
