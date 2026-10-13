@@ -4804,7 +4804,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span id="appVersion">v96</span>
+          <span id="appVersion">v97</span>
         </div>
       </div>
     </footer>
@@ -5005,7 +5005,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
       <header class="super-admin-header">
         <div>
-          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v96</span></span>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v97</span></span>
           <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
           <p>Administrá tiendas mediante la RPC segura. Las claves nunca se recuperan ni se muestran; las nuevas se entregan una sola vez.</p>
         </div>
@@ -5098,7 +5098,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   <div class="modal-backdrop" id="superAdminLoginBackdrop" style="z-index:100000;" hidden>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="superAdminLoginTitle" style="width:min(460px,calc(100% - 28px));padding:28px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf855;border-radius:16px">
       <button class="round-close" id="closeSuperAdminLogin" type="button" aria-label="Cerrar acceso POPUPS" style="float:right">×</button>
-      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v96</span></span>
+      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v97</span></span>
       <h2 id="superAdminLoginTitle" style="margin:10px 0">Administración POPUPS</h2>
       <p style="color:#cbd5e1">Este acceso se valida en Supabase; no uses la clave del dueño de una tienda.</p>
       <form id="superAdminLoginForm">
@@ -8392,13 +8392,22 @@ function applyStorefront() {
       bad_pin: 'La clave central no coincide o fue rotada.',
       ya_existe: 'Ya existe una tienda con ese identificador.',
       store_not_found: 'No encontramos esa tienda en Supabase.',
-      accion_desconocida: 'La base todavía no tiene la acción de vidriera. Aplicá supabase/super-admin-secure.sql y volvé a intentar.',
+      accion_desconocida: 'La base todavía no tiene la acción de vidriera. Aplicá supabase/parche-consola-vidriera.sql en el SQL Editor de Supabase y volvé a intentar.',
+      storefront_invalida: 'La base no acepta esa vidriera. Actualizá la consola segura en Supabase (supabase/parche-consola-vidriera.sql) e intentá de nuevo.',
+      estado_invalido: 'El estado elegido no es válido para esa tienda.',
+      cfg_invalida: 'Los datos enviados no son válidos. Volvé a intentar.',
       faltan_datos: 'Completá los datos requeridos.',
       rate_limited: 'Demasiados intentos. Esperá 15 minutos antes de volver a probar.',
       sin_conexion: 'No pudimos conectar con Supabase. Revisá tu conexión y volvé a intentar.',
       sin_nube: 'La conexión con Supabase no está configurada. No se abrirá una consola local de respaldo.',
-      clave_invalida: 'La clave debe tener entre 12 y 64 caracteres.'
+      clave_invalida: 'La clave debe tener entre 12 y 64 caracteres.',
+      PGRST202: 'La base de Supabase no tiene instalada la consola segura. Aplicá supabase/parche-consola-vidriera.sql en el SQL Editor de Supabase.'
     };
+    if (error && typeof error === 'object') {
+      if (error.error) return messages[error.error] || error.error;
+      if (error.code) return messages[error.code] || (error.message || 'No se pudo completar la operación.');
+      return 'No se pudo completar la operación.';
+    }
     const key = String(error || '');
     return messages[key] || key || 'No se pudo completar la operación.';
   }
@@ -8413,7 +8422,7 @@ function applyStorefront() {
     popupsAdminBusy++;
     try {
       const result = await api(popupsAdminPin, action, payload);
-      if (!result || result.ok !== true) throw new Error(superAdminMessage(result && result.error));
+      if (!result || result.ok !== true) throw new Error(superAdminMessage(result));
       return result;
     } finally { popupsAdminBusy--; }
   }
@@ -8579,7 +8588,7 @@ function applyStorefront() {
         const api = window.mtCloudGlue && window.mtCloudGlue.admin;
         if (typeof api !== 'function') throw new Error('La conexión central con Supabase no está disponible.');
         const response = await api(pin, 'list', {});
-        if (!response || response.ok !== true) throw new Error(superAdminMessage(response && response.error));
+        if (!response || response.ok !== true) throw new Error(superAdminMessage(response));
         popupsAdminPin = pin;
         popupsAdminStores = Array.isArray(response.stores) ? response.stores.map((store) => ({
           id: String(store.id || ''), biz: String(store.biz || ''), owner: String(store.owner || ''),

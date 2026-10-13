@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.97.0 (v97) · 2026-10-13 · Causa real del fallo de vidriera: SQL de producción desactualizado
+
+- **Causa raíz encontrada probando contra Supabase producción**: la función `api_admin` instalada en la base es una versión vieja que no conoce la acción `set_storefront` (responde `accion_desconocida`) ni devuelve la vidriera en el listado. Por eso cambiar la vidriera desde la consola nunca llegaba a guardarse, aunque la consola mostrara "Guardando…".
+- Nuevo archivo listo para pegar en el SQL Editor de Supabase: `supabase/parche-consola-vidriera.sql`. Reemplaza únicamente `api_admin` (con `set_storefront`, Actitud en la lista permitida y vidriera en el listado) sin tocar datos de tiendas ni otras funciones.
+- Mensajes de error de la consola ahora cubren todos los códigos que puede devolver la base (`storefront_invalida`, `estado_invalido`, `cfg_invalida`, `PGRST202`, etc.): en vez de códigos crudos se explica qué falta aplicar.
+
 ## v0.96.0 (v96) · 2026-10-13 · Consola POPUPS: versión visible y recarga anti-caché
 
 - El acceso y la cabecera de la consola POPUPS muestran la versión publicada (`v96`), para que siempre se pueda comprobar de un vistazo que se está trabajando sobre el código nuevo.
