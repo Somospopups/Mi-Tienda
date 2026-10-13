@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.102.0 (v102) · 2026-10-13 · Hero móvil de Actitud + pie limpio
+
+- **Hero en móvil (≤760px)**: título más proporcionado (clamp 56–84px en vez de 79–126), contenido alineado arriba (ya no queda centrado encima del celular), más aire entre eyebrow/título/copy/CTAs, celular más chico y más abajo a la derecha, y el hero ya no se desborda 5px del ancho de pantalla.
+- **Pie de página Actitud**: debajo del banner EZE-PECE solo queda la línea con el badge "DESARROLLADO POR POPUPS"; se eliminan la fila © / PRECIOS / VOLVER ARRIBA y el segundo bloque de links del footer que se colaba.
+
 ## v0.101.0 (v101) · 2026-10-13 · Newsletter de Actitud sin recuadro gris
 
 - El bloque **CLUB EZE-PECE** (newsletter) de Actitud ya no muestra el recuadro gris heredado de la plantilla: queda directamente sobre el fondo rojo de la sección de contacto, como en la referencia original.

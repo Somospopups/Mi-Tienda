@@ -3711,11 +3711,13 @@ body[data-front="actitud"] .hero-content{position:relative;z-index:3;width:54%;m
 body[data-front="actitud"] .eyebrow,body[data-front="actitud"] .kicker{font:17px/1.05 var(--hand);letter-spacing:.025em}
 body[data-front="actitud"] .eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 28px}
 body[data-front="actitud"] .eyebrow-dot{width:10px;height:10px;background:var(--kimchi);border-radius:50%;box-shadow:0 0 0 5px rgba(211,41,41,.13)}
+body[data-front="actitud"] .eyebrow>span:not(.eyebrow-dot){width:auto;height:auto;background:none}
 body[data-front="actitud"] .hero h1{margin:0;color:var(--brown);font:clamp(88px,10vw,172px)/.78 var(--display);letter-spacing:-.035em;position:relative;z-index:2}
 body[data-front="actitud"] .hero h1 em{font-style:normal;color:var(--cream);font-size:.76em;letter-spacing:.035em}
 body[data-front="actitud"] .hero h1 span{color:var(--dark)}
 body[data-front="actitud"] .hero-copy{font:23px/1.04 var(--hand);width:min(365px,80%);margin:26px 0 24px;position:relative;z-index:4}
-body[data-front="actitud"] .hero-ctas{display:flex;align-items:center;gap:24px;position:relative;z-index:5}
+body[data-front="actitud"] .hero-ctas{display:flex;align-items:center;gap:24px;position:relative;z-index:5;width:max-content}
+body[data-front="actitud"] .text-link{white-space:nowrap}
 body[data-front="actitud"] .button{min-height:53px;padding:0 19px;display:inline-flex;align-items:center;justify-content:center;gap:25px;border:0;border-radius:4px;font:17px/1 var(--hand);transition:transform .22s,background .22s,color .22s;cursor:pointer;white-space:nowrap}
 body[data-front="actitud"] .button span{font:22px/1 Arial,sans-serif;transition:transform .2s}
 body[data-front="actitud"] .button:hover{transform:translateY(-3px)}
@@ -3939,6 +3941,9 @@ body[data-front="actitud"] .footer-marquee{height:clamp(94px,13vw,180px);display
 body[data-front="actitud"] .footer-marquee i{font:clamp(22px,4vw,54px) Arial,sans-serif;color:var(--lemon);font-style:normal}
 body[data-front="actitud"] .footer-bottom{padding:16px 0 20px;display:flex;justify-content:space-between;gap:16px;font:13px var(--hand);opacity:.73}
 body[data-front="actitud"] .footer-bottom a{color:var(--lemon)}
+body[data-front="actitud"] #frontActitud .footer-bottom{display:none!important}
+body[data-front="actitud"] #lumaFooter .footer-top{display:none!important}
+body[data-front="actitud"] #lumaFooter{padding-top:0}
 body[data-front="actitud"] .drawer-backdrop{position:fixed;z-index:1100;inset:0;background:rgba(45,42,38,.45);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
 body[data-front="actitud"] .drawer-backdrop.open{opacity:1;visibility:visible}
 body[data-front="actitud"] .cart-drawer{position:fixed;z-index:1101;right:0;top:0;width:min(490px,100%);height:100dvh;background:var(--cream);padding:26px 27px 22px;display:flex;flex-direction:column;transform:translateX(105%);transition:transform .36s cubic-bezier(.2,.8,.2,1);box-shadow:-14px 0 45px rgba(45,42,38,.16)}
@@ -4055,18 +4060,18 @@ body[data-front="actitud"] .mobile-menu.open{visibility:visible;opacity:1;transf
 body[data-front="actitud"] .mobile-menu a{height:57px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font:24px var(--display)}
 body[data-front="actitud"] .mobile-menu a span{font:20px Arial;color:var(--kimchi)}
 body[data-front="actitud"] .mobile-menu p{margin:17px 0 0;font:15px var(--hand);color:var(--brown)}
-body[data-front="actitud"] .hero{min-height:810px;min-height:max(790px,calc(100svh - 25px));margin:0 1.4vw;padding:120px 5vw 50px;border-radius:0 0 5px 5px}
+body[data-front="actitud"] .hero{min-height:810px;min-height:max(790px,calc(100svh - 25px));margin:0;align-items:start;padding:120px 5vw 50px;border-radius:0 0 5px 5px}
 body[data-front="actitud"] .hero-content{width:100%;max-width:530px}
-body[data-front="actitud"] .eyebrow{font-size:15px;margin-bottom:19px}
-body[data-front="actitud"] .hero h1{font-size:clamp(79px,17vw,126px);line-height:.78}
+body[data-front="actitud"] .eyebrow{font-size:15px;margin-bottom:26px}
+body[data-front="actitud"] .hero h1{font-size:clamp(56px,15vw,84px);line-height:.78;margin-top:6px}
 body[data-front="actitud"] .hero h1 em{font-size:.76em}
-body[data-front="actitud"] .hero-copy{font-size:19px;width:65%;max-width:290px;margin:18px 0 16px}
-body[data-front="actitud"] .hero-ctas{gap:15px;align-items:flex-start;flex-direction:column}
-body[data-front="actitud"] .button{min-height:48px;font-size:15px;gap:20px;padding:0 15px}
+body[data-front="actitud"] .hero-copy{font-size:17px;width:auto;max-width:280px;margin:16px 0 14px}
+body[data-front="actitud"] .hero-ctas{gap:12px;align-items:flex-start;flex-direction:column}
+body[data-front="actitud"] .button{min-height:44px;font-size:15px;gap:20px;padding:0 15px}
 body[data-front="actitud"] .text-link{font-size:14px}
-body[data-front="actitud"] .hero-product-wrap{top:auto;bottom:45px;right:-3%;width:79%;height:32%;}
+body[data-front="actitud"] .hero-product-wrap{top:auto;bottom:30px;right:-7%;width:68%;height:26%;}
 body[data-front="actitud"] .hero-product-halo{width:90%;}
-body[data-front="actitud"] .hero-phone{width:112%;transform:rotate(-7deg) scale(1)}
+body[data-front="actitud"] .hero-phone{width:110%;transform:rotate(-7deg) scale(1)}
 @keyframes hero-float{50%{transform:rotate(-4deg) translateY(-8px) scale(1.02)}}
 body[data-front="actitud"] .hero-callout{font-size:12px;padding:7px 9px}
 body[data-front="actitud"] .callout-top{right:8%;top:9%}
@@ -4793,7 +4798,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
       </div>
     </main>
 
-    <footer class="site-footer">
+    <footer class="site-footer" id="lumaFooter">
       <div class="footer-top">
         <div class="footer-brand"><a class="brand brand-light" href="#inicio"><span class="brand-mark" data-logo-slot><i></i><i></i><i></i><i></i></span><span data-brand>LUMA</span></a><p data-tagline>Objetos que hacen hogar.</p></div>
         <div class="footer-links"><div><b>Explorar</b><a href="#coleccion">Tienda</a><a href="#novedades">Novedades</a><a href="#manifiesto">Nuestra mirada</a></div><div><b>Ayuda</b><button data-legal-page="shippingPolicy">Envíos y entregas</button><button data-legal-page="returnsPolicy">Cambios y devoluciones</button><button data-legal-page="faq">Preguntas frecuentes</button><button data-legal-page="termsConditions">Términos y condiciones</button></div><div><b>Seguinos</b><a data-social-link="instagramUrl" href="#" target="_blank" rel="noopener">Instagram ↗</a><a data-social-link="facebookUrl" href="#" target="_blank" rel="noopener">Facebook ↗</a><a data-social-link="pinterestUrl" href="#" target="_blank" rel="noopener">Pinterest ↗</a><a data-social-link="tiktokUrl" href="#" target="_blank" rel="noopener">TikTok ↗</a><button id="footerAdminButton">Administrar tienda</button></div></div>
@@ -4813,7 +4818,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span id="appVersion">v101</span>
+          <span id="appVersion">v102</span>
         </div>
       </div>
     </footer>
@@ -5014,7 +5019,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
       <header class="super-admin-header">
         <div>
-          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v101</span></span>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v102</span></span>
           <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
           <p>Administrá tiendas mediante la RPC segura. Las claves nunca se recuperan ni se muestran; las nuevas se entregan una sola vez.</p>
         </div>
@@ -5107,7 +5112,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   <div class="modal-backdrop" id="superAdminLoginBackdrop" style="z-index:100000;" hidden>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="superAdminLoginTitle" style="width:min(460px,calc(100% - 28px));padding:28px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf855;border-radius:16px">
       <button class="round-close" id="closeSuperAdminLogin" type="button" aria-label="Cerrar acceso POPUPS" style="float:right">×</button>
-      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v101</span></span>
+      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v102</span></span>
       <h2 id="superAdminLoginTitle" style="margin:10px 0">Administración POPUPS</h2>
       <p style="color:#cbd5e1">Este acceso se valida en Supabase; no uses la clave del dueño de una tienda.</p>
       <form id="superAdminLoginForm">
