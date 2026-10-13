@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.100.0 (v100) · 2026-10-13 · Acceso al panel desde la barra de Actitud
+
+- La barra superior de la vidriera **Actitud** ahora tiene un botón **PANEL** (junto a CONTACTO) para entrar al panel de administrador, igual que el resto de las vidrieras.
+- En móvil, el menú de Actitud suma la entrada **PANEL ADMINISTRADOR**.
+
 ## v0.99.0 (v99) · 2026-10-13 · Panel superior que se oculta al bajar
 
 - El panel superior de la tienda **se oculta al bajar la página y vuelve a aparecer al subir**, en todas las vidrieras (Luma, Ofertas, Gamer, Libre, Tech y Actitud).
