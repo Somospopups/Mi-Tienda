@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.96.0 (v96) · 2026-10-13 · Consola POPUPS: versión visible y recarga anti-caché
+
+- El acceso y la cabecera de la consola POPUPS muestran la versión publicada (`v96`), para que siempre se pueda comprobar de un vistazo que se está trabajando sobre el código nuevo.
+- Al abrir el panel del dueño o la consola, la página comprueba si existe una versión más nueva publicada y se recarga sola con un aviso. Así nadie vuelve a encontrarse un error que ya fue corregido (como *"La sesión de POPUPS venció"* de v94) por tener una pestaña vieja en memoria.
+- El pie de página ahora usa `id="appVersion"` como fuente única de la versión.
+
 ## v0.95.0 (v95) · 2026-10-13 · Consola POPUPS: guardado de vidriera sin sesión falsa
 
 - Corregido el error *"No se pudieron guardar los cambios / La sesión de POPUPS venció…"* al elegir Actitud: si se cerraba la consola mientras el guardado seguía en vuelo, el PIN en memoria se borraba y la siguiente llamada fallaba. Ahora la consola no se cierra mientras hay una operación en curso y se avisa con un toast.

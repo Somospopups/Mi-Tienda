@@ -4804,7 +4804,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span>v95</span>
+          <span id="appVersion">v96</span>
         </div>
       </div>
     </footer>
@@ -5005,7 +5005,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
       <header class="super-admin-header">
         <div>
-          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR</span>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v96</span></span>
           <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
           <p>Administrá tiendas mediante la RPC segura. Las claves nunca se recuperan ni se muestran; las nuevas se entregan una sola vez.</p>
         </div>
@@ -5098,7 +5098,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   <div class="modal-backdrop" id="superAdminLoginBackdrop" style="z-index:100000;" hidden>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="superAdminLoginTitle" style="width:min(460px,calc(100% - 28px));padding:28px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf855;border-radius:16px">
       <button class="round-close" id="closeSuperAdminLogin" type="button" aria-label="Cerrar acceso POPUPS" style="float:right">×</button>
-      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL</span>
+      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v96</span></span>
       <h2 id="superAdminLoginTitle" style="margin:10px 0">Administración POPUPS</h2>
       <p style="color:#cbd5e1">Este acceso se valida en Supabase; no uses la clave del dueño de una tienda.</p>
       <form id="superAdminLoginForm">
@@ -8266,6 +8266,23 @@ function applyStorefront() {
   function closeLegalPage() { hideBackdrop($('legalBackdrop')); }
 
   /* ---------- Admin ---------- */
+  // v0.96 · Detector de página vieja en cache: al abrir el panel o la consola,
+  // comparamos la versión publicada contra la que está corriendo. Si hay una
+  // más nueva, recargamos automáticamente para que nadie trabaje con código
+  // desactualizado (el error viejo de la consola solo existía en v94).
+  async function mtCheckStalePage() {
+    try {
+      const mine = Number(($('appVersion')?.textContent || '').replace(/\D/g, ''));
+      if (!mine) return;
+      const res = await fetch(location.pathname + '?mtv=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) return;
+      const remote = Number(((await res.text()).match(/id="appVersion">v(\d+)</) || [])[1] || 0);
+      if (remote > mine) {
+        toast('Actualización disponible', 'Recargando la página para aplicar la versión v' + remote + '…', 'success');
+        setTimeout(() => location.reload(), 1500);
+      }
+    } catch (_) { /* Sin conexión o CORS: seguimos con la versión actual. */ }
+  }
   function openAdmin() {
     if (location.hash !== '#admin') history.pushState(null, '', '#admin');
     const shopApp = $('shopApp');
@@ -8280,6 +8297,7 @@ function applyStorefront() {
     mtEditRefreshFloating();
     if (state.admin.token) showAdminShell();
     else showAdminLogin();
+    mtCheckStalePage();
     window.scrollTo(0, 0);
   }
 
@@ -8442,6 +8460,7 @@ function applyStorefront() {
     if (!backdrop || !form) return;
     form.reset();
     if (error) error.textContent = '';
+    mtCheckStalePage();
     showBackdrop(backdrop);
     setTimeout(() => form.elements.pin && form.elements.pin.focus(), 80);
   }
