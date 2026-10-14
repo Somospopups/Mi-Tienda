@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.106.0 (v106) · 2026-10-13 · Menú de Actitud más corto
+
+- Se quitaron del **menú** de la vidriera Actitud las opciones **POR QUÉ EZE-PECE** (menú desktop y menú móvil) y **BITÁCORA** (menú móvil). Quedan: INICIO · TIENDA · OPINIONES · CONTACTO · PANEL.
+- Las secciones en sí (#beneficios y #bitacora) siguen existiendo en la página; solo se les sacaron las entradas del menú. El footer y el CTA del hero no se tocaron.
+
 ## v0.105.0 (v105) · 2026-10-13 · Fin del pantallazo de la vidriera Tech al abrir una tienda nube
 
 - **Sin flash de Tech en `?tienda=`**: antes, cualquier tienda en la nube arrancaba pintando la vidriera Tech (el `<head>` la fijaba por defecto y el `<body>` venía hardcodeado con `data-front="tech"`) hasta que llegaba el documento público. Ahora, con `?tienda=` **jamás se asume Tech**.
