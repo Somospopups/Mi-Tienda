@@ -234,6 +234,18 @@ test('La home de Actitud muestra 4 destacados y "Ver más" abre el catálogo con
   await page.locator('#searchToggle').click();
   await expect(page.locator('#actCatalog')).toHaveClass(/open/);
   await expect(page.locator('#actCatalogCount')).toHaveText('6 resultados');
+
+  // v108: con el header visible, el catálogo queda por encima: VOLVER responde
+  // y el carrito se abre desde el propio catálogo sin romperlo.
+  await expect(page.locator('#actCatalogCartCount')).toHaveText('0');
+  await page.locator('#actCatalogCart').click();
+  await expect(page.locator('#actitudCartDrawer')).toHaveClass(/open/, { timeout: 5_000 });
+  await page.locator('#cartClose').click();
+  await expect(page.locator('#actCatalog')).toHaveClass(/open/);
+  expect(await page.evaluate(() => document.body.classList.contains('locked'))).toBe(true);
+  await page.locator('#actCatalogClose').click();
+  await expect(page.locator('#actCatalog')).not.toHaveClass(/open/);
+  expect(await page.evaluate(() => document.body.classList.contains('locked'))).toBe(false);
   await expectNoPageErrors(page, errors);
 });
 

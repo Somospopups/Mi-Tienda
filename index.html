@@ -4248,8 +4248,11 @@ body[data-front="actitud"] .see-all-card[hidden]{display:none}
 body[data-front="actitud"] .see-all-main{font:clamp(30px,4vw,52px)/1 var(--display)}
 body[data-front="actitud"] .see-all-sub{margin-left:auto;font:15px var(--hand);opacity:.85}
 body[data-front="actitud"] .see-all-arrow{display:grid;place-items:center;flex:none;width:54px;height:54px;border:1px solid rgba(244,240,235,.5);border-radius:50%;font-size:22px}
-/* v107 · Pantalla de catálogo (estilo Mercado Libre) */
-.act-catalog{position:fixed;inset:0;z-index:85;display:flex;flex-direction:column;background:var(--paper);color:var(--dark);overflow-y:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .25s ease,transform .25s ease,visibility .25s}
+/* v107/v108 · Pantalla de catálogo (estilo Mercado Libre). z 1050: por encima del
+   anuncio (1001) y del header (1000), debajo del carrito (1101); el detalle de
+   producto abre con 1060 para quedarse por encima del catálogo. */
+.act-catalog{position:fixed;inset:0;z-index:1050;display:flex;flex-direction:column;background:var(--paper);color:var(--dark);overflow-y:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .25s ease,transform .25s ease,visibility .25s}
+body[data-front="actitud"] .modal-backdrop,body[data-front="actitud"] .overlay{z-index:1060}
 .act-catalog.open{opacity:1;visibility:visible;transform:none}
 .act-catalog-head{position:sticky;top:0;z-index:3;flex:none;display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--cream);border-bottom:1px solid var(--line)}
 .act-catalog-back{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--line);border-radius:999px;background:transparent;font:13px/1 var(--hand);letter-spacing:.06em;color:inherit;cursor:pointer;flex:none}
@@ -4262,6 +4265,10 @@ body[data-front="actitud"] .see-all-arrow{display:grid;place-items:center;flex:n
 .act-catalog-count{font:700 15px/1.2 Arial,Helvetica,sans-serif}
 .act-catalog-sort{display:inline-flex;align-items:center;gap:8px;font:13px var(--hand)}
 .act-catalog-sort select{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font:13px Arial,Helvetica,sans-serif;color:var(--dark);cursor:pointer}
+body[data-front="actitud"] .act-catalog-cart{display:inline-flex;align-items:center;gap:7px;flex:none;padding:10px 13px;border:1px solid var(--line);border-radius:999px;background:var(--dark);color:var(--cream);cursor:pointer}
+.act-catalog-cart svg{width:17px;height:17px;fill:none;stroke:currentColor}
+.act-catalog-cart circle{fill:currentColor;stroke:none}
+.act-catalog-cart-count{font:700 12px/1 Arial,Helvetica,sans-serif;background:var(--yellow,#ffd84d);color:var(--dark);border-radius:999px;padding:4px 7px;min-width:20px;text-align:center}
 .act-catalog-chips{flex:none;display:flex;gap:8px;padding:12px 18px 4px;overflow-x:auto;scrollbar-width:none}
 .act-catalog-chips::-webkit-scrollbar{display:none}
 .act-catalog-chips .filter-chip{flex:none}
@@ -4274,6 +4281,7 @@ body[data-front="actitud"] .see-all-arrow{display:grid;place-items:center;flex:n
 .act-catalog-more{cursor:pointer}
 @media(max-width:760px){
   .act-catalog-head{padding:10px 12px;gap:8px}
+  .act-catalog-cart{padding:9px 10px}
   .act-catalog-back{padding:9px 12px;font-size:12px}
   .act-catalog-bar{padding:14px 12px 2px;flex-wrap:wrap}
   .act-catalog-chips{padding:10px 12px 2px}
@@ -4855,6 +4863,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <header class="act-catalog-head">
       <button class="act-catalog-back" id="actCatalogClose" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg> VOLVER</button>
       <label class="act-catalog-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.7" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><input id="actCatalogSearch" type="search" placeholder="Buscar productos" data-content-placeholder="actSearchPlaceholder" autocomplete="off" aria-label="Buscar productos"></label>
+      <button class="act-catalog-cart" id="actCatalogCart" type="button" aria-label="Abrir carrito"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 11.1a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 7H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="10" cy="20" r="1.4"></circle><circle cx="17" cy="20" r="1.4"></circle></svg><span class="act-catalog-cart-count" id="actCatalogCartCount">0</span></button>
     </header>
     <div class="act-catalog-bar">
       <span class="act-catalog-count" id="actCatalogCount" aria-live="polite">0 resultados</span>
@@ -4933,7 +4942,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span id="appVersion">v107</span>
+          <span id="appVersion">v108</span>
         </div>
       </div>
     </footer>
@@ -5134,7 +5143,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
       <header class="super-admin-header">
         <div>
-          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v107</span></span>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v108</span></span>
           <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
           <p>Administrá tiendas mediante la RPC segura. Las claves nunca se recuperan ni se muestran; las nuevas se entregan una sola vez.</p>
         </div>
@@ -5227,7 +5236,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   <div class="modal-backdrop" id="superAdminLoginBackdrop" style="z-index:100000;" hidden>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="superAdminLoginTitle" style="width:min(460px,calc(100% - 28px));padding:28px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf855;border-radius:16px">
       <button class="round-close" id="closeSuperAdminLogin" type="button" aria-label="Cerrar acceso POPUPS" style="float:right">×</button>
-      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v107</span></span>
+      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v108</span></span>
       <h2 id="superAdminLoginTitle" style="margin:10px 0">Administración POPUPS</h2>
       <p style="color:#cbd5e1">Este acceso se valida en Supabase; no uses la clave del dueño de una tienda.</p>
       <form id="superAdminLoginForm">
@@ -7117,6 +7126,7 @@ function renderCart() {
   const subtotal = entries.reduce((sum, item) => sum + Number(item.product.price || 0) * item.qty, 0);
   const shipping = subtotal === 0 ? 0 : subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_PRICE;
   $("#actitudCartCount").textContent = count;
+  $("#actCatalogCartCount").textContent = count;
   $("#drawerItemCount").textContent = ` (${count})`;
   const items = $("#cartItems");
   const summary = $("#cartSummary");
@@ -7272,6 +7282,7 @@ $("#actCatalogClose").addEventListener("click", closeActCatalog);
 $("#actCatalogSearch").addEventListener("input", (event) => { actCat.q = event.target.value; actCat.visible = ACT_CATALOG_PAGE; renderActCatalog(); });
 $("#actCatalogSort").addEventListener("change", (event) => { actCat.sort = event.target.value; actCat.visible = ACT_CATALOG_PAGE; renderActCatalog(); });
 $("#actCatalogMore").addEventListener("click", () => { actCat.visible += ACT_CATALOG_PAGE; renderActCatalog(); });
+$("#actCatalogCart").addEventListener("click", openCart);
 $("#actCatalogReset").addEventListener("click", () => {
   actCat.q = ""; actCat.cat = "all"; actCat.visible = ACT_CATALOG_PAGE;
   const input = $("#actCatalogSearch"); if (input) input.value = "";

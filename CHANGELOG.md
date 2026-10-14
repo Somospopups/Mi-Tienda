@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.108.0 (v108) · 2026-10-13 · El catálogo tapa el header y lleva su propio carrito
+
+- **Capa corregida**: la pantalla de catálogo (v107) quedaba por debajo del header (z 1000) y de la barra de anuncio (z 1001) de Actitud: en la tienda real el botón VOLVER quedaba tapado y el catálogo no cubría la pantalla completa. Ahora el catálogo va en z 1050 (encima del header y el anuncio, debajo del carrito 1101); el detalle de producto y el popup de contacto quedan en 1060 para seguir abriéndose por encima.
+- **Carrito dentro del catálogo**: como el header queda debajo, el catálogo ahora tiene su propio botón de carrito en la barra superior con el contador al día; al tocarlo se abre el cajón por encima y, al cerrarlo, el catálogo sigue abierto con el scroll bloqueado.
+- Arreglo de la grilla: la fila de chips ya no se aplasta (el contenedor con scroll horizontal dentro del flex-column se encogía a su padding).
+
 ## v0.107.0 (v107) · 2026-10-13 · Home con destacados + pantalla de catálogo estilo Mercado Libre
 
 - **La home de Actitud muestra solo 4 productos**: los marcados "Destacado" desde el Panel primero (hasta 4; si hay menos, se rellena con el resto del orden del Panel). Nunca más scroll infinito en la portada.
