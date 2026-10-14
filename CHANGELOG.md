@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.105.0 (v105) · 2026-10-13 · Fin del pantallazo de la vidriera Tech al abrir una tienda nube
+
+- **Sin flash de Tech en `?tienda=`**: antes, cualquier tienda en la nube arrancaba pintando la vidriera Tech (el `<head>` la fijaba por defecto y el `<body>` venía hardcodeado con `data-front="tech"`) hasta que llegaba el documento público. Ahora, con `?tienda=` **jamás se asume Tech**.
+- **Primera visita**: la página espera en un estado neutro ("boot") con un spinner sobre fondo crema y nada de catálogo, hasta saber la vidriera real de la tienda.
+- **Visitas siguientes**: se recuerda por slug la última vidriera resuelta (`mt_front:<slug>` en localStorage, solo frente) y la tienda del dueño se pinta desde el **primer frame**, sin parpadeo.
+- Si la nube falla en esa primera visita, se cae a Tech para conservar el estado de error con "Sin conexión con la nube" (igual que hasta ahora).
+- Tests: 2 regresiones nuevas en `storefront-critical` con RPC demorada que verifican el estado pre-resolve (boot / vidriera recordada) y el post-resolve.
+
 ## v0.104.0 (v104) · 2026-10-13 · Productos de Actitud a 4 y popups de detalle y contacto restaurados
 
 - **4 productos a lo ancho en desktop**: la grilla de Actitud pasó de 3 a 4 columnas; la foto, el nombre y el precio de cada tarjeta se redimensionaron en proporción para que sigan viéndose bien (tablet y móvil quedan como estaban).

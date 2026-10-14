@@ -145,3 +145,66 @@ test('el acceso local abre el panel y permite volver al modo de ediciÃ³n', async
   await expect(page.locator('body')).toHaveClass(/mt-edit-mode/);
   await expectNoPageErrors(page, errors);
 });
+
+/** v105: nube con demora — ?tienda= decide la vidriera ANTES del primer frame. */
+const flashCloudStore = {
+  ok: true,
+  biz: 'Tienda de prueba',
+  status: 'activa',
+  paid_until: '2030-12-31',
+  cfg: { settings: { storefront: 'actitud' }, content: {}, legal: {} },
+  products: [],
+  mp_ok: false
+};
+
+async function delayPublicStore(page, ms, body) {
+  await page.route('**/rest/v1/rpc/**', async (route) => {
+    const name = new URL(route.request().url()).pathname.split('/').pop();
+    await new Promise((resolve) => setTimeout(resolve, ms));
+    if (name === 'api_public') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true }) });
+  });
+}
+
+test('Sin pantallazo: ?tienda= sin memoria espera neutral y nunca pinta Tech', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.name));
+  await delayPublicStore(page, 2500, flashCloudStore);
+  await page.goto('/index.html?tienda=cloud-flash');
+
+  // Mientras la nube no responde: estado neutro con spinner, sin NINGUNA vidriera.
+  expect(await page.evaluate(() => document.documentElement.dataset.front)).toBe('boot');
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontTech')).display)).toBe('none');
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('siteHeader')).display)).toBe('none');
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement, '::after').animationName)).toBe('mt-boot-spin');
+
+  // Resuelve en la vidriera real de la tienda y queda recordada para la próxima visita.
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('mt_front:cloud-flash')), { timeout: 15_000 }).toBe('actitud');
+  await expect(page.locator('html')).toHaveAttribute('data-front', 'actitud');
+  await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontTech')).display)).toBe('none');
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontActitud')).display)).toBe('block');
+  await expectNoPageErrors(page, errors);
+});
+
+test('Sin pantallazo: ?tienda= pinta la vidriera recordada desde el primer frame', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.name));
+  await page.addInitScript(() => {
+    try { localStorage.setItem('mt_front:cloud-vidriera', 'actitud'); } catch (_) {}
+  });
+  await delayPublicStore(page, 2500, flashCloudStore);
+  await page.goto('/index.html?tienda=cloud-vidriera');
+
+  // Primer frame ya con la marca del dueño: Tech oculta, Actitud visible, sin spinner.
+  expect(await page.evaluate(() => document.documentElement.dataset.front)).toBe('actitud');
+  expect(await page.evaluate(() => document.body.dataset.front)).toBe('actitud');
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontActitud')).display)).toBe('block');
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontTech')).display)).toBe('none');
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement, '::after').animationName)).toBe('none');
+
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('mt_front:cloud-vidriera')), { timeout: 15_000 }).toBe('actitud');
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontTech')).display)).toBe('none');
+  await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
+  await expectNoPageErrors(page, errors);
+});

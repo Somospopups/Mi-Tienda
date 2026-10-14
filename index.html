@@ -14,6 +14,20 @@
         const requestedFront = (params.get('front') || '').trim().toLowerCase();
         const cloudSlug = (params.get('tienda') || '').trim().toLowerCase();
         const validFronts = ['luma', 'ofertas', 'gamer', 'libre', 'tech', 'actitud'];
+        // Tienda cloud (?tienda=): JAMÁS se asume Tech. Se pinta la última vidriera
+        // resuelta de ESTA tienda; sin memoria (primera visita) queda el estado
+        // neutral "boot" hasta que llegue el documento público. (v105)
+        if (cloudSlug) {
+          let remembered = null;
+          try { remembered = localStorage.getItem('mt_front:' + cloudSlug); } catch (_) {}
+          document.documentElement.dataset.front = validFronts.includes(remembered) ? remembered : 'boot';
+          if (document.documentElement.dataset.front === 'boot') {
+            setTimeout(function () {
+              if (document.documentElement.dataset.front === 'boot') document.documentElement.dataset.front = 'tech';
+            }, 8000);
+          }
+          return;
+        }
         // Fallback visual sincronizado con el storefront inicial del body.
         document.documentElement.dataset.front = 'tech';
         if (validFronts.includes(requestedFront)) {
@@ -47,6 +61,32 @@
     html:not([data-front="tech"]) #frontTech,
     html:not([data-front="tech"]) #frontTechTail {
       display: none !important;
+    }
+    /* v105 · Estado neutral "boot": ?tienda= sin vidriera conocida no pinta
+       NINGUNA tienda (mucho menos Tech) hasta tener la real. */
+    html[data-front="boot"] body > * {
+      display: none !important;
+    }
+    html[data-front="boot"] {
+      background: #f6f1e8;
+      min-height: 100vh;
+    }
+    html[data-front="boot"]::after {
+      content: "";
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 26px;
+      height: 26px;
+      margin: -13px 0 0 -13px;
+      border: 2px solid rgba(45, 42, 38, .18);
+      border-top-color: #d32929;
+      border-radius: 50%;
+      animation: mt-boot-spin .8s linear infinite;
+      z-index: 2147483647;
+    }
+    @keyframes mt-boot-spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 
@@ -4250,6 +4290,15 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   </script>
 </head>
 <body data-front="tech">
+  <script>
+    /* v105: copia al body la vidriera ya resuelta en <head> ANTES del primer frame.
+       En estado "boot" (?tienda= sin memoria) el body conserva 'tech' pero el CSS
+       neutro del <head> oculta todos los hijos hasta tener la vidriera real. */
+    try {
+      var bootFront = document.documentElement.dataset.front;
+      if (bootFront && bootFront !== 'boot') document.body.dataset.front = bootFront;
+    } catch (_) {}
+  </script>
   <svg class="svg-sprite" aria-hidden="true">
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 8.5h13l-1 11h-11l-1-11Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
@@ -4819,7 +4868,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span id="appVersion">v104</span>
+          <span id="appVersion">v105</span>
         </div>
       </div>
     </footer>
@@ -5020,7 +5069,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
       <header class="super-admin-header">
         <div>
-          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v104</span></span>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v105</span></span>
           <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
           <p>Administrá tiendas mediante la RPC segura. Las claves nunca se recuperan ni se muestran; las nuevas se entregan una sola vez.</p>
         </div>
@@ -5113,7 +5162,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   <div class="modal-backdrop" id="superAdminLoginBackdrop" style="z-index:100000;" hidden>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="superAdminLoginTitle" style="width:min(460px,calc(100% - 28px));padding:28px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf855;border-radius:16px">
       <button class="round-close" id="closeSuperAdminLogin" type="button" aria-label="Cerrar acceso POPUPS" style="float:right">×</button>
-      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v104</span></span>
+      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v105</span></span>
       <h2 id="superAdminLoginTitle" style="margin:10px 0">Administración POPUPS</h2>
       <p style="color:#cbd5e1">Este acceso se valida en Supabase; no uses la clave del dueño de una tienda.</p>
       <form id="superAdminLoginForm">
@@ -6847,6 +6896,9 @@ var __Html5QrcodeLibrary__;(()=>{var t={449:function(t,e,r){!function(t){"use st
       renderProducts();
       renderCart();
     } catch (error) {
+      // v105: si el arranque quedó neutral (boot) y la carga falló, caer a Tech
+      // para conservar el estado de error con #emptyState visible.
+      if (document.documentElement.dataset.front === 'boot') document.documentElement.dataset.front = 'tech';
       if (!silent) {
         $('productGrid').replaceChildren();
         const cloudError = Boolean(mtSlug());
@@ -7263,6 +7315,13 @@ frontRoot.refreshActitudCatalog = function () {
 
 function applyStorefront() {
     const front = currentFront();
+    // v105: recuerda la vidriera REAL de esta tienda cloud para pintarla desde el
+    // primer frame en la próxima visita (evita el pantallazo de Tech).
+    try {
+      const cloudSlug = (new URLSearchParams(location.search).get('tienda') || '').trim().toLowerCase();
+      const configured = state.settings && state.settings.storefront;
+      if (cloudSlug && configured && MT_FRONTS[configured]) localStorage.setItem('mt_front:' + cloudSlug, front);
+    } catch (_) {}
     if (front === 'actitud') setTimeout(initActitudFront, 50);
     document.documentElement.dataset.front = front;
     document.body.dataset.front = front;
