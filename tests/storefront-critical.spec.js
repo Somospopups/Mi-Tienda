@@ -13,7 +13,7 @@ async function revealHeader(page) {
   await expect(page.locator('body')).not.toHaveClass(/mt-head-hidden/);
 }
 
-/** v104: cambia la demo a la vidriera Actitud y espera el catálogo del dueño. */
+/** v104/v107: cambia la demo a la vidriera Actitud y espera la home con destacados. */
 async function useActitudFront(page) {
   await page.evaluate(() => {
     const store = JSON.parse(localStorage.getItem('luma_offline_store_v1') || 'null');
@@ -23,7 +23,7 @@ async function useActitudFront(page) {
   });
   await page.reload();
   await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
-  await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(6, { timeout: 15_000 });
+  await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(4, { timeout: 15_000 });
 }
 
 /** v104: el popup "¿Cómo te llamás?" aparece en el primer alta y se resuelve. */
@@ -146,7 +146,7 @@ test('el acceso local abre el panel y permite volver al modo de edición', async
   await expectNoPageErrors(page, errors);
 });
 
-/** v105: nube con demora � ?tienda= decide la vidriera ANTES del primer frame. */
+/** v105: nube con demora � ?tienda= decide la vidriera ANTES del primer frame. */
 const flashCloudStore = {
   ok: true,
   biz: 'Tienda de prueba',
@@ -178,7 +178,7 @@ test('Sin pantallazo: ?tienda= sin memoria espera neutral y nunca pinta Tech', a
   expect(await page.evaluate(() => getComputedStyle(document.getElementById('siteHeader')).display)).toBe('none');
   expect(await page.evaluate(() => getComputedStyle(document.documentElement, '::after').animationName)).toBe('mt-boot-spin');
 
-  // Resuelve en la vidriera real de la tienda y queda recordada para la pr�xima visita.
+  // Resuelve en la vidriera real de la tienda y queda recordada para la pr�xima visita.
   await expect.poll(() => page.evaluate(() => localStorage.getItem('mt_front:cloud-flash')), { timeout: 15_000 }).toBe('actitud');
   await expect(page.locator('html')).toHaveAttribute('data-front', 'actitud');
   await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
@@ -196,7 +196,7 @@ test('Sin pantallazo: ?tienda= pinta la vidriera recordada desde el primer frame
   await delayPublicStore(page, 2500, flashCloudStore);
   await page.goto('/index.html?tienda=cloud-vidriera');
 
-  // Primer frame ya con la marca del due�o: Tech oculta, Actitud visible, sin spinner.
+  // Primer frame ya con la marca del due�o: Tech oculta, Actitud visible, sin spinner.
   expect(await page.evaluate(() => document.documentElement.dataset.front)).toBe('actitud');
   expect(await page.evaluate(() => document.body.dataset.front)).toBe('actitud');
   expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontActitud')).display)).toBe('block');
@@ -206,5 +206,128 @@ test('Sin pantallazo: ?tienda= pinta la vidriera recordada desde el primer frame
   await expect.poll(() => page.evaluate(() => localStorage.getItem('mt_front:cloud-vidriera')), { timeout: 15_000 }).toBe('actitud');
   expect(await page.evaluate(() => getComputedStyle(document.getElementById('frontTech')).display)).toBe('none');
   await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
+  await expectNoPageErrors(page, errors);
+});
+
+/** v107: home con 4 destacados + pantalla de catálogo estilo Mercado Libre. */
+
+test('La home de Actitud muestra 4 destacados y "Ver más" abre el catálogo con todos', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.name));
+  await page.goto('/index.html');
+  await useActitudFront(page);
+
+  await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(4);
+  await expect(page.locator('#actSeeAll')).toBeVisible();
+  await expect(page.locator('#actSeeAllSub')).toHaveText('6 productos');
+
+  await page.locator('#actSeeAll').click();
+  await expect(page.locator('#actCatalog')).toHaveClass(/open/);
+  await expect(page.locator('#actCatalogCount')).toHaveText('6 resultados');
+  await expect(page.locator('#actCatalogRange')).toHaveText('Mostrando 1–6 de 6');
+  await expect(page.locator('#actCatalogGrid .product-card')).toHaveCount(6);
+  await page.locator('#actCatalogClose').click();
+  await expect(page.locator('#actCatalog')).not.toHaveClass(/open/);
+
+  // La lupa del header abre el mismo catálogo (reemplaza al buscador viejo de la home).
+  await revealHeader(page);
+  await page.locator('#searchToggle').click();
+  await expect(page.locator('#actCatalog')).toHaveClass(/open/);
+  await expect(page.locator('#actCatalogCount')).toHaveText('6 resultados');
+  await expectNoPageErrors(page, errors);
+});
+
+test('El catálogo busca, ordena y filtra con cantidades al estilo Mercado Libre', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.name));
+  await page.goto('/index.html');
+  await useActitudFront(page);
+  await page.locator('#actSeeAll').click();
+
+  // Chips de categoría dinámicos con el conteo entre paréntesis.
+  await expect(page.locator('#actCatalogChips [data-cat="all"]')).toContainText('(6)');
+  const categoryChip = page.locator('#actCatalogChips [data-cat]').nth(1);
+  const chipLabel = (await categoryChip.locator('span').textContent()) || '';
+  const chipCount = Number((chipLabel.match(/\d+/) || ['0'])[0]);
+  expect(chipCount).toBeGreaterThan(0);
+  await categoryChip.click();
+  await expect(page.locator('#actCatalogCount')).toHaveText(`${chipCount} resultado${chipCount === 1 ? '' : 's'}`);
+  await expect(page.locator('#actCatalogGrid .product-card')).toHaveCount(chipCount);
+  await page.locator('#actCatalogChips [data-cat="all"]').click();
+  await expect(page.locator('#actCatalogGrid .product-card')).toHaveCount(6);
+
+  // Orden por menor precio: los precios quedan ascendentes.
+  await page.locator('#actCatalogSort').selectOption('price-asc');
+  const prices = await page.locator('#actCatalogGrid .product-price span').allTextContents();
+  const numbers = prices.map((text) => Number(text.replace(/[^\d]/g, '')));
+  expect(numbers).toHaveLength(6);
+  expect([...numbers].sort((a, b) => a - b)).toEqual(numbers);
+
+  // Búsqueda: filtra, actualiza el contador y la vacía muestra el estado sin resultados.
+  const firstName = ((await page.locator('#actCatalogGrid .product-card h3').first().textContent()) || '').trim();
+  expect(firstName.length).toBeGreaterThan(3);
+  await page.locator('#actCatalogSearch').fill(firstName.slice(0, 4));
+  await expect(page.locator('#actCatalogGrid .product-card')).toHaveCount(1);
+  await expect(page.locator('#actCatalogCount')).toHaveText('1 resultado');
+  await expect(page.locator('#actCatalogRange')).toHaveText('Mostrando 1–1 de 1');
+
+  await page.locator('#actCatalogSearch').fill('zzzzz-no-existe');
+  await expect(page.locator('#actCatalogEmpty')).toBeVisible();
+  await expect(page.locator('#actCatalogCount')).toHaveText('0 resultados');
+  await page.locator('#actCatalogReset').click();
+  await expect(page.locator('#actCatalogEmpty')).toBeHidden();
+  await expect(page.locator('#actCatalogGrid .product-card')).toHaveCount(6);
+  await expectNoPageErrors(page, errors);
+});
+
+test('El catálogo pagina de a 20 con "Ver más" y la home nunca crece', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.name));
+  await page.goto('/index.html');
+  await page.evaluate(() => {
+    const store = JSON.parse(localStorage.getItem('luma_offline_store_v1') || 'null');
+    if (!store || !store.settings) throw new Error('No se inicializó la tienda demo.');
+    const base = store.products[0];
+    for (let i = 0; i < 19; i++) {
+      store.products.push({ ...base, id: `extra-${i}`, name: `Gadget Extra ${String(i + 1).padStart(2, '0')}`, featured: false });
+    }
+    store.settings.storefront = 'actitud';
+    localStorage.setItem('luma_offline_store_v1', JSON.stringify(store));
+  });
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
+  await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(4, { timeout: 15_000 });
+
+  await page.locator('#actSeeAll').click();
+  await expect(page.locator('#actCatalogCount')).toHaveText('25 resultados');
+  await expect(page.locator('#actCatalogGrid .product-card')).toHaveCount(20);
+  await expect(page.locator('#actCatalogRange')).toHaveText('Mostrando 1–20 de 25');
+  await expect(page.locator('#actCatalogMore')).toBeVisible();
+
+  await page.locator('#actCatalogMore').click();
+  await expect(page.locator('#actCatalogGrid .product-card')).toHaveCount(25);
+  await expect(page.locator('#actCatalogRange')).toHaveText('Mostrando 1–25 de 25');
+  await expect(page.locator('#actCatalogMore')).toBeHidden();
+  await expectNoPageErrors(page, errors);
+});
+
+test('El switch "Destacado" del Panel define el orden de la home', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.name));
+  await page.goto('/index.html');
+  const names = await page.evaluate(() => {
+    const store = JSON.parse(localStorage.getItem('luma_offline_store_v1') || 'null');
+    if (!store || !store.settings) throw new Error('No se inicializó la tienda demo.');
+    store.products.forEach((product, index) => { product.featured = index >= 2 && index < 4; });
+    store.settings.storefront = 'actitud';
+    localStorage.setItem('luma_offline_store_v1', JSON.stringify(store));
+    return store.products.map((product) => product.name);
+  });
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
+  await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(4, { timeout: 15_000 });
+
+  const shown = await page.locator('#actitudOwnerProducts .product-card h3').allTextContents();
+  expect(shown.map((text) => text.trim())).toEqual([names[2], names[3], names[0], names[1]]);
   await expectNoPageErrors(page, errors);
 });

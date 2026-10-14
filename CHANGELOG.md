@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.107.0 (v107) · 2026-10-13 · Home con destacados + pantalla de catálogo estilo Mercado Libre
+
+- **La home de Actitud muestra solo 4 productos**: los marcados "Destacado" desde el Panel primero (hasta 4; si hay menos, se rellena con el resto del orden del Panel). Nunca más scroll infinito en la portada.
+- **Franja "VER MÁS"**: debajo de los 4 aparece una tarjeta ancho completo con el conteo dinámico de productos (p. ej. "6 productos"); solo se muestra cuando hay más de 4.
+- **Pantalla de catálogo estilo Mercado Libre** (se abre desde "VER MÁS" o desde la lupa del header): buscador sticky, chips de categorías dinámicos con conteo entre paréntesis `CELULARES (12)`, orden (relevantes / menor precio / mayor precio / nombre), contador de resultados ("1.048 resultados"), rango "Mostrando 1–20 de 1.048" y botón "Ver más productos" que carga de a 20 **adentro** de la pantalla. Grilla de 2 columnas en móvil y 4 en desktop.
+- Los filtros y la búsqueda se mudaron de la home al catálogo (el buscador de la home quedaba raro con 4 productos); se eliminó la fila de chips hardcodeada con el "09" fijo.
+- El carrito y el modal de detalle siguen funcionando desde el catálogo; al cerrar el carrito se mantiene el bloqueo de scroll si el catálogo sigue abierto.
+
 ## v0.106.0 (v106) · 2026-10-13 · Menú de Actitud más corto
 
 - Se quitaron del **menú** de la vidriera Actitud las opciones **POR QUÉ EZE-PECE** (menú desktop y menú móvil) y **BITÁCORA** (menú móvil). Quedan: INICIO · TIENDA · OPINIONES · CONTACTO · PANEL.
