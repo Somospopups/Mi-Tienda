@@ -13,6 +13,28 @@ async function revealHeader(page) {
   await expect(page.locator('body')).not.toHaveClass(/mt-head-hidden/);
 }
 
+/** v104: cambia la demo a la vidriera Actitud y espera el catálogo del dueño. */
+async function useActitudFront(page) {
+  await page.evaluate(() => {
+    const store = JSON.parse(localStorage.getItem('luma_offline_store_v1') || 'null');
+    if (!store || !store.settings) throw new Error('No se inicializó la tienda demo.');
+    store.settings.storefront = 'actitud';
+    localStorage.setItem('luma_offline_store_v1', JSON.stringify(store));
+  });
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
+  await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(6, { timeout: 15_000 });
+}
+
+/** v104: el popup "¿Cómo te llamás?" aparece en el primer alta y se resuelve. */
+async function submitLeadCapture(page) {
+  await expect(page.locator('#leadCaptureBackdrop')).toBeVisible();
+  await page.locator('#leadNameInput').fill('Persona de prueba');
+  await page.locator('#leadPhoneInput').fill('2065550100');
+  await page.locator('#leadCaptureForm button[type="submit"]').click();
+  await expect(page.locator('#leadCaptureBackdrop')).toBeHidden();
+}
+
 test('la vidriera TECH coincide antes y después del arranque y muestra el catálogo', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.name));
@@ -67,24 +89,43 @@ test('Actitud es independiente de TECH y su carrito usa los productos cargados',
   await page.goto('/index.html');
   await expect(page.locator('#productGrid .product-card')).toHaveCount(6, { timeout: 15_000 });
 
-  await page.evaluate(() => {
-    const store = JSON.parse(localStorage.getItem('luma_offline_store_v1') || 'null');
-    if (!store || !store.settings) throw new Error('No se inicializó la tienda demo.');
-    store.settings.storefront = 'actitud';
-    localStorage.setItem('luma_offline_store_v1', JSON.stringify(store));
-  });
-  await page.reload();
+  await useActitudFront(page);
 
-  await expect(page.locator('body')).toHaveAttribute('data-front', 'actitud');
   await expect(page.locator('html')).toHaveAttribute('data-front', 'actitud');
   await expect(page.locator('#frontActitud')).toBeVisible();
   expect(await page.locator('#frontTechTail').evaluate((node) => node.contains(document.getElementById('frontActitud')))).toBe(false);
-  await expect(page.locator('#actitudOwnerProducts .product-card')).toHaveCount(6, { timeout: 15_000 });
   await page.locator('#actitudOwnerProducts [data-add]').first().click();
+  await submitLeadCapture(page);
   await expect(page.locator('#actitudCartCount')).toHaveText('1');
   await revealHeader(page);
   await page.locator('#cartToggle').click();
   await expect(page.locator('#actitudCartDrawer')).toHaveClass(/open/);
+  await expectNoPageErrors(page, errors);
+});
+
+test('En Actitud hay 4 productos a lo ancho y al presionar uno se abre su detalle', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.name));
+  await page.goto('/index.html');
+  await expect(page.locator('#productGrid .product-card')).toHaveCount(6, { timeout: 15_000 });
+  await useActitudFront(page);
+
+  const columns = await page.locator('#actitudProductGrid').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+  expect(columns).toBe(4);
+
+  const firstCard = page.locator('#actitudOwnerProducts .product-card').first();
+  const productName = (await firstCard.locator('h3').textContent())?.trim();
+  expect(productName).toBeTruthy();
+  await firstCard.locator('h3').click();
+
+  await expect(page.locator('#productModalBackdrop')).toBeVisible();
+  await expect(page.locator('#productModal h2')).toContainText(productName || '');
+
+  await page.locator('#productModal [data-modal-add]').click();
+  await submitLeadCapture(page);
+  await expect(page.locator('#actitudCartCount')).toHaveText('1');
+  await expect(page.locator('#actitudCartDrawer')).toHaveClass(/open/, { timeout: 5_000 });
+  await expect(page.locator('#cartItems')).toContainText(productName || '');
   await expectNoPageErrors(page, errors);
 });
 

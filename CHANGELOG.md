@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.104.0 (v104) · 2026-10-13 · Productos de Actitud a 4 y popups de detalle y contacto restaurados
+
+- **4 productos a lo ancho en desktop**: la grilla de Actitud pasó de 3 a 4 columnas; la foto, el nombre y el precio de cada tarjeta se redimensionaron en proporción para que sigan viéndose bien (tablet y móvil quedan como estaban).
+- **Clic en el producto → popup de detalle**: al presionar una tarjeta (o con Enter) se abre el modal con foto, descripción, precio, stock y botón "Agregar al carrito". Antes ningún escuchador atendía el clic en la tarjeta y no pasaba nada.
+- **Restaurado el popup "¿Cómo te llamás?"**: el primer alta en Actitud (desde el "+", el "AGREGAR" de la tarjeta o el modal de detalle) vuelve a pedir nombre y teléfono, y el alta se completa en el carrito de Actitud (antes el `addToCart` local salteaba la captura y el modal agregaba al carrito equivocado).
+- Fix: el modal de detalle muestra la foto cuando viene como `imageUrl` (nube).
+
 ## v0.103.0 (v103) · 2026-10-13 · Manifiesto de Actitud sin rectángulos ni desplazamiento
 
 - El título **MEJOR TECNOLOGÍA. MENOS COMPLICACIÓN.** ya no tiene los rectángulos grises: una regla genérica de LUMA pintaba `--line` sobre cada `<span>` del manifiesto (mismo patrón del bug del eyebrow corregido en v102).

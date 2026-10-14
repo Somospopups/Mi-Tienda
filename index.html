@@ -3772,8 +3772,8 @@ body[data-front="actitud"] .filter-chip{background:transparent;border:1px solid 
 body[data-front="actitud"] .filter-chip span{font:10px Arial,sans-serif;opacity:.65;margin-left:4px}
 body[data-front="actitud"] .filter-chip:hover,body[data-front="actitud"] .filter-chip.selected{background:var(--dark);color:var(--cream);border-color:var(--dark)}
 body[data-front="actitud"] .product-count{margin-left:auto;font:14px var(--hand);white-space:nowrap}
-body[data-front="actitud"] .product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
-body[data-front="actitud"] .product-card{--card:#e3a898;min-width:0;background:var(--card);border-radius:4px;overflow:hidden;position:relative;padding:11px;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .3s;display:flex;flex-direction:column}
+body[data-front="actitud"] .product-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+body[data-front="actitud"] .product-card{--card:#e3a898;min-width:0;background:var(--card);border-radius:4px;overflow:hidden;position:relative;padding:11px;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .3s;display:flex;flex-direction:column;cursor:pointer}
 body[data-front="actitud"] .product-card:hover{transform:translateY(-7px);box-shadow:0 13px 25px rgba(45,42,38,.12)}
 body[data-front="actitud"] .card-pink{--card:#e3a898}
 body[data-front="actitud"] .card-yellow{--card:#efc415}
@@ -3782,7 +3782,7 @@ body[data-front="actitud"] .card-orange{--card:#f45016}
 body[data-front="actitud"] .card-blue{--card:#758696}
 body[data-front="actitud"] .card-red{--card:#d32929}
 body[data-front="actitud"] .product-card[hidden]{display:none}
-body[data-front="actitud"] .card-visual{height:clamp(245px,27vw,390px);border-radius:3px;position:relative;display:grid;place-items:center;isolation:isolate;overflow:hidden;background:rgba(234,230,227,.25)}
+body[data-front="actitud"] .card-visual{height:clamp(230px,21vw,360px);border-radius:3px;position:relative;display:grid;place-items:center;isolation:isolate;overflow:hidden;background:rgba(234,230,227,.25)}
 body[data-front="actitud"] .card-visual:after{content:"";position:absolute;width:66%;height:66%;border-radius:50%;background:rgba(234,230,227,.43);z-index:-1;transition:transform .4s}
 body[data-front="actitud"] .product-card:hover .card-visual:after{transform:scale(1.12)}
 body[data-front="actitud"] .card-visual img{width:91%;height:91%;object-fit:contain;position:relative;z-index:1;transition:transform .5s cubic-bezier(.18,.8,.23,1);filter:drop-shadow(0 14px 10px rgba(45,42,38,.15));mix-blend-mode:multiply}
@@ -3795,8 +3795,8 @@ body[data-front="actitud"] .quick-add svg{width:19px;height:19px;fill:none;strok
 body[data-front="actitud"] .quick-add:hover{background:var(--lemon);transform:rotate(90deg)}
 body[data-front="actitud"] .product-info{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:16px 5px 12px;min-height:105px}
 body[data-front="actitud"] .product-category{font:13px/1 var(--hand);letter-spacing:.015em;opacity:.8}
-body[data-front="actitud"] .product-info h3{font:clamp(24px,2.25vw,35px)/.9 var(--display);margin:8px 0 0;letter-spacing:-.015em}
-body[data-front="actitud"] .product-price{display:flex;align-items:flex-start;gap:3px;white-space:nowrap;font:clamp(26px,2.3vw,36px)/.8 var(--display)}
+body[data-front="actitud"] .product-info h3{font:clamp(19px,1.6vw,26px)/.95 var(--display);margin:8px 0 0;letter-spacing:-.015em}
+body[data-front="actitud"] .product-price{display:flex;align-items:flex-start;gap:3px;white-space:nowrap;font:clamp(20px,1.7vw,27px)/.8 var(--display)}
 body[data-front="actitud"] .product-price small{font:11px/1 Arial,sans-serif;margin-top:-3px}
 body[data-front="actitud"] .product-foot{border-top:1px solid rgba(45,42,38,.38);display:flex;align-items:center;justify-content:space-between;padding:10px 4px 1px;font:12px var(--hand)}
 body[data-front="actitud"] .product-foot>span{letter-spacing:.05em;color:var(--brown)}
@@ -4005,7 +4005,7 @@ body[data-front="actitud"] .toast.show{opacity:1;transform:translate(-50%,0)}
 body[data-front="actitud"] .hero{min-height:850px}
 body[data-front="actitud"] .hero h1{font-size:160px}
 body[data-front="actitud"] .product-grid{gap:18px}
-body[data-front="actitud"] .product-info h3{font-size:34px}
+body[data-front="actitud"] .product-info h3{font-size:26px}
 }
 @media(max-width:1100px){
 body[data-front="actitud"] .desktop-nav{gap:12px}
@@ -4819,7 +4819,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
           <button data-legal-page="privacyPolicy">Privacidad</button>
           <button data-legal-page="termsConditions">Términos</button>
           <span>Argentina · ARS</span>
-          <span id="appVersion">v103</span>
+          <span id="appVersion">v104</span>
         </div>
       </div>
     </footer>
@@ -5020,7 +5020,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
     <section class="modal-card super-admin-card" role="dialog" aria-modal="true" aria-labelledby="superAdminTitle">
       <header class="super-admin-header">
         <div>
-          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v103</span></span>
+          <span class="super-admin-tag">POPUPS · CONTROL DE DESARROLLADOR · <span id="superAdminVersion">v104</span></span>
           <h2 id="superAdminTitle">Panel Maestro de Clientes y Tiendas</h2>
           <p>Administrá tiendas mediante la RPC segura. Las claves nunca se recuperan ni se muestran; las nuevas se entregan una sola vez.</p>
         </div>
@@ -5113,7 +5113,7 @@ body[data-front="actitud"] *,body[data-front="actitud"] *::before,body[data-fron
   <div class="modal-backdrop" id="superAdminLoginBackdrop" style="z-index:100000;" hidden>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="superAdminLoginTitle" style="width:min(460px,calc(100% - 28px));padding:28px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf855;border-radius:16px">
       <button class="round-close" id="closeSuperAdminLogin" type="button" aria-label="Cerrar acceso POPUPS" style="float:right">×</button>
-      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v103</span></span>
+      <span class="super-admin-tag">POPUPS · ACCESO CENTRAL · <span id="superAdminLoginVersion">v104</span></span>
       <h2 id="superAdminLoginTitle" style="margin:10px 0">Administración POPUPS</h2>
       <p style="color:#cbd5e1">Este acceso se valida en Supabase; no uses la clave del dueño de una tienda.</p>
       <form id="superAdminLoginForm">
@@ -7029,11 +7029,13 @@ function renderCart() {
   }
   persistCart();
 }
-function addToCart(id) {
+function addToCart(id, qty = 1) {
   if (!actitudProductById(id)) return;
-  cart[id] = Math.min(999, (cart[id] || 0) + 1);
-  renderCart();
-  showToast("AÑADIDO AL CARRITO ✳");
+  promptLeadIfNeeded(id, qty, () => {
+    cart[id] = Math.min(999, (cart[id] || 0) + Math.max(1, qty));
+    renderCart();
+    showToast("AÑADIDO AL CARRITO ✳");
+  });
 }
 
 function openCart() {
@@ -7115,7 +7117,7 @@ async function copyOrder() {
 // Catalog: add, filter and search.
 frontRoot.addEventListener("click", event => {
   const add = event.target.closest("[data-add]");
-  if (add) addToCart(add.dataset.add);
+  if (add) { addToCart(add.dataset.add); return; }
   const qtyButton = event.target.closest("[data-qty]");
   if (qtyButton) {
     const { id, qty: action } = qtyButton.dataset;
@@ -7130,6 +7132,8 @@ frontRoot.addEventListener("click", event => {
     $$(".filter-chip").forEach(button => button.classList.toggle("selected", button === filter));
     applyFilters();
   }
+  const card = event.target.closest(".product-card[data-product]");
+  if (card) { event.preventDefault(); openProduct(card.dataset.product); }
 });
 
 $("#cartToggle").addEventListener("click", openCart);
@@ -7176,8 +7180,14 @@ function moveReview(direction) {
 window.addEventListener("resize", () => moveReview(0));
 frontRoot.addEventListener("keydown", event => {
   if (event.key === "Escape") { closeCart(); closeCheckout(); closeSearch(); closeMobileMenu(); }
+  if ((event.key === "Enter" || event.key === " ") && event.target.matches?.(".product-card[data-product]")) {
+    event.preventDefault();
+    openProduct(event.target.dataset.product);
+  }
 });
 
+frontRoot.actAddToCart = addToCart;
+frontRoot.actOpenCart = openCart;
 frontRoot.refreshActitudCatalog = function () {
       const prods = (state.products || []).filter((product) => product.active !== false && !product.archived);
       const validIds = new Set(prods.map((product) => String(product.id)));
@@ -8130,7 +8140,7 @@ function applyStorefront() {
     const isLow = !isOut && product.stock <= product.lowStockAt;
     const badge = isOut ? 'Agotado' : product.badge;
     $('productModal').innerHTML = `
-      <div class="product-modal-media"><img src="${safeImage(product.image)}" alt="${esc(product.name)}">${badge ? `<span class="product-badge ${isOut ? 'sold' : isLow ? 'low' : ''}">${esc(badge)}</span>` : ''}</div>
+      <div class="product-modal-media"><img src="${safeImage(product.image || product.imageUrl)}" alt="${esc(product.name)}">${badge ? `<span class="product-badge ${isOut ? 'sold' : isLow ? 'low' : ''}">${esc(badge)}</span>` : ''}</div>
       <div class="product-modal-copy"><button class="round-close" data-close-product aria-label="Cerrar"><svg><use href="#i-close"></use></svg></button><span class="product-category">${esc(product.category)}</span><h2>${esc(product.name)}</h2><div class="modal-price"><span>${formatMoney(product.price)}</span>${product.compareAtPrice ? `<s>${formatMoney(product.compareAtPrice)}</s>` : ''}</div><p class="product-description">${esc(product.description)}</p><div class="modal-stock ${isOut ? 'out' : isLow ? 'low' : ''}"><i></i><span>${stockText(product)}</span></div><div class="product-modal-actions"><div class="modal-quantity"><button data-modal-qty="-1" aria-label="Quitar una unidad" ${isOut ? 'disabled' : ''}><svg><use href="#i-minus"></use></svg></button><b id="modalQty">${state.modalQuantity}</b><button data-modal-qty="1" aria-label="Agregar una unidad" ${isOut || state.modalQuantity >= product.stock ? 'disabled' : ''}><svg><use href="#i-plus"></use></svg></button></div><button class="button button-dark" data-modal-add ${isOut ? 'disabled' : ''}>${isOut ? 'Sin stock' : 'Agregar al carrito'} <svg><use href="#i-bag"></use></svg></button></div><div class="product-perks"><span><svg><use href="#i-truck"></use></svg> Envío a todo el país</span><span><svg><use href="#i-refresh"></use></svg> 30 días para cambios</span></div></div>`;
   }
 
@@ -9717,11 +9727,19 @@ function applyStorefront() {
   }
 
   let pendingCartAction = null;
-  function promptLeadIfNeeded(productId, qty) {
+  function runPendingCartAction() {
+    if (!pendingCartAction) return;
+    const action = pendingCartAction;
+    pendingCartAction = null;
+    if (typeof action.commit === 'function') action.commit();
+    else executeAddToCart(action.id, action.quantity);
+  }
+  function promptLeadIfNeeded(productId, qty, commit) {
     if (sessionStorage.getItem('luma_client_lead')) {
+      if (typeof commit === 'function') return commit();
       return executeAddToCart(productId, qty);
     }
-    pendingCartAction = { id: productId, quantity: qty };
+    pendingCartAction = { id: productId, quantity: qty, commit: typeof commit === 'function' ? commit : null };
     $('leadFormError').textContent = '';
     showBackdrop($('leadCaptureBackdrop'));
     setTimeout(() => $('leadNameInput')?.focus(), 150);
@@ -9729,10 +9747,7 @@ function applyStorefront() {
 
   $('closeLeadCapture')?.addEventListener('click', () => {
     hideBackdrop($('leadCaptureBackdrop'));
-    if (pendingCartAction) {
-      executeAddToCart(pendingCartAction.id, pendingCartAction.quantity);
-      pendingCartAction = null;
-    }
+    runPendingCartAction();
   });
 
   $('leadCaptureForm')?.addEventListener('submit', (e) => {
@@ -9753,10 +9768,7 @@ function applyStorefront() {
     saveLocalLeads(local);
     hideBackdrop($('leadCaptureBackdrop'));
     toast(`¡Hola, ${name.split(' ')[0]}!`, 'Guardamos tus datos para asesorarte.');
-    if (pendingCartAction) {
-      executeAddToCart(pendingCartAction.id, pendingCartAction.quantity);
-      pendingCartAction = null;
-    }
+    runPendingCartAction();
   });
 
   function renderAdminLeads() {
@@ -11258,6 +11270,14 @@ editor.querySelector('[data-bl-editor-del]').addEventListener('click', blEditorD
       return renderProductModal(product);
     }
     if (event.target.closest('[data-modal-add]') && product) {
+      if (document.body.dataset.front === 'actitud') {
+        const actRoot = document.getElementById('frontActitud');
+        const actQty = state.modalQuantity;
+        closeProduct();
+        actRoot?.actAddToCart?.(product.id, actQty);
+        setTimeout(() => actRoot?.actOpenCart?.(), 190);
+        return;
+      }
       addToCart(product.id, state.modalQuantity); closeProduct(); setTimeout(openCart, 190);
     }
   }
